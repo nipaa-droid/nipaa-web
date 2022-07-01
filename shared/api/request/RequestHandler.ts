@@ -1,18 +1,16 @@
-import assert from "assert";
 import { NextApiRequest, NextApiResponse } from "next";
+import HTTPMethod from "../../http/HttpMethod";
+import HttpStatusCode from "../../http/HttpStatusCodes";
+import { NonEmptyArray } from "../../utils/TypeUtils";
 import EnumUtils from "../enums/EnumUtils";
-import HTTPMethod from "../enums/HttpMethod";
-import HttpStatusCode from "../enums/HttpStatusCodes";
 import Responses from "../response/Responses";
 
 export default class RequestHandler {
   static endWhenInvalidHttpMethod(
     req: NextApiRequest,
     res: NextApiResponse,
-    ...validMethods: HTTPMethod[]
+    ...validMethods: NonEmptyArray<HTTPMethod>
   ): boolean {
-    assert(validMethods.length > 0);
-
     const end = () => {
       res
         .status(HttpStatusCode.BAD_REQUEST)
@@ -24,7 +22,7 @@ export default class RequestHandler {
       return true;
     }
 
-    const method = EnumUtils.getValueByKey<HTTPMethod>(HTTPMethod, req.method);
+    const method = EnumUtils.getValueByKey(HTTPMethod, req.method);
 
     if (!method) {
       end();
