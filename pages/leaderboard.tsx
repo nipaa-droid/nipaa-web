@@ -1,76 +1,67 @@
-
-import { GetStaticProps, InferGetStaticPropsType} from "next";
+import { GetStaticProps } from "next";
 import { assertDefined } from "../shared/assertions";
 import Database from "../shared/database/Database";
 import { OsuDroidStats } from "../shared/database/entities";
 
+type LeaderboardData = {
+  username: string;
+  pp: string;
+  acc: string;
+  id: number;
+};
+
 type LeaderboardProps = {
-  status: Partial<OsuDroidStats>[]
-}
+  data: LeaderboardData[];
+};
 
 export const getStaticProps: GetStaticProps<LeaderboardProps> = async () => {
   await Database.getConnection();
 
-  const status: Partial<OsuDroidStats>[] = await OsuDroidStats.find({
+  const stats = await OsuDroidStats.find({
     relations: ["user"],
-    select: [
-      "id",
-      "pp",
-      "rankedScore",
-      "totalScore",
-      "accuracy",
-    ],
+    select: ["id", "pp", "accuracy"],
     order: {
-      pp: "DESC"
-    }
+      pp: "DESC",
+    },
   });
 
-  status.forEach(s => {
-    const {user} = s;
+  const data: LeaderboardData[] = stats.map((s) => {
+    const { user } = s;
 
     assertDefined(user);
+    assertDefined(user.username);
 
-    delete user.deviceIDS;
-    delete user.sessionID;
-    delete user.playing;
-    delete user.privatePassword;
-    delete user.email;
-    delete user.privateMD5Email;
-    delete user.scores;
-    delete user.statisticsArray
-    delete s.playcount;
-    delete s.userId;
-    delete s.rank;
-  })
+    return {
+      username: user.username,
+      pp: s.pp.toFixed(2),
+      acc: s.accuracy.toFixed(2),
+      id: s.id,
+    };
+  });
 
   return {
     props: {
-      status: JSON.parse(JSON.stringify(status)),
+      data,
     },
-    revalidate: 60
-  }
-}
+    revalidate: 60,
+  };
+};
 
-const LeaderboardPage = ({status}: InferGetStaticPropsType<typeof getStaticProps>) => {
+const LeaderboardPage = ({ data }: LeaderboardProps) => {
   return (
     <div>
       <ol>
-        {
-
-          status.map(s => {
-            const tS = s as OsuDroidStats;
-            const {user} = tS;
-            assertDefined(user)
-            return (
-              <li key={s.id}>
-                {user.username} {" -> "} {tS.pp.toFixed(2)} {" -- acc: "} {tS.accuracy.toFixed(2)}
-              </li>
-            )
-          })
-        }
+        {data.map((s) => {
+          const { username, acc, pp, id } = s;
+          return (
+            <li key={id}>
+              {username} {" -> "} {pp} {" -- acc: "} {acc}
+            </li>
+          );
+        })}
       </ol>
     </div>
-  )
-}
+  );
+};
 
 export default LeaderboardPage;
