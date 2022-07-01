@@ -4,13 +4,13 @@ import { getNipaaFirebaseApp } from "../../../shared/database/NippaFirebase";
 import { getStorage } from "firebase-admin/storage";
 
 import { NextApiResponse } from "next";
-import HTTPMethod from "../../../shared/api/enums/HttpMethod";
+import HTTPMethod from "../../../shared/http/HttpMethod";
 import NextApiRequestTypedBody from "../../../shared/api/query/NextApiRequestTypedBody";
 import RequestHandler from "../../../shared/api/request/RequestHandler";
 import DroidRequestValidator from "../../../shared/type/DroidRequestValidator";
 import NumberUtils from "../../../shared/utils/NumberUtils";
 import NipaaStorage from "../../../shared/database/NipaaStorage";
-import HttpStatusCode from "../../../shared/api/enums/HttpStatusCodes";
+import HttpStatusCode from "../../../shared/http/HttpStatusCodes";
 
 export default async function handler(
   req: NextApiRequestTypedBody<unknown>,

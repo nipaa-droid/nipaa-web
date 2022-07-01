@@ -1,8 +1,8 @@
 import "reflect-metadata";
 
 import { NextApiResponse } from "next";
-import HTTPMethod from "../../shared/api/enums/HttpMethod";
-import HttpStatusCode from "../../shared/api/enums/HttpStatusCodes";
+import HTTPMethod from "../../shared/http/HttpMethod";
+import HttpStatusCode from "../../shared/http/HttpStatusCodes";
 import IHasAppSignature from "../../shared/api/query/IHasAppSignature";
 import IHasDeviceID from "../../shared/api/query/IHasDeviceID";
 import IHasEmail from "../../shared/api/query/IHasEmail";

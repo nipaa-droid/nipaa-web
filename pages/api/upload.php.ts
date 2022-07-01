@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { getNipaaFirebaseApp } from "../../shared/database/NippaFirebase";
 
 import { NextApiResponse } from "next";
-import HTTPMethod from "../../shared/api/enums/HttpMethod";
+import HTTPMethod from "../../shared/http/HttpMethod";
 import NextApiRequestTypedBody from "../../shared/api/query/NextApiRequestTypedBody";
 import RequestHandler from "../../shared/api/request/RequestHandler";
 import Database from "../../shared/database/Database";
@@ -10,7 +10,7 @@ import { IncomingForm } from "formidable";
 import PersistentFile from "formidable/PersistentFile";
 import { OsuDroidScore, OsuDroidUser } from "../../shared/database/entities";
 import { differenceInSeconds } from "date-fns";
-import HttpStatusCode from "../../shared/api/enums/HttpStatusCodes";
+import HttpStatusCode from "../../shared/http/HttpStatusCodes";
 import Responses from "../../shared/api/response/Responses";
 import EnvironmentConstants from "../../shared/constants/EnvironmentConstants";
 import IHasTempFile, {

@@ -2,8 +2,8 @@ import "reflect-metadata";
 import "core-js/actual/array/at";
 
 import { NextApiResponse } from "next";
-import HTTPMethod from "../../shared/api/enums/HttpMethod";
-import HttpStatusCode from "../../shared/api/enums/HttpStatusCodes";
+import HTTPMethod from "../../shared/http/HttpMethod";
+import HttpStatusCode from "../../shared/http/HttpStatusCodes";
 import IHasData from "../../shared/api/query/IHasData";
 import IHasHash from "../../shared/api/query/IHasHash";
 import IHasSSID from "../../shared/api/query/IHasSSID";

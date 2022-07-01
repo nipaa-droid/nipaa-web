@@ -11,7 +11,7 @@ import { getStorage } from "firebase-admin/storage";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { In } from "typeorm";
-import HttpStatusCode from "../../shared/api/enums/HttpStatusCodes";
+import HttpStatusCode from "../../shared/http/HttpStatusCodes";
 import { assertDefined } from "../../shared/assertions";
 import Database from "../../shared/database/Database";
 import {

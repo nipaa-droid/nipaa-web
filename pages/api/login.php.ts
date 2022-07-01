@@ -1,8 +1,8 @@
 import "reflect-metadata";
 
 import { NextApiResponse } from "next";
-import HTTPMethod from "../../shared/api/enums/HttpMethod";
-import HttpStatusCode from "../../shared/api/enums/HttpStatusCodes";
+import HTTPMethod from "../../shared/http/HttpMethod";
+import HttpStatusCode from "../../shared/http/HttpStatusCodes";
 import IHasPassword from "../../shared/api/query/IHasPassword";
 import IHasUsername from "../../shared/api/query/IHasUsername";
 import NextApiRequestTypedBody from "../../shared/api/query/NextApiRequestTypedBody";
