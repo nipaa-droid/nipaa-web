@@ -1,13 +1,13 @@
 export default class EnumUtils {
-  static getValueByKey<T, E = object>(
-    enumObject: E,
+  static getValueByKey<T>(
+    enumObject: T,
     key: string
-  ): T | undefined {
+  ): T[keyof T] | undefined {
     const keys = Object.keys(enumObject);
     const values = Object.values(enumObject);
+
     if (values.includes(key)) {
-      return keys[values.indexOf(key)] as unknown as T;
+      return keys[values.indexOf(key)] as unknown as T[keyof T] 
     }
-    return undefined;
   }
 }
