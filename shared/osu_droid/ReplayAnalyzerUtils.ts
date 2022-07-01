@@ -1,12 +1,13 @@
 import { Beatmap, Mod, ModRelax, Slider, SliderTick } from "@rian8337/osu-base";
 import { hitResult, ReplayAnalyzer } from "@rian8337/osu-droid-replay-analyzer";
-import assert from "assert";
-import { assertDefined } from "../assertions";
 import NipaaModUtil from "../osu/NipaaModUtils";
+import { NonNullableKeys } from "../utils/TypeUtils";
 
-export default class ReplayAnalyzerUtils {
+export class ReplayAnalyzerUtils {
   static estimateScore(
-    analyzer: ReplayAnalyzer,
+    analyzer: NonNullableKeys<ReplayAnalyzer, ["data"]> & {
+      map: Beatmap;
+    },
     customScoreMultiplier: (mod: Mod) => number | undefined = (m) => {
       switch (m.constructor.prototype) {
         case ModRelax:
@@ -14,10 +15,6 @@ export default class ReplayAnalyzerUtils {
       }
     }
   ) {
-    assertDefined(analyzer.data);
-    assert(analyzer.map instanceof Beatmap);
-
-    // Assuming you use `Beatmap`
     // Get raw OD, HP, and CS
     const difficultyMultiplier =
       1 +
@@ -26,16 +23,15 @@ export default class ReplayAnalyzerUtils {
       (analyzer.map.cs - 3) / 4;
 
     const mods = analyzer.data.convertedMods;
+
     let scoreMultiplier = 1;
 
-    if (NipaaModUtil.isModRanked(mods)) {
-      scoreMultiplier = mods.reduce((a, m) => {
-        const scoreMultiplier = customScoreMultiplier(m) ?? m.scoreMultiplier;
-        return a * scoreMultiplier;
-      }, 1);
-    } else {
-      scoreMultiplier = 0;
-    }
+    scoreMultiplier = NipaaModUtil.isModRanked(mods)
+      ? mods.reduce((a, m) => {
+          const scoreMultiplier = customScoreMultiplier(m) ?? m.scoreMultiplier;
+          return a * scoreMultiplier;
+        }, 1)
+      : 0;
 
     // Custom score multiplier from speed modifier
     let speedScoreMultiplier = 1;
@@ -70,8 +66,6 @@ export default class ReplayAnalyzerUtils {
     };
 
     analyzer.data.hitObjectData.forEach((hitData, i) => {
-      assert(analyzer.map instanceof Beatmap);
-
       const currentObject = analyzer.map.objects[i];
 
       if (currentObject instanceof Slider) {
