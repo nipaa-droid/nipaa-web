@@ -1,3 +1,3 @@
-export default interface IHasApiKey {
+export interface IHasApiKey {
   k: string;
 }

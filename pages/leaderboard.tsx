@@ -1,5 +1,5 @@
 import { GetStaticProps } from "next";
-import Database from "../shared/database/Database";
+import { Database } from "../shared/database/Database";
 import { OsuDroidStats, OsuDroidUser } from "../shared/database/entities";
 import { NonNullableKeys } from "../shared/utils/TypeUtils";
 

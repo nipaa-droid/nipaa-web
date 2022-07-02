@@ -9,14 +9,14 @@ import {
   Not,
 } from "typeorm";
 import { assertDefined } from "../../assertions";
-import IHasID from "../../interfaces/IHasID";
-import AccuracyUtils from "../../osu_droid/AccuracyUtils";
-import OsuDroidGameMode from "../../osu_droid/enum/OsuDroidGameMode";
-import SubmissionStatus from "../../osu_droid/enum/SubmissionStatus";
-import IEntityWithDefaultValues from "../interfaces/IEntityWithDefaultValues";
-import IEntityWithStatsMetrics from "../interfaces/IEntityWithStatsMetrics";
-import OsuDroidScore from "./OsuDroidScore";
-import OsuDroidUser from "./OsuDroidUser";
+import { IHasID } from "../../interfaces/IHasID";
+import { AccuracyUtils } from "../../osu_droid/AccuracyUtils";
+import { OsuDroidGameMode } from "../../osu_droid/enum/OsuDroidGameMode";
+import { SubmissionStatus } from "../../osu_droid/enum/SubmissionStatus";
+import { IEntityWithDefaultValues } from "../interfaces/IEntityWithDefaultValues";
+import { IEntityWithStatsMetrics } from "../interfaces/IEntityWithStatsMetrics";
+import { OsuDroidScore } from "./OsuDroidScore";
+import { OsuDroidUser } from "./OsuDroidUser";
 
 export enum Metrics {
   pp = "pp",
@@ -33,7 +33,7 @@ export type ObjectWithMetrics = {
 };
 
 @Entity()
-export default class OsuDroidStats
+export class OsuDroidStats
   extends BaseEntity
   implements
     IHasID,
@@ -123,14 +123,14 @@ export default class OsuDroidStats
   async calculateGlobalRank(): Promise<number> {
     assertDefined(this.user);
     console.log("Calculating global rank for: " + this.user.username);
-    return (this.rank = (
+    return (this.rank =
       (await OsuDroidStats.count({
         where: {
           userId: Not(this.user.id),
           mode: this.mode,
           [OsuDroidStats.METRIC]: MoreThanOrEqual(this[OsuDroidStats.METRIC]),
         },
-      })) + 1));
+      })) + 1);
   }
 
   async calculate() {

@@ -1,16 +1,16 @@
 import { NextApiResponse } from "next";
-import HttpStatusCode from "../api/enums/HttpStatusCodes";
-import IHasAppSignature from "../api/query/IHasAppSignature";
-import IHasDeviceID from "../api/query/IHasDeviceID";
-import IHasHash from "../api/query/IHasHash";
-import IHasSSID from "../api/query/IHasSSID";
-import IHasUserID from "../api/query/IHasUserID";
-import IHasUsername from "../api/query/IHasUsername";
-import Responses from "../api/response/Responses";
-import OsuDroidUser from "../database/entities/OsuDroidUser";
-import RequestValidator from "./RequestValidator";
+import { HttpStatusCode } from "../http/HttpStatusCodes";
+import { IHasAppSignature } from "../api/query/IHasAppSignature";
+import { IHasDeviceID } from "../api/query/IHasDeviceID";
+import { IHasHash } from "../api/query/IHasHash";
+import { IHasSSID } from "../api/query/IHasSSID";
+import { IHasUserID } from "../api/query/IHasUserID";
+import { IHasUsername } from "../api/query/IHasUsername";
+import { Responses } from "../api/response/Responses";
+import { OsuDroidUser } from "../database/entities/OsuDroidUser";
+import { RequestValidator } from "./RequestValidator";
 
-export default class DroidRequestValidator extends RequestValidator {
+export class DroidRequestValidator extends RequestValidator {
   static validateUsername(args: Partial<IHasUsername>): args is IHasUsername {
     return typeof args.username === "string";
   }

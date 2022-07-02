@@ -1,7 +1,7 @@
 /**
  * Represents a object which may include an app signature for validation reasons.
  */
-export default interface IHasAppSignature {
+export interface IHasAppSignature {
   /**
    * The app signature.
    */

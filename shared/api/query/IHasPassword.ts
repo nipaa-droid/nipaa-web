@@ -1,3 +1,3 @@
-export default interface IHasPassword {
+export interface IHasPassword {
   password: string;
 }

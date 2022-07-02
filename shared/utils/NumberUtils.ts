@@ -1,4 +1,4 @@
-export default class NumberUtils {
+export class NumberUtils {
   /**
    * Verifies if a value of number type is indeed a number (not NaN).
    * @param number the number to verify.

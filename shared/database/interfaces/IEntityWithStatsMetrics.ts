@@ -1,4 +1,4 @@
-interface IEntityWithStatsMetrics {
+export interface IEntityWithStatsMetrics {
   accuracyDroid: number;
 
   /**
@@ -11,5 +11,3 @@ interface IEntityWithStatsMetrics {
    */
   roundedMetric: number;
 }
-
-export default IEntityWithStatsMetrics;

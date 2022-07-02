@@ -1,3 +1,3 @@
-export default interface IHasID {
+export interface IHasID {
   id: number;
 }

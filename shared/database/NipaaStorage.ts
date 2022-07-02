@@ -1,7 +1,7 @@
 /**
  * Firebase storage utilities.
  */
-export default class NipaaStorage {
+export class NipaaStorage {
   static REPLAYS_FOLDER = "replays";
 
   /**

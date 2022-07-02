@@ -1,7 +1,7 @@
 import { MapInfo } from "@rian8337/osu-base";
-import Database from "../Database";
+import { Database } from "../Database";
 
-export default class BeatmapManager {
+export class BeatmapManager {
   static async fetchBeatmap(
     beatmapIDOrHash: string,
     fetchBeatmaps = async (): Promise<MapInfo> => {

@@ -1,3 +1,3 @@
-export default interface IHasEmail {
+export interface IHasEmail {
   email: string;
 }

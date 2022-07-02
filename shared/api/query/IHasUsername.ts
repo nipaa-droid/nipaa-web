@@ -1,3 +1,3 @@
-export default interface IHasUsername {
+export interface IHasUsername {
   username: string;
 }

@@ -1,3 +1,3 @@
-export default interface IHasSSID {
+export interface IHasSSID {
   ssid: string;
 }

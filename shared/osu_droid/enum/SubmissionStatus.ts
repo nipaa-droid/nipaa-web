@@ -1,4 +1,4 @@
-enum SubmissionStatus {
+export enum SubmissionStatus {
   /**
    * Used when a submission fails.
    */
@@ -29,5 +29,3 @@ export class SubmissionStatusUtils {
     return this.USER_BEST_STATUS.includes(submission);
   }
 }
-
-export default SubmissionStatus;

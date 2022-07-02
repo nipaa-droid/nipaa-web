@@ -4,7 +4,7 @@ import { Connection, createConnection, getConnection } from "typeorm";
 import InMemoryCacheProvider from "typeorm-in-memory-cache";
 import { OsuDroidScore, OsuDroidStats, OsuDroidUser } from "./entities";
 
-export default class Database {
+export class Database {
   static uri = process.env["DATABASE_URL"];
   static #connection?: Connection;
 

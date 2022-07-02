@@ -6,8 +6,6 @@ export type ValidatedNextApiRequestTypedBody<T> = {
   body: T;
 } & OmittedBodyNextApiRequest;
 
-type NextApiRequestTypedBody<T> = {
+export type NextApiRequestTypedBody<T> = {
   body: Partial<T>;
 } & OmittedBodyNextApiRequest;
-
-export default NextApiRequestTypedBody;

@@ -3,7 +3,7 @@ enum DroidAPIResponses {
   FAIL = "FAIL",
 }
 
-export default class Responses {
+export class Responses {
   static INVALID_REQUEST_BODY = "Invalid request body.";
   static USER_NOT_FOUND = "User not found.";
   static UNEXPECTED_BEHAVIOR = "Unexpected server behavior.";

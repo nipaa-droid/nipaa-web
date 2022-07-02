@@ -1,13 +1,18 @@
 import { Beatmap, Mod, ModRelax, Slider, SliderTick } from "@rian8337/osu-base";
 import { hitResult, ReplayAnalyzer } from "@rian8337/osu-droid-replay-analyzer";
-import NipaaModUtil from "../osu/NipaaModUtils";
+import { NipaaModUtil } from "../osu/NipaaModUtils";
 import { NonNullableKeys } from "../utils/TypeUtils";
+
+export type BeatmapReplayAnalyzerWithData = NonNullableKeys<
+  ReplayAnalyzer,
+  ["data"]
+> & {
+  map: Beatmap;
+};
 
 export class ReplayAnalyzerUtils {
   static estimateScore(
-    analyzer: NonNullableKeys<ReplayAnalyzer, ["data"]> & {
-      map: Beatmap;
-    },
+    analyzer: BeatmapReplayAnalyzerWithData,
     customScoreMultiplier: (mod: Mod) => number | undefined = (m) => {
       switch (m.constructor.prototype) {
         case ModRelax:

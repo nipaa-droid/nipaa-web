@@ -83,4 +83,3 @@ export enum HTTPMethod {
 /**
  * @public
  */
-export default HTTPMethod;

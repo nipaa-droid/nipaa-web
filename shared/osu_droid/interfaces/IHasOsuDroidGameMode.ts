@@ -1,5 +1,5 @@
-import OsuDroidGameMode from "../enum/OsuDroidGameMode";
+import { OsuDroidGameMode } from "../enum/OsuDroidGameMode";
 
-export default interface IHasOsuDroidGameMode {
+export interface IHasOsuDroidGameMode {
   mode: OsuDroidGameMode;
 }

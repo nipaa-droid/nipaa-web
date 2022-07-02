@@ -1,3 +1,3 @@
-export default interface IHasData<T> {
+export interface IHasData<T> {
   data: T;
 }

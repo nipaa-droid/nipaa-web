@@ -1,7 +1,5 @@
-import GameMode from "../../osu/GameMode";
+import { GameMode } from "../../osu/GameMode";
 
-enum OsuDroidGameMode {
+export enum OsuDroidGameMode {
   std = GameMode.std,
 }
-
-export default OsuDroidGameMode;

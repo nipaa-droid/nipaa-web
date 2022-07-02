@@ -1,3 +1,3 @@
-export default interface IHasHash {
+export interface IHasHash {
   hash: string;
 }

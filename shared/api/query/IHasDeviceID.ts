@@ -1,3 +1,3 @@
-export default interface IHasDeviceID {
+export interface IHasDeviceID {
   deviceID: string;
 }

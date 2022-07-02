@@ -1,16 +1,16 @@
 import "reflect-metadata";
 
-import NextApiRequestTypedBody from "../../shared/api/query/NextApiRequestTypedBody";
+import { NextApiRequestTypedBody } from "../../shared/api/query/NextApiRequestTypedBody";
 import RequestHandler from "../../shared/api/request/RequestHandler";
-import JsonErrors from "../../shared/api/response/JsonErrors";
-import JsonResponse from "../../shared/api/response/JsonResponse";
-import Responses from "../../shared/api/response/Responses";
-import Database from "../../shared/database/Database";
+import { JsonErrors } from "../../shared/api/response/JsonErrors";
+import { JsonResponse } from "../../shared/api/response/JsonResponse";
+import { Responses } from "../../shared/api/response/Responses";
+import { Database } from "../../shared/database/Database";
 import { OsuDroidUser } from "../../shared/database/entities";
 import HTTPMethod from "../../shared/http/HttpMethod";
-import HttpStatusCode from "../../shared/http/HttpStatusCodes";
-import IHasID from "../../shared/interfaces/IHasID";
-import RequestValidator from "../../shared/type/RequestValidator";
+import { HttpStatusCode } from "../../shared/http/HttpStatusCodes";
+import { IHasID } from "../../shared/interfaces/IHasID";
+import { RequestValidator } from "../../shared/type/RequestValidator";
 
 export default async function handler(
   req: NextApiRequestTypedBody<IHasID>,

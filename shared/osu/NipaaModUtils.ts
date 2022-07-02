@@ -7,14 +7,14 @@ import {
   ModUtil,
 } from "@rian8337/osu-base";
 import { OsuDroidScore } from "../database/entities";
-import NumberUtils from "../utils/NumberUtils";
+import { NumberUtils } from "../utils/NumberUtils";
 
 type DroidStats = {
   mods: Mod[];
   customSpeed: number;
 };
 
-export default class NipaaModUtil extends ModUtil {
+export class NipaaModUtil extends ModUtil {
   static #EXTRA_MODS_SEP = "|";
 
   static #CUSTOM_SPEED_SEP = "x";

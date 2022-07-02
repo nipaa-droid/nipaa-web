@@ -1,11 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import HTTPMethod from "../../http/HttpMethod";
-import HttpStatusCode from "../../http/HttpStatusCodes";
+import { HTTPMethod } from "../../http/HttpMethod";
+import { HttpStatusCode } from "../../http/HttpStatusCodes";
 import { NonEmptyArray } from "../../utils/TypeUtils";
-import EnumUtils from "../enums/EnumUtils";
-import Responses from "../response/Responses";
+import { EnumUtils } from "../enums/EnumUtils";
+import { Responses } from "../response/Responses";
 
-export default class RequestHandler {
+export class RequestHandler {
   static endWhenInvalidHttpMethod(
     req: NextApiRequest,
     res: NextApiResponse,

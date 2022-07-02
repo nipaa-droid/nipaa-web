@@ -9,20 +9,21 @@ import {
   SaveOptions,
   In,
 } from "typeorm";
-import OsuDroidGameMode from "../../osu_droid/enum/OsuDroidGameMode";
-import SubmissionStatus, {
+import { OsuDroidGameMode } from "../../osu_droid/enum/OsuDroidGameMode";
+import {
   SubmissionStatusUtils,
+  SubmissionStatus,
 } from "../../osu_droid/enum/SubmissionStatus";
-import IEntityWithDefaultValues from "../interfaces/IEntityWithDefaultValues";
-import OsuDroidScore from "./OsuDroidScore";
-import OsuDroidStats, { ScoreMetrics, Metrics } from "./OsuDroidStats";
+import { IEntityWithDefaultValues } from "../interfaces/IEntityWithDefaultValues";
+import { OsuDroidScore } from "./OsuDroidScore";
+import { ScoreMetrics, Metrics, OsuDroidStats } from "./OsuDroidStats";
 import bcrypt from "bcrypt";
 import { assertDefined } from "../../assertions";
 import { cloneDeep } from "lodash";
 import assert from "assert";
 
 @Entity()
-export default class OsuDroidUser
+export class OsuDroidUser
   extends BaseEntity
   implements IEntityWithDefaultValues
 {

@@ -11,16 +11,16 @@ import { getStorage } from "firebase-admin/storage";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { In } from "typeorm";
-import HttpStatusCode from "../../shared/http/HttpStatusCodes";
+import { HttpStatusCode } from "../../shared/http/HttpStatusCodes";
 import { assertDefined } from "../../shared/assertions";
-import Database from "../../shared/database/Database";
+import { Database } from "../../shared/database/Database";
 import {
   OsuDroidScore,
   OsuDroidStats,
   OsuDroidUser,
 } from "../../shared/database/entities";
-import BeatmapManager from "../../shared/database/managers/BeatmapManager";
-import NipaaStorage from "../../shared/database/NipaaStorage";
+import { BeatmapManager } from "../../shared/database/managers/BeatmapManager";
+import { NipaaStorage } from "../../shared/database/NipaaStorage";
 import { getNipaaFirebaseApp } from "../../shared/database/NippaFirebase";
 
 export default async function handler(_: NextApiRequest, res: NextApiResponse) {

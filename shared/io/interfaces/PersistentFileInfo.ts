@@ -15,6 +15,6 @@ export interface IHasHashAlgorithm {
   hashAlgorithm: boolean;
 }
 
-export default interface IHasTempFile {
+export interface IHasTempFile {
   filepath: string;
 }

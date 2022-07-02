@@ -1,4 +1,4 @@
-export default class EnvironmentConstants {
+export class EnvironmentConstants {
   /**
    * Limit response time for an edge function, in seconds.
    */

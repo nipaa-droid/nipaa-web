@@ -16,23 +16,25 @@ import {
   In,
 } from "typeorm";
 import { assertDefined } from "../../assertions";
-import EnvironmentConstants from "../../constants/EnvironmentConstants";
-import NipaaModUtil from "../../osu/NipaaModUtils";
-import AccuracyUtils from "../../osu_droid/AccuracyUtils";
-import OsuDroidGameMode from "../../osu_droid/enum/OsuDroidGameMode";
-import SubmissionStatus, {
+import { EnvironmentConstants } from "../../constants/EnvironmentConstants";
+import { NipaaModUtil } from "../../osu/NipaaModUtils";
+import { AccuracyUtils } from "../../osu_droid/AccuracyUtils";
+import { OsuDroidGameMode } from "../../osu_droid/enum/OsuDroidGameMode";
+import {
   SubmissionStatusUtils,
+  SubmissionStatus,
 } from "../../osu_droid/enum/SubmissionStatus";
-import IHasOsuDroidGameMode from "../../osu_droid/interfaces/IHasOsuDroidGameMode";
-import NumberUtils from "../../utils/NumberUtils";
-import IEntityWithDefaultValues from "../interfaces/IEntityWithDefaultValues";
-import IEntityWithStatsMetrics from "../interfaces/IEntityWithStatsMetrics";
-import BeatmapManager from "../managers/BeatmapManager";
-import OsuDroidStats, { Metrics } from "./OsuDroidStats";
-import OsuDroidUser from "./OsuDroidUser";
+import { IHasOsuDroidGameMode } from "../../osu_droid/interfaces/IHasOsuDroidGameMode";
+import { NumberUtils } from "../../utils/NumberUtils";
+import { Tuple } from "../../utils/TypeUtils";
+import { IEntityWithDefaultValues } from "../interfaces/IEntityWithDefaultValues";
+import { IEntityWithStatsMetrics } from "../interfaces/IEntityWithStatsMetrics";
+import { BeatmapManager } from "../managers/BeatmapManager";
+import { Metrics, OsuDroidStats } from "./OsuDroidStats";
+import { OsuDroidUser } from "./OsuDroidUser";
 
 @Entity()
-export default class OsuDroidScore
+export class OsuDroidScore
   extends BaseEntity
   implements
     IHasOsuDroidGameMode,
@@ -175,35 +177,27 @@ export default class OsuDroidScore
     user?: OsuDroidUser,
     submit = true
   ): Promise<OsuDroidScore> {
-    const dataArray = data.split(" ");
+    const dataArray: string[] = data.split(" ");
 
     let score = new OsuDroidScore().applyDefaults();
 
-    if (!dataArray.every((data) => data !== undefined)) {
+    const DATA_ARRAY_LENGHT = 14;
+
+    if (dataArray.length != DATA_ARRAY_LENGHT) {
       return score;
     }
 
-    assertDefined(dataArray[0]);
-    assertDefined(dataArray[1]);
-    assertDefined(dataArray[2]);
-    assertDefined(dataArray[3]);
-    assertDefined(dataArray[4]);
-    assertDefined(dataArray[5]);
-    assertDefined(dataArray[6]);
-    assertDefined(dataArray[7]);
-    assertDefined(dataArray[8]);
-    assertDefined(dataArray[9]);
-    assertDefined(dataArray[10]);
-    assertDefined(dataArray[11]);
-    assertDefined(dataArray[12]);
-    assertDefined(dataArray[13]);
+    const dataTuple = dataArray as unknown as Tuple<
+      string,
+      typeof DATA_ARRAY_LENGHT
+    >;
 
     const fail = (reason: string) => {
       score.status = SubmissionStatus.FAILED;
       console.log(`Failed to get score from submission. "${reason}"`);
     };
 
-    const modsDroidString = dataArray[0];
+    const modsDroidString = dataTuple[0];
 
     const modStats = NipaaModUtil.droidStatsFromDroidString(modsDroidString);
 
@@ -254,7 +248,7 @@ export default class OsuDroidScore
       })}`
     );
 
-    const dataDate = new Date(dataArray[11]);
+    const dataDate = new Date(dataTuple[11]);
 
     /**
      * space between score submission and requesting submission to the server way too long.
@@ -267,7 +261,7 @@ export default class OsuDroidScore
       return score;
     }
 
-    const username = dataArray[13];
+    const username = dataTuple[13];
 
     if (!user) {
       user = await OsuDroidUser.findOne({
@@ -315,14 +309,14 @@ export default class OsuDroidScore
 
     console.log("Logging replay data.");
 
-    dataArray.forEach((d) => {
+    dataTuple.forEach((d) => {
       console.log(d);
     });
 
     console.log("Finished log.");
 
     const sliceDataToInteger = (from: number, to: number) => {
-      const integerData = dataArray.slice(from, to).map((v) => parseInt(v));
+      const integerData = dataTuple.slice(from, to).map((v) => parseInt(v));
       if (!integerData.every((v) => NumberUtils.isNumber(v))) {
         console.log("Invalid data, passed for score.");
         return;
@@ -331,38 +325,38 @@ export default class OsuDroidScore
     };
 
     const firstIntegerData = sliceDataToInteger(1, 3);
+
     if (!firstIntegerData) {
       fail("Invalid replay firstIntegerData.");
       return score;
     }
 
-    assertDefined(firstIntegerData[0]);
-    assertDefined(firstIntegerData[1]);
+    type TypeIntegerData<N extends number> = Tuple<number, N>;
 
-    score.score = firstIntegerData[0];
-    score.maxCombo = firstIntegerData[1];
+    const typedFirstIntegerData =
+      firstIntegerData as unknown as TypeIntegerData<2>;
 
-    score.grade = dataArray[3];
+    score.score = typedFirstIntegerData[0];
+    score.maxCombo = typedFirstIntegerData[1];
+
+    score.grade = dataTuple[3];
 
     const secondIntegerData = sliceDataToInteger(4, 10);
+
     if (!secondIntegerData) {
       fail("Invalid replay secondIntegerData.");
       return score;
     }
 
-    assertDefined(secondIntegerData[0]);
-    assertDefined(secondIntegerData[1]);
-    assertDefined(secondIntegerData[2]);
-    assertDefined(secondIntegerData[3]);
-    assertDefined(secondIntegerData[4]);
-    assertDefined(secondIntegerData[5]);
+    const typedSecondIntegerData =
+      secondIntegerData as unknown as TypeIntegerData<6>;
 
-    score.hGeki = secondIntegerData[0];
-    score.h300 = secondIntegerData[1];
-    score.hKatu = secondIntegerData[2];
-    score.h100 = secondIntegerData[3];
-    score.h50 = secondIntegerData[4];
-    score.hMiss = secondIntegerData[5];
+    score.hGeki = typedSecondIntegerData[0];
+    score.h300 = typedSecondIntegerData[1];
+    score.hKatu = typedSecondIntegerData[2];
+    score.h100 = typedSecondIntegerData[3];
+    score.h50 = typedSecondIntegerData[4];
+    score.hMiss = typedSecondIntegerData[5];
 
     console.log("Calculating score...");
 

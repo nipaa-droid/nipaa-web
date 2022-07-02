@@ -3,21 +3,21 @@ import "core-js/actual/array/at";
 
 import { NextApiResponse } from "next";
 import HTTPMethod from "../../shared/http/HttpMethod";
-import HttpStatusCode from "../../shared/http/HttpStatusCodes";
-import IHasData from "../../shared/api/query/IHasData";
-import IHasHash from "../../shared/api/query/IHasHash";
-import IHasSSID from "../../shared/api/query/IHasSSID";
-import IHasUserID from "../../shared/api/query/IHasUserID";
-import NextApiRequestTypedBody from "../../shared/api/query/NextApiRequestTypedBody";
+import { HttpStatusCode } from "../../shared/http/HttpStatusCodes";
+import { IHasData } from "../../shared/api/query/IHasData";
+import { IHasHash } from "../../shared/api/query/IHasHash";
+import { IHasSSID } from "../../shared/api/query/IHasSSID";
+import { IHasUserID } from "../../shared/api/query/IHasUserID";
+import { NextApiRequestTypedBody } from "../../shared/api/query/NextApiRequestTypedBody";
 import RequestHandler from "../../shared/api/request/RequestHandler";
-import Responses from "../../shared/api/response/Responses";
+import { Responses } from "../../shared/api/response/Responses";
 import { assertDefined } from "../../shared/assertions";
-import Database from "../../shared/database/Database";
+import { Database } from "../../shared/database/Database";
 import { OsuDroidUser, OsuDroidScore } from "../../shared/database/entities";
-import SubmissionStatus, {
-  SubmissionStatusUtils,
+import {
+  SubmissionStatusUtils,, SubmissionStatus
 } from "../../shared/osu_droid/enum/SubmissionStatus";
-import DroidRequestValidator from "../../shared/type/DroidRequestValidator";
+import { DroidRequestValidator } from "../../shared/type/DroidRequestValidator";
 
 type body = IHasUserID<string> &
   Partial<IHasData<string> & { playID: string } & IHasSSID & IHasHash>;

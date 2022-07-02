@@ -1,3 +1,3 @@
-export { default as OsuDroidScore } from "./OsuDroidScore";
-export { default as OsuDroidStats } from "./OsuDroidStats";
-export { default as OsuDroidUser } from "./OsuDroidUser";
+export { OsuDroidScore } from "./OsuDroidScore";
+export { OsuDroidStats } from "./OsuDroidStats";
+export { OsuDroidUser } from "./OsuDroidUser";

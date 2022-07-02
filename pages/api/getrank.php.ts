@@ -3,17 +3,17 @@ import "core-js/actual/array/at";
 
 import { NextApiResponse } from "next";
 import HTTPMethod from "../../shared/http/HttpMethod";
-import NextApiRequestTypedBody from "../../shared/api/query/NextApiRequestTypedBody";
+import { NextApiRequestTypedBody } from "../../shared/api/query/NextApiRequestTypedBody";
 import RequestHandler from "../../shared/api/request/RequestHandler";
-import Database from "../../shared/database/Database";
-import DroidRequestValidator from "../../shared/type/DroidRequestValidator";
+import { Database } from "../../shared/database/Database";
+import { DroidRequestValidator } from "../../shared/type/DroidRequestValidator";
 import { OsuDroidScore } from "../../shared/database/entities";
-import HttpStatusCode from "../../shared/http/HttpStatusCodes";
-import IHasHash from "../../shared/api/query/IHasHash";
+import { HttpStatusCode } from "../../shared/http/HttpStatusCodes";
+import { IHasHash } from "../../shared/api/query/IHasHash";
 import { SubmissionStatusUtils } from "../../shared/osu_droid/enum/SubmissionStatus";
-import Responses from "../../shared/api/response/Responses";
+import { Responses } from "../../shared/api/response/Responses";
 import { assertDefined } from "../../shared/assertions";
-import NipaaModUtil from "../../shared/osu/NipaaModUtils";
+import { NipaaModUtil } from "../../shared/osu/NipaaModUtils";
 import { In } from "typeorm";
 
 type body = IHasHash;

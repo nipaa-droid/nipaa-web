@@ -1,15 +1,16 @@
 import { NextApiResponse } from "next";
-import HttpStatusCode from "../api/enums/HttpStatusCodes";
-import IHasApiKey from "../api/query/IHasApiKey";
-import IHasEmail from "../api/query/IHasEmail";
-import IHasPassword from "../api/query/IHasPassword";
-import NextApiRequestTypedBody, {
+import { HttpStatusCode } from "../http/HttpStatusCodes";
+import { IHasApiKey } from "../api/query/IHasApiKey";
+import { IHasEmail } from "../api/query/IHasEmail";
+import { IHasPassword } from "../api/query/IHasPassword";
+import {
   ValidatedNextApiRequestTypedBody,
+  NextApiRequestTypedBody,
 } from "../api/query/NextApiRequestTypedBody";
-import Responses from "../api/response/Responses";
-import IHasID from "../interfaces/IHasID";
+import { Responses } from "../api/response/Responses";
+import { IHasID } from "../interfaces/IHasID";
 
-export default class RequestValidator {
+export class RequestValidator {
   static hasNumericID(
     request: NextApiRequestTypedBody<IHasID>
   ): request is ValidatedNextApiRequestTypedBody<IHasID> {
