@@ -1,7 +1,7 @@
 import { GetStaticProps } from "next";
-import { assertDefined } from "../shared/assertions";
 import Database from "../shared/database/Database";
-import { OsuDroidStats } from "../shared/database/entities";
+import { OsuDroidStats, OsuDroidUser } from "../shared/database/entities";
+import { NonNullableKeys } from "../shared/utils/TypeUtils";
 
 type LeaderboardData = {
   username: string;
@@ -17,19 +17,19 @@ type LeaderboardProps = {
 export const getStaticProps: GetStaticProps<LeaderboardProps> = async () => {
   await Database.getConnection();
 
-  const stats = await OsuDroidStats.find({
+  const stats = (await OsuDroidStats.find({
     relations: ["user"],
     select: ["id", "pp", "accuracy"],
     order: {
       pp: "DESC",
     },
-  });
+  })) as (NonNullableKeys<
+    Partial<OsuDroidStats>,
+    ["user", "pp", "accuracy", "id"]
+  > & { user: OsuDroidUser })[];
 
   const data: LeaderboardData[] = stats.map((s) => {
     const { user } = s;
-
-    assertDefined(user);
-    assertDefined(user.username);
 
     return {
       username: user.username,
