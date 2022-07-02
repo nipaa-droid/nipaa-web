@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import { NextApiResponse } from "next";
-import HTTPMethod from "../../shared/http/HttpMethod";
+import { HTTPMethod } from "../../shared/http/HttpMethod";
 import { HttpStatusCode } from "../../shared/http/HttpStatusCodes";
 import { IHasAppSignature } from "../../shared/api/query/IHasAppSignature";
 import { IHasDeviceID } from "../../shared/api/query/IHasDeviceID";
@@ -9,7 +9,7 @@ import { IHasEmail } from "../../shared/api/query/IHasEmail";
 import { IHasPassword } from "../../shared/api/query/IHasPassword";
 import { IHasUsername } from "../../shared/api/query/IHasUsername";
 import { NextApiRequestTypedBody } from "../../shared/api/query/NextApiRequestTypedBody";
-import RequestHandler from "../../shared/api/request/RequestHandler";
+import { RequestHandler } from "../../shared/api/request/RequestHandler";
 import { Responses } from "../../shared/api/response/Responses";
 import { Database } from "../../shared/database/Database";
 import { OsuDroidUser } from "../../shared/database/entities";
