@@ -22,7 +22,7 @@ export class RequestHandler {
       return true;
     }
 
-    const method = EnumUtils.getValueByKey(HTTPMethod, req.method);
+    const method = EnumUtils.getValueByKeyUntyped(HTTPMethod, req.method);
 
     if (!method) {
       end();

@@ -22,6 +22,7 @@ import {
 import { BeatmapManager } from "../../shared/database/managers/BeatmapManager";
 import { NipaaStorage } from "../../shared/database/NipaaStorage";
 import { getNipaaFirebaseApp } from "../../shared/database/NippaFirebase";
+import { NonNullableKeys } from "../../shared/utils/TypeUtils";
 
 export default async function handler(_: NextApiRequest, res: NextApiResponse) {
   if (process.env.NODE_ENV === "production") {
@@ -32,16 +33,11 @@ export default async function handler(_: NextApiRequest, res: NextApiResponse) {
   await Database.getConnection();
   getNipaaFirebaseApp();
 
-  const players = await OsuDroidUser.find({
+  const players = (await OsuDroidUser.find({
     relations: ["scores"],
-  });
+  })) as NonNullableKeys<OsuDroidUser, ["scores"]>[];
 
-  const scores = players
-    .map((player) => {
-      assertDefined(player.scores);
-      return player.scores;
-    })
-    .flat();
+  const scores = players.map((p) => p.scores).flat();
 
   const statistics = await OsuDroidStats.find({
     where: {
