@@ -1,4 +1,4 @@
-import { Metrics } from "./entities/OsuDroidStats";
+import { Metrics } from "./Metrics";
 
 export class DatabaseSetup {
   static metric = Metrics.pp;
