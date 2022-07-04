@@ -9,52 +9,53 @@ import { IHasUserID } from "../../shared/api/query/IHasUserID";
 import { NextApiRequestTypedBody } from "../../shared/api/query/NextApiRequestTypedBody";
 import { Responses } from "../../shared/api/response/Responses";
 import { assertDefined } from "../../shared/assertions";
-import { Database } from "../../shared/database/Database";
 import { DroidRequestValidator } from "../../shared/type/DroidRequestValidator";
 import { RequestHandler } from "../../shared/api/request/RequestHandler";
 import { HTTPMethod } from "../../shared/http/HttpMethod";
-import { NextApiResponse } from "next";
-import { OsuDroidUser, SubmissionStatus } from "@prisma/client";
-import {
-  OsuDroidUser,
-  OsuDroidUser,
-} from "../../shared/database/entities/OsuDroidUser";
+import { NextApiRequest, NextApiResponse } from "next";
 import { SubmissionStatusUtils } from "../../shared/osu_droid/enum/SubmissionStatus";
 import { AtLeast } from "../../shared/utils/TypeUtils";
+import { z } from "zod";
 
-type body = IHasUserID<string> &
-  Partial<IHasData<string> & { playID: string } & IHasSSID & IHasHash>;
+type SubmissionPing = IHasUserID<string> & IHasSSID & IHasHash;
+
+const submissionPingSchema = z.object({
+  ssid: z.string(),
+  hash: z.string(),
+});
 
 const validate = (body: Partial<body>): body is body => {
   return DroidRequestValidator.validateUserID(body);
 };
 
 export default async function handler(
-  req: NextApiRequestTypedBody<body>,
+  req: NextApiRequest,
   res: NextApiResponse<string>
 ) {
-  await Database.getConnection();
-
-  if (RequestHandler.endWhenInvalidHttpMethod(req, res, HTTPMethod.POST)) {
-    return;
-  }
-
-  const { body } = req;
-  const { ssid, hash, data, userID } = body;
-
-  if (
-    DroidRequestValidator.droidStringEndOnInvalidRequest(res, validate(body)) ||
-    !validate(body)
-  ) {
-    return;
-  }
-
   type RequiredUserKeys = keyof Pick<OsuDroidUser, "id" | "playing">;
 
   let user:
     | AtLeast<OsuDroidUser, RequiredUserKeys>
     | AtLeast<OsuDroidUser, RequiredUserKeys | "username">
     | null;
+
+  const validateSubmissionPing = await submissionPingSchema.safeParseAsync(req);
+
+  if (validateSubmissionPing) {
+    const data = await submissionPingSchema.parseAsync(req);
+
+    console.log("Submission ping");
+
+    user = await prisma.osuDroidUser.findUnique({
+      where: {
+        id: Number(userID),
+      },
+      select: {
+        id: true,
+        playing: true,
+      },
+    });
+  }
 
   if (
     DroidRequestValidator.untypedValidation(
@@ -67,16 +68,6 @@ export default async function handler(
     assertDefined(ssid);
 
     console.log("Submission playing ping.");
-
-    user = await prisma.osuDroidUser.findUnique({
-      where: {
-        id: Number(userID),
-      },
-      select: {
-        id: true,
-        playing: true,
-      },
-    });
 
     if (DroidRequestValidator.sendUserNotFound(res, user)) {
       return;

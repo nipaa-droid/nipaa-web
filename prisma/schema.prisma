@@ -9,6 +9,7 @@ datasource db {
 
 model OsuDroidUser {
     id           Int             @id @default(sequence())
+    email        String          @unique
     username     String          @unique
     createdAt    DateTime        @default(now()) @map(name: "created_at")
     lastSeen     DateTime        @map(name: "last_seen")
@@ -35,7 +36,9 @@ model OsuDroidScore {
 
     mapHash String @db.Char(32)
 
-    pp    Float
+    pp Float
+
+    // MAYBE THIS COLUMN IS UNNECESSARY WE COULD ANALYZE THE REPLAY BUFFER INSTEAD TO CHECK FOR THE SCORE
     score Int
 
     h300  Int @map(name: "h_300")

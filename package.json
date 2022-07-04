@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "engines": {
+    "node": ">=16.x"
+  },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.3",
     "@rian8337/osu-base": "^1.0.5",
@@ -23,6 +26,7 @@
     "formidable": "^2.0.1",
     "lodash": "^4.17.21",
     "next": "12.0.9",
+    "next-auth": "^4.8.0",
     "node-cache": "^5.1.2",
     "password-hash": "^1.2.2",
     "pg": "^8.7.1",
@@ -31,7 +35,8 @@
     "react-dom": "17.0.2",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.41",
-    "typeorm-in-memory-cache": "^1.0.2"
+    "typeorm-in-memory-cache": "^1.0.2",
+    "zod": "^3.17.3"
   },
   "devDependencies": {
     "@babel/core": "^7.17.0",

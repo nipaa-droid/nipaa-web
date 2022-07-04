@@ -86,17 +86,12 @@ export type OsuDroidScoreWithoutGenerated = Omit<OsuDroidScore, "id" | "date">;
 
 export type OsuDroidScoreHitDataKeys = keyof Pick<
   OsuDroidScore,
-  "h300" | "h100" | "h50" | "h0" | "hGeki" | "hKatu"
->;
-
-export type OsuDroidScoreAccuracyCalculatableWithoutHash = AtLeast<
-  OsuDroidScore,
-  OsuDroidScoreHitDataKeys
+  "h300" | "h100" | "h50" | "h0"
 >;
 
 export type OsuDroidScoreAccuracyCalculatable = AtLeast<
   OsuDroidScore,
-  OsuDroidScoreHitDataKeys | "mapHash"
+  OsuDroidScoreHitDataKeys
 >;
 
 export type ActiveScoreMetric = keyof Pick<

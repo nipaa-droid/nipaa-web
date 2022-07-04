@@ -1,55 +1,43 @@
-import { NextApiResponse } from "next";
-import { HTTPMethod } from "../../shared/http/HttpMethod";
-import { IHasPassword } from "../../shared/api/query/IHasPassword";
-import { IHasUsername } from "../../shared/api/query/IHasUsername";
-import { NextApiRequestTypedBody } from "../../shared/api/query/NextApiRequestTypedBody";
-import { RequestHandler } from "../../shared/api/request/RequestHandler";
-import { Database } from "../../shared/database/Database";
-import { DroidRequestValidator } from "../../shared/type/DroidRequestValidator";
-
-type body = IHasUsername & IHasPassword;
-
-const validate = (body: Partial<body>): body is body => {
-  return DroidRequestValidator.untypedValidation(
-    body,
-    DroidRequestValidator.validateUsername,
-    DroidRequestValidator.validatePassword
-  );
-};
+import { NextApiRequest, NextApiResponse } from "next";
+import { HttpStatusCode } from "../../shared/http/HttpStatusCodes";
+import { Responses } from "../../shared/api/response/Responses";
+import { unstable_getServerSession } from "next-auth";
+import { authOptions } from "./auth/[...nextauth]";
 
 export default async function handler(
-  req: NextApiRequestTypedBody<body>,
+  req: NextApiRequest,
   res: NextApiResponse<string>
 ) {
-  await Database.getConnection();
+  const session = await unstable_getServerSession(req, res, authOptions);
 
-  if (RequestHandler.endWhenInvalidHttpMethod(req, res, HTTPMethod.POST)) {
+  if (!session) {
+    res
+      .status(HttpStatusCode.BAD_REQUEST)
+      .send(Responses.FAILED("Wrong password."));
     return;
   }
 
-  if (
-    DroidRequestValidator.droidStringEndOnInvalidRequest(
-      res,
-      validate(req.body)
-    ) ||
-    !validate(req.body)
-  ) {
+  if (!session.user || !session.user.email) {
+    res
+      .status(HttpStatusCode.BAD_REQUEST)
+      .send(Responses.FAILED("Invalid request"));
     return;
   }
 
-  const { username, password } = req.body;
-
-  console.log(req.body);
+  const { email } = session.user;
 
   const user = await prisma.osuDroidUser.findUnique({
     where: {
-      username,
-    },
-    select: {
-      id: true,
-      username: true,
+      email,
     },
   });
 
-  // TODO REWORK LOGIN
+  if (!user) {
+    res
+      .status(HttpStatusCode.BAD_REQUEST)
+      .send(Responses.FAILED("User not found"));
+    return;
+  }
+
+  res.status(HttpStatusCode.OK).send(Responses.SUCCESS());
 }

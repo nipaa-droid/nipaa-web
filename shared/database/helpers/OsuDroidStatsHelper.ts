@@ -1,8 +1,17 @@
-import { OsuDroidStats, Prisma, SubmissionStatus } from "@prisma/client";
+import {
+  OsuDroidScore,
+  OsuDroidStats,
+  Prisma,
+  SubmissionStatus,
+} from "@prisma/client";
 import assert from "assert";
+import { AtLeast } from "../../utils/TypeUtils";
 import { DatabaseSetup } from "../DatabaseSetup";
 import { Metrics } from "../Metrics";
-import { OsuDroidScoreHelper } from "./OsuDroidScoreHelper";
+import {
+  OsuDroidScoreHelper,
+  OsuDroidScoreHitDataKeys,
+} from "./OsuDroidScoreHelper";
 
 export class OsuDroidStatsHelper {
   static #getScoresForStatsQuery(
@@ -31,8 +40,22 @@ export class OsuDroidStatsHelper {
     };
   }
 
-  static #getWeightingFactor(i: number) {
-    return Math.pow(0.95, i);
+  static #weightData<K extends keyof OsuDroidScore, T = undefined>(
+    base: T,
+    scores: AtLeast<OsuDroidScore, K>[],
+    calculate: (
+      score: AtLeast<OsuDroidScore, K>,
+      weighting: number,
+      accumulator: T
+    ) => T
+  ) {
+    let currentAccumulator = base;
+    scores.forEach((score, i) => {
+      const weighting = Math.pow(0.95, i);
+
+      currentAccumulator = calculate(score, weighting, base);
+    });
+    return currentAccumulator;
   }
 
   static async getAccuracy(stats: OsuDroidStats) {
@@ -47,18 +70,25 @@ export class OsuDroidStatsHelper {
 
     const scores = await prisma.osuDroidScore.findMany(query);
 
-    let accSum = 0;
-    let weight = 0;
+    const weightedData = this.#weightData<
+      OsuDroidScoreHitDataKeys,
+      { accuracySum: number; weighting: number }
+    >(
+      {
+        accuracySum: 0,
+        weighting: 0,
+      },
+      scores,
+      (score, weighting, acc) => {
+        const accuracy = OsuDroidScoreHelper.getAccuracyDroid(score);
+        return {
+          accuracySum: acc.accuracySum + accuracy * weighting,
+          weighting: acc.weighting + weighting,
+        };
+      }
+    );
 
-    scores.forEach((score, i) => {
-      const weighting = this.#getWeightingFactor(i);
-      const accuracy = OsuDroidScoreHelper.getAccuracyPercent(score);
-
-      accSum += accuracy * weighting;
-      weight += weighting;
-    });
-
-    return accSum / weight;
+    return weightedData.accuracySum / weightedData.weighting;
   }
 
   static async getPerformance(stats: OsuDroidStats) {
@@ -70,9 +100,10 @@ export class OsuDroidStatsHelper {
 
     const scores = await prisma.osuDroidScore.findMany(query);
 
-    return scores.reduce(
-      (acc, cur, i) => acc + cur.pp * this.#getWeightingFactor(i),
-      0
+    return this.#weightData<"pp", number>(
+      0,
+      scores,
+      (score, weighting, acc) => acc + score.pp * weighting
     );
   }
 
