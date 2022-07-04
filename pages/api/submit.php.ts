@@ -10,15 +10,17 @@ import { NextApiRequestTypedBody } from "../../shared/api/query/NextApiRequestTy
 import { Responses } from "../../shared/api/response/Responses";
 import { assertDefined } from "../../shared/assertions";
 import { Database } from "../../shared/database/Database";
-import { OsuDroidUser, OsuDroidScore } from "../../shared/database/entities";
-import {
-  SubmissionStatusUtils,
-  SubmissionStatus,
-} from "../../shared/osu_droid/enum/SubmissionStatus";
 import { DroidRequestValidator } from "../../shared/type/DroidRequestValidator";
 import { RequestHandler } from "../../shared/api/request/RequestHandler";
 import { HTTPMethod } from "../../shared/http/HttpMethod";
 import { NextApiResponse } from "next";
+import { OsuDroidUser, SubmissionStatus } from "@prisma/client";
+import {
+  OsuDroidUser,
+  OsuDroidUser,
+} from "../../shared/database/entities/OsuDroidUser";
+import { SubmissionStatusUtils } from "../../shared/osu_droid/enum/SubmissionStatus";
+import { AtLeast } from "../../shared/utils/TypeUtils";
 
 type body = IHasUserID<string> &
   Partial<IHasData<string> & { playID: string } & IHasSSID & IHasHash>;
@@ -47,7 +49,12 @@ export default async function handler(
     return;
   }
 
-  let user: OsuDroidUser | undefined;
+  type RequiredUserKeys = keyof Pick<OsuDroidUser, "id" | "playing">;
+
+  let user:
+    | AtLeast<OsuDroidUser, RequiredUserKeys>
+    | AtLeast<OsuDroidUser, RequiredUserKeys | "username">
+    | null;
 
   if (
     DroidRequestValidator.untypedValidation(
@@ -61,8 +68,14 @@ export default async function handler(
 
     console.log("Submission playing ping.");
 
-    user = await OsuDroidUser.findOne(userID, {
-      select: ["id", "playing", "sessionID"],
+    user = await prisma.osuDroidUser.findUnique({
+      where: {
+        id: Number(userID),
+      },
+      select: {
+        id: true,
+        playing: true,
+      },
     });
 
     if (DroidRequestValidator.sendUserNotFound(res, user)) {

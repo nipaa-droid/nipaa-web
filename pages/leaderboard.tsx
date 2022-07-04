@@ -15,8 +15,16 @@ type LeaderboardProps = {
 };
 
 export const getStaticProps: GetStaticProps<LeaderboardProps> = async () => {
-  await Database.getConnection();
-
+  const stats = await prisma.osuDroidStats.findMany({
+    select: {
+      id: true,
+      pp: true,
+      
+    }
+    include: {
+      user: true
+    } 
+  })
   const stats = (await OsuDroidStats.find({
     relations: ["user"],
     select: ["id", "pp", "accuracy"],

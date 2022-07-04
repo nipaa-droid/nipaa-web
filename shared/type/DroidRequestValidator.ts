@@ -53,8 +53,8 @@ export class DroidRequestValidator extends RequestValidator {
 
   static sendUserNotFound(
     res: NextApiResponse,
-    user: OsuDroidUser | undefined
-  ): user is undefined {
+    user: Partial<OsuDroidUser> | null
+  ): user is null {
     if (!user) {
       res
         .status(HttpStatusCode.BAD_REQUEST)

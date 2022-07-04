@@ -1,12 +1,9 @@
-import "reflect-metadata";
-
+import { OsuDroidUser } from "@prisma/client";
 import { NextApiRequestTypedBody } from "../../shared/api/query/NextApiRequestTypedBody";
 import { RequestHandler } from "../../shared/api/request/RequestHandler";
 import { JsonErrors } from "../../shared/api/response/JsonErrors";
 import { JsonResponse } from "../../shared/api/response/JsonResponse";
 import { Responses } from "../../shared/api/response/Responses";
-import { Database } from "../../shared/database/Database";
-import { OsuDroidUser } from "../../shared/database/entities";
 import { HTTPMethod } from "../../shared/http/HttpMethod";
 import { HttpStatusCode } from "../../shared/http/HttpStatusCodes";
 import { IHasID } from "../../shared/interfaces/IHasID";
@@ -16,8 +13,6 @@ export default async function handler(
   req: NextApiRequestTypedBody<IHasID>,
   res: JsonResponse<Partial<OsuDroidUser>>
 ) {
-  await Database.getConnection();
-
   if (RequestHandler.endWhenInvalidHttpMethod(req, res, HTTPMethod.GET)) {
     return;
   }
@@ -31,8 +26,15 @@ export default async function handler(
 
   const { id } = req.body;
 
-  const user = await OsuDroidUser.findOne(id, {
-    select: ["username", "lastSeen"],
+  const user = await prisma.osuDroidUser.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      username: true,
+      createdAt: true,
+      lastSeen: true,
+    },
   });
 
   if (!user) {

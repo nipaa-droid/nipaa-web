@@ -1,0 +1,94 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "cockroachdb"
+    url      = env("DATABASE_URL")
+}
+
+model OsuDroidUser {
+    id           Int             @id @default(sequence())
+    username     String          @unique
+    createdAt    DateTime        @default(now()) @map(name: "created_at")
+    lastSeen     DateTime        @map(name: "last_seen")
+    playing      String          @db.Char(32)
+    oldUsernames String[]
+    scores       OsuDroidScore[]
+    stats        OsuDroidStats[]
+}
+
+model OsuDroidStats {
+    id   Int      @id @default(sequence())
+    mode GameMode
+
+    playCount Int @map(name: "play_count")
+
+    userId Int
+    user   OsuDroidUser? @relation(fields: [userId], references: [id])
+}
+
+model OsuDroidScore {
+    id Int @id @default(sequence())
+
+    mode GameMode
+
+    mapHash String @db.Char(32)
+
+    pp    Float
+    score Int
+
+    h300  Int @map(name: "h_300")
+    h100  Int @map(name: "h_100")
+    h50   Int @map(name: "h_50")
+    h0    Int @map(name: "h_0")
+    hGeki Int @map(name: "h_geki")
+    hKatu Int @map(name: "h_katu")
+
+    maxCombo Int
+    grade    ScoreGrade
+
+    mods  Int
+    extra Json
+
+    fc   Boolean
+    date DateTime @default(now())
+
+    status SubmissionStatus
+
+    playerId Int
+    player   OsuDroidUser? @relation(fields: [playerId], references: [id])
+}
+
+enum SubmissionStatus {
+    // Used when a submission fails.
+    FAILED
+
+    // Used when a score is submitted on the servers,
+    //  but not the current best play on that map for the user who made that score.
+    SUBMITTED
+
+    // Used when a play is submitted successfully, and is the best play from that user.
+    BEST
+
+    // Used when a play is submitted successfully, and is the best play from that user.
+    //  although it should not reward any pp.
+    APPROVED
+}
+
+enum ScoreGrade {
+    SS
+    S
+    A
+    B
+    C
+    D
+    F
+}
+
+enum GameMode {
+    std
+    taiko
+    mania
+    catch
+}

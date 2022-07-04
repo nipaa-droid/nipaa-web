@@ -77,6 +77,7 @@ export class NipaaModUtil extends ModUtil {
 
     if (extra) {
       let addedFirstSeparator = false;
+
       const addExtraRepresentation = (extra: string = "") => {
         if (!addedFirstSeparator) {
           addedFirstSeparator = true;
@@ -115,14 +116,14 @@ export class NipaaModUtil extends ModUtil {
     );
   }
 
-  static get XServersUnrankedMods() {
+  static get unrankedMods() {
     return [ModAuto, ModAutopilot, ModScoreV2];
   }
 
-  static get XServersRankedMods() {
+  static get rankedMods() {
     return [
       ...NipaaModUtil.allMods.filter(
-        (m) => !this.XServersUnrankedMods.includes(m.constructor.prototype)
+        (m) => !this.unrankedMods.includes(m.constructor.prototype)
       ),
     ];
   }
@@ -133,7 +134,7 @@ export class NipaaModUtil extends ModUtil {
 
   static isModRanked(mods: Mod[]) {
     return mods.every(
-      (m) => !this.XServersUnrankedMods.includes(m.constructor.prototype)
+      (m) => !this.unrankedMods.includes(m.constructor.prototype)
     );
   }
 
