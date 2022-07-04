@@ -1,22 +1,4 @@
 {
-  "presets": [
-    [
-      "next/babel",
-      {
-        "class-properties": {
-          "loose": true
-        }
-      }
-    ]
-  ],
-  "plugins": [
-    "babel-plugin-transform-typescript-metadata",
-    "@babel/plugin-proposal-logical-assignment-operators",
-    [
-      "@babel/plugin-proposal-decorators",
-      {
-        "legacy": true
-      }
-    ]
-  ]
+  "presets": [["next/babel"]],
+  "plugins": ["@babel/plugin-proposal-logical-assignment-operators"]
 }
