@@ -1,7 +1,9 @@
 import { MapInfo } from "@rian8337/osu-base";
-import { Database } from "../Database";
+import { EdgeFunctionCache } from "../../collections/EdgeFunctionCache";
 
 export class BeatmapManager {
+  static cache = new EdgeFunctionCache<string, MapInfo>(32);
+
   static async fetchBeatmap(
     beatmapIDOrHash: string,
     fetchBeatmaps = async (): Promise<MapInfo> => {
@@ -12,15 +14,14 @@ export class BeatmapManager {
   ): Promise<MapInfo | undefined> {
     let selectedBeatmap: MapInfo | undefined;
 
-    const cacheBeatmap = (selectedBeatmap =
-      Database.nodeCache.get(beatmapIDOrHash));
+    const cacheBeatmap = (selectedBeatmap = this.cache.get(beatmapIDOrHash));
 
     /**
      * We also don't want to load cache from maps that we previously couldn't fetch.
      */
     if (!cacheBeatmap && cacheBeatmap !== null) {
       const newBeatmap = await fetchBeatmaps();
-      Database.nodeCache.set(beatmapIDOrHash, newBeatmap ?? undefined, 60);
+      this.cache.set(beatmapIDOrHash, newBeatmap ?? undefined);
       if (!newBeatmap.title) {
         return undefined;
       }

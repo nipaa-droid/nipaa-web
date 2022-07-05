@@ -1,9 +1,9 @@
 import { HTTPMethod } from "../http/HttpMethod";
 import { EnumUtils } from "../utils/EnumUtils";
-import { AppRouter } from "./routers/_app";
 import { User } from "next-auth";
 import { NonNullableRequired } from "../utils/TypeUtils";
 import * as trpc from "@trpc/server";
+import { AnyRouter } from "@trpc/server";
 
 const MIDDLEWARE_ERRORS = {
   METHOD_NOT_SUPPORTED: new trpc.TRPCError({ code: "METHOD_NOT_SUPPORTED" }),
@@ -11,7 +11,7 @@ const MIDDLEWARE_ERRORS = {
 };
 
 export const protectRouteWithMethods = (
-  router: AppRouter,
+  router: AnyRouter,
   methods: HTTPMethod[]
 ) => {
   return router.middleware(({ next, ctx }) => {
@@ -35,7 +35,7 @@ export const protectRouteWithMethods = (
   });
 };
 
-export const protectRouteWithAuthentication = (router: AppRouter) => {
+export const protectRouteWithAuthentication = (router: AnyRouter) => {
   return router.middleware(({ next, ctx }) => {
     const error = MIDDLEWARE_ERRORS.UNAUTHORIZED;
 
