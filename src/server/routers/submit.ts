@@ -1,5 +1,5 @@
 import { OsuDroidStats, Prisma } from "@prisma/client";
-import { Responses } from "../../api/response/Responses";
+import { Responses } from "../../api/Responses";
 import { DatabaseSetup } from "../../database/DatabaseSetup";
 import {
   OsuDroidScoreHelper,

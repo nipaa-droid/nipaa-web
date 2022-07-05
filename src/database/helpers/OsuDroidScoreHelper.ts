@@ -12,7 +12,7 @@ import {
 } from "@rian8337/osu-difficulty-calculator";
 import assert from "assert";
 import { differenceInSeconds } from "date-fns";
-import { EnumUtils } from "../../api/enums/EnumUtils";
+import { EnumUtils } from "../../utils/EnumUtils";
 import { assertDefined } from "../../assertions";
 import { EnvironmentConstants } from "../../constants/EnvironmentConstants";
 import { IHasError } from "../../interfaces/IHasError";
@@ -81,6 +81,10 @@ export type CalculatableScore = AtLeast<
 export type SuccessSubmissionScoreReturnType = {
   score: OsuDroidScoreWithoutGenerated;
   map: MapInfo;
+};
+
+export type OsuDroidScoreWithExtra = Omit<OsuDroidScore, "extra"> & {
+  extra: ExtraModData | null;
 };
 
 export type ErrorSubmissionScoreReturnType = IHasError<string>;

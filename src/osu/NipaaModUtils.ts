@@ -1,3 +1,4 @@
+import { OsuDroidScore, Prisma } from "@prisma/client";
 import {
   Mod,
   ModAuto,
@@ -6,8 +7,12 @@ import {
   ModScoreV2,
   ModUtil,
 } from "@rian8337/osu-base";
-import { OsuDroidScore } from "../database/entities";
+import {
+  ExtraModData,
+  OsuDroidScoreWithExtra,
+} from "../database/helpers/OsuDroidScoreHelper";
 import { NumberUtils } from "../utils/NumberUtils";
+import { AtLeast } from "../utils/TypeUtils";
 
 type DroidStats = {
   mods: Mod[];
@@ -27,9 +32,11 @@ export class NipaaModUtil extends ModUtil {
     return mods.reduce((acc, cur) => acc + cur.bitwise, 0);
   }
 
-  static droidStringFromScore(score: OsuDroidScore) {
-    return this.modsToDroidString(score.mods, {
-      customSpeed: score.customSpeed,
+  static droidStringFromScore(
+    score: AtLeast<OsuDroidScoreWithExtra, "extra" | "mods">
+  ) {
+    return this.modsToDroidString(NipaaModUtil.pcModbitsToMods(score.mods), {
+      customSpeed: (score.extra as ExtraModData).customSpeed,
     });
   }
 

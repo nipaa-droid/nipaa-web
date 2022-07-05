@@ -1,3 +1,3 @@
-export type IHasError<T> = {
+export interface IHasError<T> {
   error: T;
-};
+}

@@ -1,5 +1,5 @@
 import { HTTPMethod } from "../http/HttpMethod";
-import { EnumUtils } from "../api/enums/EnumUtils";
+import { EnumUtils } from "../utils/EnumUtils";
 import { AppRouter } from "./routers/_app";
 import { User } from "next-auth";
 import { NonNullableRequired } from "../utils/TypeUtils";
