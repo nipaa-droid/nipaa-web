@@ -1,7 +1,7 @@
 import { SessionProvider } from "next-auth/react";
 import { withTRPC } from "@trpc/next";
 import { AppType } from "next/dist/shared/lib/utils";
-import { AppRouter } from "./api/trpc/[trcp]";
+import { AppRouter } from "./api/trpc/[trpc]";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
