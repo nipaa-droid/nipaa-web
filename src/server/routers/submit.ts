@@ -1,4 +1,4 @@
-import { OsuDroidStats, Prisma } from "@prisma/client";
+import { OsuDroidStats } from "@prisma/client";
 import { Responses } from "../../api/Responses";
 import { DatabaseSetup } from "../../database/DatabaseSetup";
 import {
@@ -143,7 +143,6 @@ export const submitRouter = protectRouteWithAuthentication(
             maxCombo: score.maxCombo,
             grade: score.grade,
             mods: score.mods,
-            extra: score.extra as Prisma.InputJsonValue,
             fc: score.fc,
             status: score.status,
             playerId: score.playerId,
