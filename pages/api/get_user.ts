@@ -1,13 +1,13 @@
 import { OsuDroidUser } from "@prisma/client";
-import { NextApiRequestTypedBody } from "../../shared/api/query/NextApiRequestTypedBody";
-import { RequestHandler } from "../../shared/api/request/RequestHandler";
-import { JsonErrors } from "../../shared/api/response/JsonErrors";
-import { JsonResponse } from "../../shared/api/response/JsonResponse";
-import { Responses } from "../../shared/api/response/Responses";
-import { HTTPMethod } from "../../shared/http/HttpMethod";
-import { HttpStatusCode } from "../../shared/http/HttpStatusCodes";
-import { IHasID } from "../../shared/interfaces/IHasID";
-import { RequestValidator } from "../../shared/type/RequestValidator";
+import { NextApiRequestTypedBody } from "../../src/api/query/NextApiRequestTypedBody";
+import { RequestHandler } from "../../src/api/request/RequestHandler";
+import { JsonErrors } from "../../src/api/response/JsonErrors";
+import { JsonResponse } from "../../src/api/response/JsonResponse";
+import { Responses } from "../../src/api/response/Responses";
+import { HTTPMethod } from "../../src/http/HttpMethod";
+import { HttpStatusCode } from "../../src/http/HttpStatusCodes";
+import { IHasID } from "../../src/interfaces/IHasID";
+import { RequestValidator } from "../../src/type/RequestValidator";
 
 export default async function handler(
   req: NextApiRequestTypedBody<IHasID>,

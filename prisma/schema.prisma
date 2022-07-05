@@ -36,6 +36,8 @@ model OsuDroidScore {
 
     mapHash String @db.Char(32)
 
+    replay String
+
     pp Float
 
     // MAYBE THIS COLUMN IS UNNECESSARY WE COULD ANALYZE THE REPLAY BUFFER INSTEAD TO CHECK FOR THE SCORE

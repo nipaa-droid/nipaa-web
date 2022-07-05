@@ -1,42 +1,42 @@
 import "reflect-metadata";
-import { getNipaaFirebaseApp } from "../../shared/database/NippaFirebase";
+import { getNipaaFirebaseApp } from "../../src/database/NippaFirebase";
 
 import { NextApiResponse } from "next";
-import { HTTPMethod } from "../../shared/http/HttpMethod";
-import { NextApiRequestTypedBody } from "../../shared/api/query/NextApiRequestTypedBody";
-import { RequestHandler } from "../../shared/api/request/RequestHandler";
-import { Database } from "../../shared/database/Database";
+import { HTTPMethod } from "../../src/http/HttpMethod";
+import { NextApiRequestTypedBody } from "../../src/api/query/NextApiRequestTypedBody";
+import { RequestHandler } from "../../src/api/request/RequestHandler";
+import { Database } from "../../src/database/Database";
 import { IncomingForm } from "formidable";
 import PersistentFile from "formidable/PersistentFile";
-import { OsuDroidScore, OsuDroidUser } from "../../shared/database/entities";
+import { OsuDroidScore, OsuDroidUser } from "../../src/database/entities";
 import { differenceInSeconds } from "date-fns";
-import { HttpStatusCode } from "../../shared/http/HttpStatusCodes";
-import { Responses } from "../../shared/api/response/Responses";
-import { EnvironmentConstants } from "../../shared/constants/EnvironmentConstants";
+import { HttpStatusCode } from "../../src/http/HttpStatusCodes";
+import { Responses } from "../../src/api/response/Responses";
+import { EnvironmentConstants } from "../../src/constants/EnvironmentConstants";
 import {
   IHasLastModifiedDate,
   IHasTempFile,
-} from "../../shared/io/interfaces/PersistentFileInfo";
+} from "../../src/io/interfaces/PersistentFileInfo";
 import fs from "fs/promises";
-import { SubmissionStatusUtils } from "../../shared/osu_droid/enum/SubmissionStatus";
+import { SubmissionStatusUtils } from "../../src/osu_droid/enum/SubmissionStatus";
 import { Accuracy, MapStats, Precision } from "@rian8337/osu-base";
 import { ReplayAnalyzer } from "@rian8337/osu-droid-replay-analyzer";
-import { assertDefined } from "../../shared/assertions";
-import { LATEST_REPLAY_VERSION } from "../../shared/osu_droid/enum/ReplayVersions";
+import { assertDefined } from "../../src/assertions";
+import { LATEST_REPLAY_VERSION } from "../../src/osu_droid/enum/ReplayVersions";
 import {
   DroidPerformanceCalculator,
   DroidStarRating,
 } from "@rian8337/osu-difficulty-calculator";
-import { AccuracyUtils } from "../../shared/osu_droid/AccuracyUtils";
-import { NipaaModUtil } from "../../shared/osu/NipaaModUtils";
+import { AccuracyUtils } from "../../src/osu_droid/AccuracyUtils";
+import { NipaaModUtil } from "../../src/osu/NipaaModUtils";
 import {
   BeatmapReplayAnalyzerWithData,
   ReplayAnalyzerUtils,
-} from "../../shared/osu_droid/ReplayAnalyzerUtils";
+} from "../../src/osu_droid/ReplayAnalyzerUtils";
 import { mean } from "lodash";
-import { DroidRequestValidator } from "../../shared/type/DroidRequestValidator";
-import { NipaaStorage } from "../../shared/database/NipaaStorage";
-import { BeatmapManager } from "../../shared/database/managers/BeatmapManager";
+import { DroidRequestValidator } from "../../src/type/DroidRequestValidator";
+import { NipaaStorage } from "../../src/database/NipaaStorage";
+import { BeatmapManager } from "../../src/database/managers/BeatmapManager";
 import { getStorage } from "firebase-admin/storage";
 
 export const config = {

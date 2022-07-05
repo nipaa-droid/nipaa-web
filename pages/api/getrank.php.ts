@@ -1,19 +1,19 @@
 import "core-js/actual/array/at";
 
 import { NextApiResponse } from "next";
-import { HTTPMethod } from "../../shared/http/HttpMethod";
-import { NextApiRequestTypedBody } from "../../shared/api/query/NextApiRequestTypedBody";
-import { RequestHandler } from "../../shared/api/request/RequestHandler";
-import { DroidRequestValidator } from "../../shared/type/DroidRequestValidator";
-import { HttpStatusCode } from "../../shared/http/HttpStatusCodes";
-import { IHasHash } from "../../shared/api/query/IHasHash";
-import { SubmissionStatusUtils } from "../../shared/osu_droid/enum/SubmissionStatus";
-import { Responses } from "../../shared/api/response/Responses";
-import { NipaaModUtil } from "../../shared/osu/NipaaModUtils";
-import { assertDefined } from "../../shared/assertions";
-import { BeatmapManager } from "../../shared/database/managers/BeatmapManager";
+import { HTTPMethod } from "../../src/http/HttpMethod";
+import { NextApiRequestTypedBody } from "../../src/api/query/NextApiRequestTypedBody";
+import { RequestHandler } from "../../src/api/request/RequestHandler";
+import { DroidRequestValidator } from "../../src/type/DroidRequestValidator";
+import { HttpStatusCode } from "../../src/http/HttpStatusCodes";
+import { IHasHash } from "../../src/api/query/IHasHash";
+import { SubmissionStatusUtils } from "../../src/osu_droid/enum/SubmissionStatus";
+import { Responses } from "../../src/api/response/Responses";
+import { NipaaModUtil } from "../../src/osu/NipaaModUtils";
+import { assertDefined } from "../../src/assertions";
+import { BeatmapManager } from "../../src/database/managers/BeatmapManager";
 import assert from "assert";
-import { OsuDroidScoreHelper } from "../../shared/database/helpers/OsuDroidScoreHelper";
+import { OsuDroidScoreHelper } from "../../src/database/helpers/OsuDroidScoreHelper";
 import { Prisma } from "@prisma/client";
 
 type body = IHasHash;
