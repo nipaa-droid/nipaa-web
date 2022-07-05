@@ -5,7 +5,7 @@ import {
   SubmissionStatus,
 } from "@prisma/client";
 import assert from "assert";
-import { AtLeast } from "../../utils/TypeUtils";
+import { AtLeast, MustHave } from "../../utils/TypeUtils";
 import { DatabaseSetup } from "../DatabaseSetup";
 import { Metrics } from "../Metrics";
 import {
@@ -13,9 +13,14 @@ import {
   OsuDroidScoreHitDataKeys,
 } from "./OsuDroidScoreHelper";
 
+export type OsuDroidStatsToCalculateScores = AtLeast<
+  OsuDroidStats,
+  "userId" | "mode"
+>;
+
 export class OsuDroidStatsHelper {
   static #getScoresForStatsQuery(
-    stats: OsuDroidStats
+    stats: OsuDroidStatsToCalculateScores
   ): Prisma.OsuDroidScoreWhereInput {
     return {
       playerId: stats.userId,
@@ -24,7 +29,7 @@ export class OsuDroidStatsHelper {
   }
 
   static #getRankedScoresForStatsQuery(
-    stats: OsuDroidStats
+    stats: OsuDroidStatsToCalculateScores
   ): Prisma.OsuDroidScoreWhereInput {
     const query = this.#getScoresForStatsQuery(stats);
     query.status = SubmissionStatus.BEST;
@@ -32,7 +37,7 @@ export class OsuDroidStatsHelper {
   }
 
   static #getMetricToCalculateQuery(
-    stats: OsuDroidStats
+    stats: OsuDroidStatsToCalculateScores
   ): Prisma.OsuDroidScoreFindManyArgs {
     return {
       where: this.#getRankedScoresForStatsQuery(stats),
@@ -58,7 +63,7 @@ export class OsuDroidStatsHelper {
     return currentAccumulator;
   }
 
-  static async getAccuracy(stats: OsuDroidStats) {
+  static async getAccuracy(stats: OsuDroidStatsToCalculateScores) {
     const query = this.#getMetricToCalculateQuery(stats);
 
     query.select = {
@@ -91,7 +96,7 @@ export class OsuDroidStatsHelper {
     return weightedData.accuracySum / weightedData.weighting;
   }
 
-  static async getPerformance(stats: OsuDroidStats) {
+  static async getPerformance(stats: OsuDroidStatsToCalculateScores) {
     const query = this.#getMetricToCalculateQuery(stats);
 
     query.select = {
@@ -120,17 +125,19 @@ export class OsuDroidStatsHelper {
     return aggregate._sum.score;
   }
 
-  static async getTotalRankedScore(stats: OsuDroidStats) {
+  static async getTotalRankedScore(stats: OsuDroidStatsToCalculateScores) {
     return await this.#getTotalScoreBase(
       this.#getRankedScoresForStatsQuery(stats)
     );
   }
 
-  static async getTotalScore(stats: OsuDroidStats) {
+  static async getTotalScore(stats: OsuDroidStatsToCalculateScores) {
     return await this.#getTotalScoreBase(this.#getScoresForStatsQuery(stats));
   }
 
-  static async getGlobalRank(stats: OsuDroidStats) {
+  static async getGlobalRank(
+    stats: MustHave<OsuDroidStatsToCalculateScores, "id">
+  ) {
     return (
       (await prisma.osuDroidStats.count({
         where: {
@@ -142,7 +149,7 @@ export class OsuDroidStatsHelper {
     );
   }
 
-  static async getMetric(stats: OsuDroidStats) {
+  static async getMetric(stats: OsuDroidStatsToCalculateScores) {
     switch (DatabaseSetup.metric) {
       case Metrics.pp:
         return await this.getPerformance(stats);

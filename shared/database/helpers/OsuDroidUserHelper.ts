@@ -5,7 +5,6 @@ import {
   Prisma,
   SubmissionStatus,
 } from "@prisma/client";
-import assert from "assert";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
 import { AtLeast } from "../../utils/TypeUtils";
 import { OsuDroidScoreWithoutGenerated } from "./OsuDroidScoreHelper";
@@ -16,9 +15,13 @@ export type UserWithStats = OsuDroidUser & {
 
 export type UserWithAtLeastStats = AtLeast<UserWithStats, "stats">;
 
+type OsuDroidStatsWithAtLeastMode = AtLeast<OsuDroidStats, "mode">;
+
 export class OsuDroidUserHelper {
-  static getStatistic(user: UserWithAtLeastStats, mode: GameMode) {
-    return user.stats.find((s) => s.mode === mode);
+  static getStatistic<
+    T extends OsuDroidStatsWithAtLeastMode = OsuDroidStatsWithAtLeastMode
+  >(statistics: T[], mode: GameMode) {
+    return statistics.find((s) => s.mode === mode);
   }
 
   /**
@@ -26,14 +29,16 @@ export class OsuDroidUserHelper {
    * @param mapHash The beatmap hash to get the best score from.
    */
   static async getBestScoreOnBeatmap(
-    playerId: number,
+    playerId: string,
     mapHash: string,
+    mode: GameMode,
     options?: Prisma.OsuDroidScoreArgs
   ) {
     const query: Prisma.OsuDroidScoreFindFirstArgs = {
       where: {
         playerId,
         mapHash,
+        mode,
         status: { in: SubmissionStatusUtils.USER_BEST_STATUS },
       },
     };
@@ -47,16 +52,12 @@ export class OsuDroidUserHelper {
   }
 
   static async submitScore(
-    user: AtLeast<OsuDroidUser, "id"> & UserWithAtLeastStats,
+    statistic: AtLeast<OsuDroidStats, "mode" | "playCount">,
     score: OsuDroidScoreWithoutGenerated
   ) {
     if (score.status === SubmissionStatus.FAILED) {
       throw "Can't submit a score which it's status is failed.";
     }
-
-    const statistic = this.getStatistic(user, score.mode);
-
-    assert(statistic);
 
     statistic.playCount++;
   }

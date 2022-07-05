@@ -4,7 +4,7 @@ export type NonNullableKeys<T, K extends (keyof T)[]> = {
   [P in K[number]]-?: NonNullable<T[P]>;
 };
 
-type Concrete<T> = {
+export type NonNullableRequired<T> = {
   [P in keyof T]-?: NonNullable<T[P]>;
 };
 
@@ -24,6 +24,10 @@ export type NonEmptyArray<T> = {
   0: T;
 } & Array<T>;
 
-export type AtLeast<T, K extends keyof T> = Partial<T> & Concrete<Pick<T, K>>;
+export type AtLeast<T, K extends keyof T> = Partial<T> &
+  NonNullableRequired<Pick<T, K>>;
+
+export type MustHave<T, K extends keyof T> = T &
+  NonNullableRequired<Pick<T, K>>;
 
 export type MaybeExtend<T> = T & Record<never, unknown>;

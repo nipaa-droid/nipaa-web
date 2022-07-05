@@ -1,6 +1,8 @@
+import { GameMode } from "@prisma/client";
 import { Metrics } from "./Metrics";
 
 export class DatabaseSetup {
+  static game_mode = GameMode.std;
   static metric = Metrics.pp;
 }
 

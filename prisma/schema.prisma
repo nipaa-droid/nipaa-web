@@ -8,7 +8,7 @@ datasource db {
 }
 
 model OsuDroidUser {
-    id           Int             @id @default(sequence())
+    id           String          @id @default(sequence())
     email        String          @unique
     username     String          @unique
     createdAt    DateTime        @default(now()) @map(name: "created_at")
@@ -20,17 +20,17 @@ model OsuDroidUser {
 }
 
 model OsuDroidStats {
-    id   Int      @id @default(sequence())
+    id   String   @id @default(sequence())
     mode GameMode
 
     playCount Int @map(name: "play_count")
 
-    userId Int
+    userId String
     user   OsuDroidUser? @relation(fields: [userId], references: [id])
 }
 
 model OsuDroidScore {
-    id Int @id @default(sequence())
+    id String @id @default(sequence())
 
     mode GameMode
 
@@ -59,7 +59,7 @@ model OsuDroidScore {
 
     status SubmissionStatus
 
-    playerId Int
+    playerId String
     player   OsuDroidUser? @relation(fields: [playerId], references: [id])
 }
 

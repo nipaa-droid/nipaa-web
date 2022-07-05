@@ -19,6 +19,7 @@
     "noUnusedLocals": true,
     "noUncheckedIndexedAccess": true,
     "alwaysStrict": true,
+    "strictNullChecks": true,
     "allowUnusedLabels": false,
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,

@@ -1,5 +1,4 @@
 import {
-  GameMode,
   OsuDroidScore,
   OsuDroidUser,
   Prisma,
@@ -16,6 +15,7 @@ import { differenceInSeconds } from "date-fns";
 import { EnumUtils } from "../../api/enums/EnumUtils";
 import { assertDefined } from "../../assertions";
 import { EnvironmentConstants } from "../../constants/EnvironmentConstants";
+import { IHasError } from "../../interfaces/IHasError";
 import { NipaaModUtil } from "../../osu/NipaaModUtils";
 import { AccuracyUtils } from "../../osu_droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
@@ -45,7 +45,7 @@ export type ExtraModData = {
 
 type RequiredSubmissionPlayerKeys = keyof Pick<
   OsuDroidUser,
-  "username" | "playing" | "id"
+  "username" | "playing"
 >;
 
 type CommonSubmissionPlayer = AtLeast<
@@ -78,9 +78,23 @@ export type CalculatableScore = AtLeast<
   CalculatableScoreKeys | ScoreMetricKeyType
 >;
 
+export type SuccessSubmissionScoreReturnType = {
+  score: OsuDroidScoreWithoutGenerated;
+  map: MapInfo;
+};
+
+export type ErrorSubmissionScoreReturnType = IHasError<string>;
+
 type SubmissionScoreReturnType = Promise<
-  OsuDroidScoreWithoutGenerated | undefined
+  SuccessSubmissionScoreReturnType | ErrorSubmissionScoreReturnType
 >;
+
+export function isSubmissionScoreReturnError(
+  data: unknown
+): data is ErrorSubmissionScoreReturnType {
+  const tData = data as ErrorSubmissionScoreReturnType;
+  return typeof tData.error === "string";
+}
 
 export type OsuDroidScoreWithoutGenerated = Omit<OsuDroidScore, "id" | "date">;
 
@@ -143,36 +157,17 @@ export class OsuDroidScoreHelper {
 
   static async fromSubmission(
     data: string,
-    user?: SubmissionPlayer<UserWithStats>,
-    submit?: boolean
-  ): SubmissionScoreReturnType;
-
-  static async fromSubmission(
-    data: string,
-    user?: SubmissionPlayer,
-    submit?: false
-  ): SubmissionScoreReturnType;
-
-  /**
-   * Gets an score from a replay data submission,
-   * also calls both {@link calculateStatus} and {@link calculatePlacement} on the created score.
-   * @param data the replay data from the submission.
-   * @param user the owner of the score.
-   * @param submit wether to call {@link OsuDroidUser#submitScore}.
-   */
-  static async fromSubmission(
-    data: string,
     user?: SubmissionCallPlayer,
-    submit = true
+    playerId = user?.id
   ): SubmissionScoreReturnType {
-    const MODE = GameMode.std;
-
     const dataArray: string[] = data.split(" ");
 
     const DATA_ARRAY_LENGHT = 14;
 
     if (dataArray.length != DATA_ARRAY_LENGHT) {
-      return;
+      return {
+        error: "Invalid score data lenght.",
+      };
     }
 
     const dataTuple = dataArray as unknown as Tuple<
@@ -188,22 +183,19 @@ export class OsuDroidScoreHelper {
 
     const toBuildScore: Partial<OsuDroidScoreWithPlayer> = {};
 
-    const fail = (reason: string) => {
-      if (toBuildScore) {
-        toBuildScore.status = SubmissionStatus.FAILED;
-      }
-      console.log(`Failed to get score from submission. "${reason}"`);
-    };
-
     if (!NipaaModUtil.isCompatible(mods)) {
-      fail("Incompatible mods.");
-      return;
+      return {
+        error: "Incompatible mods.",
+      };
     }
 
     if (!NipaaModUtil.isModRanked(mods)) {
-      fail("Unranked mods.");
-      return;
+      return {
+        error: "Unranked mods",
+      };
     }
+
+    toBuildScore.mode = DatabaseSetup.game_mode;
 
     toBuildScore.mods = NipaaModUtil.modsToBitwise(mods);
 
@@ -227,8 +219,9 @@ export class OsuDroidScoreHelper {
         extraModData.customSpeed <= 2
       )
     ) {
-      fail(`Invalid custom speed: ${extraModData.customSpeed}`);
-      return;
+      return {
+        error: `Invalid custom speed: ${extraModData.customSpeed}`,
+      };
     }
 
     assertDefined(customSpeed);
@@ -247,8 +240,9 @@ export class OsuDroidScoreHelper {
       differenceInSeconds(dataDate, new Date()) >
       EnvironmentConstants.EDGE_FUNCTION_LIMIT_RESPONSE_TIME
     ) {
-      fail("Took to long to get score from submission.");
-      return;
+      return {
+        error: "Took to long to get score from submission.",
+      };
     }
 
     const username = dataTuple[13];
@@ -267,37 +261,33 @@ export class OsuDroidScoreHelper {
 
       assertDefined(query.select);
 
-      if (submit) {
-        query.select.stats = {
-          where: {
-            mode: MODE,
-          },
-        };
-      }
-
       const gotUser = await prisma.osuDroidUser.findUnique(query);
 
       if (!gotUser) {
-        fail("Score player not found.");
-        return;
+        return {
+          error: "Score player not found.",
+        };
       }
 
       user = gotUser;
+      playerId = user.id;
     }
 
+    assert(playerId);
+
     if (user.username !== username) {
-      fail("Invalid score username.");
-      console.log(user.username);
-      console.log(username);
-      return;
+      return {
+        error: `Score submission username didn't match. (${user.username} != ${username})`,
+      };
     }
 
     toBuildScore.player = user;
     toBuildScore.playerId = user.id;
 
     if (!user.playing) {
-      fail("User isn't playing a beatmap.");
-      return;
+      return {
+        error: "User isn't playing a beatmap.",
+      };
     }
 
     toBuildScore.mapHash = user.playing;
@@ -305,13 +295,15 @@ export class OsuDroidScoreHelper {
     const mapInfo = await BeatmapManager.fetchBeatmap(toBuildScore.mapHash);
 
     if (!mapInfo || !mapInfo.map) {
-      fail("Score's beatmap not found.");
-      return;
+      return {
+        error: "Score's beatmap not found.",
+      };
     }
 
     if (!this.isBeatmapSubmittable(mapInfo)) {
-      fail("Beatmap not approved.");
-      return;
+      return {
+        error: "Beatmap not approved",
+      };
     }
 
     console.log("Logging replay data.");
@@ -334,8 +326,9 @@ export class OsuDroidScoreHelper {
     const firstIntegerData = sliceDataToInteger(1, 3);
 
     if (!firstIntegerData) {
-      fail("Invalid replay firstIntegerData.");
-      return;
+      return {
+        error: "Invalid replay firstIntegerData.",
+      };
     }
 
     type TypeIntegerData<N extends number> = Tuple<number, N>;
@@ -346,10 +339,14 @@ export class OsuDroidScoreHelper {
     toBuildScore.score = typedFirstIntegerData[0];
     toBuildScore.maxCombo = typedFirstIntegerData[1];
 
+    // TODO WE SHOULD PROBABLY INFER THE GRADE FROM THE DATA THAT WE ALREADY HAVE
+    // TRUSTING THE CLIENT FOR THAT FEELS KINDA DUMB IDK?
     const grade = EnumUtils.getValueByKeyUntyped(ScoreGrade, dataTuple[3]);
 
     if (!grade) {
-      return;
+      return {
+        error: "Invalid grade for scoring passed to server",
+      };
     }
 
     toBuildScore.grade = grade;
@@ -357,8 +354,9 @@ export class OsuDroidScoreHelper {
     const secondIntegerData = sliceDataToInteger(4, 10);
 
     if (!secondIntegerData) {
-      fail("Invalid replay secondIntegerData.");
-      return;
+      return {
+        error: "Invalid replay second integer data",
+      };
     }
 
     const typedSecondIntegerData =
@@ -409,8 +407,9 @@ export class OsuDroidScoreHelper {
     }
 
     const previousScore = await OsuDroidUserHelper.getBestScoreOnBeatmap(
-      user.id,
+      playerId,
       toBuildScore.mapHash,
+      DatabaseSetup.game_mode,
       {
         select: {
           id: true,
@@ -421,7 +420,7 @@ export class OsuDroidScoreHelper {
     );
 
     const builtScore: OsuDroidScoreWithoutGenerated = {
-      mode: MODE,
+      mode: toBuildScore.mode,
       mapHash: toBuildScore.mapHash,
       pp: toBuildScore.pp,
       score: toBuildScore.score,
@@ -437,30 +436,18 @@ export class OsuDroidScoreHelper {
       extra: toBuildScore.extra,
       fc: toBuildScore.fc,
       status: SubmissionStatus.FAILED,
-      playerId: user.id,
+      playerId: playerId,
     };
 
-    await this.calculateStatus(user.id, mapInfo, builtScore, previousScore);
+    await this.calculateStatus(playerId, mapInfo, builtScore, previousScore);
 
-    assertDefined(toBuildScore.status);
-
-    toBuildScore.mode = GameMode.std;
-
-    function assertSubmissionPlayer(
-      _user: SubmissionCallPlayer
-    ): asserts _user is StatsSubmissionPlayer {
-      assert(submit === true);
-    }
-
-    if (submit && SubmissionStatusUtils.isUserBest(toBuildScore.status)) {
-      assertSubmissionPlayer(user);
-      await OsuDroidUserHelper.submitScore(user, builtScore);
-    }
-
-    return builtScore;
+    return {
+      score: builtScore,
+      map: mapInfo,
+    };
   }
 
-  static async calculatePlacement(
+  static async getPlacement(
     score:
       | AtLeast<OsuDroidScore, "mapHash">
       | AtLeast<OsuDroidScore, "mapHash" | "id">
@@ -490,7 +477,7 @@ export class OsuDroidScoreHelper {
   }
 
   static async calculateStatus(
-    userId: number,
+    userId: string,
     map: MapInfo,
     newScore: CalculatableScore,
     previousBestScore?: CalculatableScore | null
@@ -502,6 +489,7 @@ export class OsuDroidScoreHelper {
         await OsuDroidUserHelper.getBestScoreOnBeatmap(
           userId,
           newScore.mapHash,
+          DatabaseSetup.game_mode,
           {
             select: {
               id: true,
