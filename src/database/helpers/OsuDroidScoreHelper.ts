@@ -84,7 +84,7 @@ export type SuccessSubmissionScoreReturnType = {
 };
 
 export type OsuDroidScoreWithExtra = Omit<OsuDroidScore, "extra"> & {
-  extra: ExtraModData | null;
+  extra: Prisma.JsonValue;
 };
 
 export type ErrorSubmissionScoreReturnType = IHasError<string>;
@@ -125,7 +125,7 @@ export class OsuDroidScoreHelper {
   ];
 
   static getMods(score: OsuDroidScore) {
-    return NipaaModUtil.pcModbitsToMods(score.mods);
+    return NipaaModUtil.droidStringToMods(score.mods);
   }
 
   static getMetricKey() {
@@ -201,7 +201,7 @@ export class OsuDroidScoreHelper {
 
     toBuildScore.mode = DatabaseSetup.game_mode;
 
-    toBuildScore.mods = NipaaModUtil.modsToBitwise(mods);
+    toBuildScore.mods = modsDroidString;
 
     console.log(`Mods: ${toBuildScore.mods}`);
     console.log(`Droid mods: ${modsDroidString}`);
@@ -384,8 +384,6 @@ export class OsuDroidScoreHelper {
 
     toBuildScore.fc = toBuildScore.maxCombo === mapInfo.map.maxCombo;
 
-    toBuildScore.extra = extraModData;
-
     const stars = new DroidStarRating().calculate({
       map: mapInfo.map,
       mods,
@@ -437,9 +435,9 @@ export class OsuDroidScoreHelper {
       maxCombo: toBuildScore.maxCombo,
       grade: toBuildScore.grade,
       mods: toBuildScore.mods,
-      extra: toBuildScore.extra,
       fc: toBuildScore.fc,
       status: SubmissionStatus.FAILED,
+      replay: null,
       playerId: playerId,
     };
 
@@ -549,9 +547,5 @@ export class OsuDroidScoreHelper {
       map.approved === rankedStatus.APPROVED
         ? SubmissionStatus.BEST
         : SubmissionStatus.APPROVED;
-  }
-
-  static getExtraModData(score: OsuDroidScore) {
-    return score.extra as ExtraModData;
   }
 }

@@ -36,7 +36,7 @@ model OsuDroidScore {
 
     mapHash String @db.Char(32)
 
-    replay String
+    replay String?
 
     pp Float
 
@@ -53,10 +53,7 @@ model OsuDroidScore {
     maxCombo Int
     grade    ScoreGrade
 
-    // SINCE DROID DOES NOT USE BITS THERE MAY BE MODS THAT ARE UNSUPPORTED SUCH AS PRECISE
-    // WE SHOULD CHANGE THIS TO DROID STRING
-    mods  Int
-    extra Json
+    mods String
 
     fc   Boolean
     date DateTime @default(now())

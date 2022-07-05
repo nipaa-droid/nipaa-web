@@ -1,10 +1,9 @@
 import { Prisma } from "@prisma/client";
-import { Responses } from "../../api/response/Responses";
+import { Responses } from "../../api/Responses";
 import { assertDefined } from "../../assertions";
 import { OsuDroidScoreHelper } from "../../database/helpers/OsuDroidScoreHelper";
 import { BeatmapManager } from "../../database/managers/BeatmapManager";
 import { HTTPMethod } from "../../http/HttpMethod";
-import { NipaaModUtil } from "../../osu/NipaaModUtils";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
 import { createRouter } from "../createRouter";
 import {
@@ -54,6 +53,7 @@ export const getRankRouter = protectRouteWithAuthentication(
         h0: true,
         hKatu: true,
         hGeki: true,
+        mods: true,
         player: {
           select: {
             username: true,
@@ -79,10 +79,9 @@ export const getRankRouter = protectRouteWithAuthentication(
           OsuDroidScoreHelper.getRoundedMetric(s).toString(),
           s.maxCombo.toString(),
           s.grade.toString(),
-          NipaaModUtil.droidStringFromScore(s),
+          s.mods,
           s.maxCombo.toString(),
           s.grade.toString(),
-          NipaaModUtil.droidStringFromScore(s),
           accuracy.toString(),
           ctx.session.user.image
         )
