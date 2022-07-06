@@ -32,7 +32,7 @@ const submissionScoreInput = z
 
 export const submitRouter = protectRouteWithAuthentication(
   protectRouteWithMethods(createRouter(), [HTTPMethod.POST])
-).query("submit", {
+).mutation("submit", {
   input: submissionPingInput.or(submissionScoreInput),
   async resolve({ input, ctx }) {
     const { session } = ctx;
