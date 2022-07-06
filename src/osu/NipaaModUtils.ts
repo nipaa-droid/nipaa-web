@@ -6,7 +6,7 @@ import {
   ModScoreV2,
   ModUtil,
 } from "@rian8337/osu-base";
-import { NumberUtils } from "../utils/NumberUtils";
+import { NumberUtils } from "../utils/number";
 
 type DroidStats = {
   mods: Mod[];

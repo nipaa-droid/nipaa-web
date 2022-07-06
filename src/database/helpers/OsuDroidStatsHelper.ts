@@ -6,7 +6,7 @@ import {
 } from "@prisma/client";
 import assert from "assert";
 import { prisma } from "../../../lib/prisma";
-import { AtLeast, MustHave } from "../../utils/TypeUtils";
+import { AtLeast, MustHave } from "../../utils/types";
 import { DatabaseSetup } from "../DatabaseSetup";
 import { Metrics } from "../Metrics";
 import {

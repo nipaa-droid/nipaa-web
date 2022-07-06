@@ -12,15 +12,15 @@ import {
 } from "@rian8337/osu-difficulty-calculator";
 import assert from "assert";
 import { differenceInSeconds } from "date-fns";
-import { EnumUtils } from "../../utils/EnumUtils";
+import { EnumUtils } from "../../utils/enum";
 import { assertDefined } from "../../assertions";
 import { EnvironmentConstants } from "../../constants/EnvironmentConstants";
 import { IHasError } from "../../interfaces/IHasError";
 import { NipaaModUtil } from "../../osu/NipaaModUtils";
 import { AccuracyUtils } from "../../osu_droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
-import { NumberUtils } from "../../utils/NumberUtils";
-import { AtLeast, Tuple } from "../../utils/TypeUtils";
+import { NumberUtils } from "../../utils/number";
+import { AtLeast, Tuple } from "../../utils/types";
 import { DatabaseSetup } from "../DatabaseSetup";
 import { BeatmapManager } from "../managers/BeatmapManager";
 import { Metrics } from "../Metrics";

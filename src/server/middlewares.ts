@@ -1,7 +1,7 @@
 import { HTTPMethod } from "../http/HttpMethod";
-import { EnumUtils } from "../utils/EnumUtils";
+import { EnumUtils } from "../utils/enum";
 import { User } from "next-auth";
-import { NonNullableRequired } from "../utils/TypeUtils";
+import { NonNullableRequired } from "../utils/types";
 import * as trpc from "@trpc/server";
 import { AnyRouter } from "@trpc/server";
 import { Context } from "./context";
