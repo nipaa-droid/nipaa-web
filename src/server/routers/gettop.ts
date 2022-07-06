@@ -11,7 +11,7 @@ import { prisma } from "../../../lib/prisma";
 
 export const getTopRouter = protectRouteWithAuthentication(
   protectRouteWithMethods(createRouter(), [HTTPMethod.POST])
-).query("gettop", {
+).mutation("gettop", {
   input: z.object({
     playID: z.string(),
   }),

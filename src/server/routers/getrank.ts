@@ -15,7 +15,7 @@ import { schemaWithHash } from "../schemas";
 
 export const getRankRouter = protectRouteWithAuthentication(
   protectRouteWithMethods(createRouter(), [HTTPMethod.POST])
-).query("getrank", {
+).mutation("getrank", {
   input: schemaWithHash,
   async resolve({ input, ctx }) {
     const { hash } = input;
