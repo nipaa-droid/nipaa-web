@@ -7,26 +7,68 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model OsuDroidUser {
-    id           String          @id @default(sequence())
-    email        String          @unique
-    username     String          @unique
-    createdAt    DateTime        @default(now()) @map(name: "created_at")
-    lastSeen     DateTime        @map(name: "last_seen")
-    playing      String          @db.Char(32)
-    oldUsernames String[]
-    scores       OsuDroidScore[]
-    stats        OsuDroidStats[]
+model Account {
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String?
+    access_token      String?
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String?
+    session_state     String?
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+}
+
+model User {
+    id            String    @id @default(cuid())
+    name          String    @unique
+    oldNames      String[]
+    email         String    @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
+
+    createdAt DateTime @default(now())
+    lastSeen  DateTime
+
+    playing String?
+
+    scores OsuDroidScore[]
+    stats  OsuDroidStats[]
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model OsuDroidStats {
     id   String   @id @default(sequence())
     mode GameMode
 
-    playCount Int @map(name: "play_count")
+    playCount Int
 
     userId String
-    user   OsuDroidUser? @relation(fields: [userId], references: [id])
+    user   User   @relation(fields: [userId], references: [id])
 }
 
 model OsuDroidScore {
@@ -43,12 +85,12 @@ model OsuDroidScore {
     // TODO MAYBE THIS COLUMN IS UNNECESSARY WE COULD ANALYZE THE REPLAY BUFFER INSTEAD TO CHECK FOR THE SCORE
     score Int
 
-    h300  Int @map(name: "h_300")
-    h100  Int @map(name: "h_100")
-    h50   Int @map(name: "h_50")
-    h0    Int @map(name: "h_0")
-    hGeki Int @map(name: "h_geki")
-    hKatu Int @map(name: "h_katu")
+    h300  Int
+    h100  Int
+    h50   Int
+    h0    Int
+    hGeki Int
+    hKatu Int
 
     maxCombo Int
     grade    ScoreGrade
@@ -61,7 +103,7 @@ model OsuDroidScore {
     status SubmissionStatus
 
     playerId String
-    player   OsuDroidUser? @relation(fields: [playerId], references: [id])
+    player   User   @relation(fields: [playerId], references: [id])
 }
 
 enum SubmissionStatus {

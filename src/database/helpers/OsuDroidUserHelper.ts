@@ -1,15 +1,15 @@
 import {
   GameMode,
   OsuDroidStats,
-  OsuDroidUser,
   Prisma,
   SubmissionStatus,
+  User,
 } from "@prisma/client";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
 import { AtLeast } from "../../utils/TypeUtils";
 import { OsuDroidScoreWithoutGenerated } from "./OsuDroidScoreHelper";
 
-export type UserWithStats = OsuDroidUser & {
+export type UserWithStats = User & {
   stats: OsuDroidStats[];
 };
 

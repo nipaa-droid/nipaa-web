@@ -1,7 +1,7 @@
 import {
   OsuDroidScore,
-  OsuDroidUser,
   Prisma,
+  User,
   ScoreGrade,
   SubmissionStatus,
 } from "@prisma/client";
@@ -24,7 +24,7 @@ import { AtLeast, Tuple } from "../../utils/TypeUtils";
 import { DatabaseSetup } from "../DatabaseSetup";
 import { BeatmapManager } from "../managers/BeatmapManager";
 import { Metrics } from "../Metrics";
-import { OsuDroidUserHelper, UserWithStats } from "./OsuDroidUserHelper";
+import { OsuDroidUserHelper } from "./OsuDroidUserHelper";
 
 export type ScoreMetricKeyType = keyof Pick<OsuDroidScore, "pp" | "score">;
 
@@ -43,26 +43,9 @@ export type ExtraModData = {
   customSpeed: number;
 };
 
-type RequiredSubmissionPlayerKeys = keyof Pick<
-  OsuDroidUser,
-  "username" | "playing"
->;
+type RequiredSubmissionPlayerKeys = keyof Pick<User, "name" | "playing" | "id">;
 
-type CommonSubmissionPlayer = AtLeast<
-  OsuDroidUser,
-  RequiredSubmissionPlayerKeys
->;
-
-type StatsSubmissionPlayer = AtLeast<
-  UserWithStats,
-  RequiredSubmissionPlayerKeys | "stats"
->;
-
-export type SubmissionPlayer<
-  T extends OsuDroidUser | UserWithStats = OsuDroidUser
-> = T extends OsuDroidUser ? CommonSubmissionPlayer : StatsSubmissionPlayer;
-
-type SubmissionCallPlayer = CommonSubmissionPlayer | StatsSubmissionPlayer;
+type SubmissionPlayer = AtLeast<User, RequiredSubmissionPlayerKeys>;
 
 export type CalculatableScoreKeys = keyof Pick<
   OsuDroidScore,
@@ -161,7 +144,7 @@ export class OsuDroidScoreHelper {
 
   static async fromSubmission(
     data: string,
-    user?: SubmissionCallPlayer,
+    user: SubmissionPlayer,
     playerId = user?.id
   ): SubmissionScoreReturnType {
     const dataArray: string[] = data.split(" ");
@@ -251,37 +234,11 @@ export class OsuDroidScoreHelper {
 
     const username = dataTuple[13];
 
-    if (!user) {
-      const query: Prisma.OsuDroidUserFindUniqueArgs = {
-        where: {
-          username,
-        },
-        select: {
-          id: true,
-          username: true,
-          playing: true,
-        },
-      };
-
-      assertDefined(query.select);
-
-      const gotUser = await prisma.osuDroidUser.findUnique(query);
-
-      if (!gotUser) {
-        return {
-          error: "Score player not found.",
-        };
-      }
-
-      user = gotUser;
-      playerId = user.id;
-    }
-
     assert(playerId);
 
-    if (user.username !== username) {
+    if (user.name !== username) {
       return {
-        error: `Score submission username didn't match. (${user.username} != ${username})`,
+        error: `Score submission username didn't match. (${user.name} != ${username})`,
       };
     }
 

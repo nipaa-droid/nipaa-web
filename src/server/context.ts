@@ -1,5 +1,5 @@
 import { unstable_getServerSession } from "next-auth";
-import { authOptions } from "../../pages/api/auth/[...nextauth]";
+import { authOptions } from "../pages/api/auth/[...nextauth]";
 import * as trpcNext from "@trpc/server/adapters/next";
 import * as trpc from "@trpc/server";
 

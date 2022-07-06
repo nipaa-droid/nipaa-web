@@ -24,7 +24,7 @@ export const getTopRouter = protectRouteWithAuthentication(
       include: {
         player: {
           select: {
-            username: true,
+            name: true,
           },
         },
       },
@@ -50,7 +50,7 @@ export const getTopRouter = protectRouteWithAuthentication(
       accuracy.toString(),
       score.date.getTime().toString(),
       Number(score.fc).toString(),
-      score.player.username
+      score.player.name
     );
   },
 });

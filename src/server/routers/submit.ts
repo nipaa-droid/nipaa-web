@@ -43,7 +43,7 @@ export const submitRouter = protectRouteWithAuthentication(
 
       const { id, hash } = parsedInput;
 
-      const user = await prisma.osuDroidUser.findUnique({
+      const user = await prisma.user.findUnique({
         where: {
           id,
           email: session.user.email,
@@ -58,7 +58,7 @@ export const submitRouter = protectRouteWithAuthentication(
       }
 
       if (user.playing !== hash) {
-        await prisma.osuDroidUser.update({
+        await prisma.user.update({
           where: {
             id,
           },
@@ -74,13 +74,13 @@ export const submitRouter = protectRouteWithAuthentication(
 
       const { data, id } = parsedInput;
 
-      const user = await prisma.osuDroidUser.findUnique({
+      const user = await prisma.user.findUnique({
         where: {
           id,
         },
         select: {
           id: true,
-          username: true,
+          name: true,
           playing: true,
           stats: {
             where: {
@@ -101,6 +101,10 @@ export const submitRouter = protectRouteWithAuthentication(
         return Responses.FAILED(Responses.USER_NOT_FOUND);
       }
 
+      if (!user.playing) {
+        return Responses.FAILED("User is not playing a map.");
+      }
+
       const statistics: OsuDroidStats[] = user.stats.map((s) => {
         return {
           id: s.id,
@@ -110,7 +114,10 @@ export const submitRouter = protectRouteWithAuthentication(
         };
       });
 
-      const scoreData = await OsuDroidScoreHelper.fromSubmission(data, user);
+      const scoreData = await OsuDroidScoreHelper.fromSubmission(data, {
+        ...user,
+        ...{ playing: user.playing },
+      });
 
       if (isSubmissionScoreReturnError(scoreData)) {
         return fail(scoreData.error);

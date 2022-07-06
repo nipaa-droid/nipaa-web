@@ -56,7 +56,7 @@ export const getRankRouter = protectRouteWithAuthentication(
         mods: true,
         player: {
           select: {
-            username: true,
+            name: true,
           },
         },
       },
@@ -75,7 +75,7 @@ export const getRankRouter = protectRouteWithAuthentication(
       responseScores.push(
         Responses.ARRAY(
           s.id.toString(),
-          s.player.username,
+          s.player.name,
           OsuDroidScoreHelper.getRoundedMetric(s).toString(),
           s.maxCombo.toString(),
           s.grade.toString(),
