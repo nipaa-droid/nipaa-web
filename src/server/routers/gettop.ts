@@ -2,7 +2,6 @@ import { createRouter } from "../createRouter";
 import { z } from "zod";
 import { Responses } from "../../api/Responses";
 import { OsuDroidScoreHelper } from "../../database/helpers/OsuDroidScoreHelper";
-import { NipaaModUtil } from "../../osu/NipaaModUtils";
 import {
   protectRouteWithAuthentication,
   protectRouteWithMethods,
