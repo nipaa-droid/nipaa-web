@@ -15,7 +15,7 @@ import { OsuDroidUserHelper } from "../../database/helpers/OsuDroidUserHelper";
 
 export const loginRouter = protectRouteWithAuthentication(
   protectRouteWithMethods(createRouter(), [HTTPMethod.POST])
-).query("login", {
+).mutation("login", {
   input: z.object({
     username: z.string(),
     password: z.string(),
