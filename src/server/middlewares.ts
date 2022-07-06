@@ -40,6 +40,9 @@ export const protectRouteWithAuthentication = (router: AnyRouter<Context>) => {
   return router.middleware(({ next, ctx }) => {
     const error = MIDDLEWARE_ERRORS.UNAUTHORIZED;
 
+    console.log("New session");
+    console.log(ctx.session);
+
     if (
       !ctx.session ||
       !ctx.session.user ||
