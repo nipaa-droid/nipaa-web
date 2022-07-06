@@ -25,6 +25,7 @@ import { DatabaseSetup } from "../DatabaseSetup";
 import { BeatmapManager } from "../managers/BeatmapManager";
 import { Metrics } from "../Metrics";
 import { OsuDroidUserHelper } from "./OsuDroidUserHelper";
+import { prisma } from "../../../lib/prisma";
 
 export type ScoreMetricKeyType = keyof Pick<OsuDroidScore, "pp" | "score">;
 
@@ -469,10 +470,11 @@ export class OsuDroidScoreHelper {
 
     console.log("Previous best found...");
 
+    assert(previousBestScore);
+
     if (
-      !previousBestScore ||
       OsuDroidScoreHelper.getMetric(newScore) >
-        OsuDroidScoreHelper.getMetric(previousBestScore)
+      OsuDroidScoreHelper.getMetric(previousBestScore)
     ) {
       console.log("The new score is better than the previous score.");
 

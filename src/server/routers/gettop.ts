@@ -7,6 +7,7 @@ import {
   protectRouteWithMethods,
 } from "../middlewares";
 import { HTTPMethod } from "../../http/HttpMethod";
+import { prisma } from "../../../lib/prisma";
 
 export const getTopRouter = protectRouteWithAuthentication(
   protectRouteWithMethods(createRouter(), [HTTPMethod.POST])

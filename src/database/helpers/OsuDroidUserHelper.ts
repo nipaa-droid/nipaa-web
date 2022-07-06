@@ -5,6 +5,7 @@ import {
   SubmissionStatus,
   User,
 } from "@prisma/client";
+import { prisma } from "../../../lib/prisma";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
 import { AtLeast } from "../../utils/TypeUtils";
 import { OsuDroidScoreWithoutGenerated } from "./OsuDroidScoreHelper";

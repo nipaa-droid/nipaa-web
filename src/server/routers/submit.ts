@@ -16,6 +16,7 @@ import {
   protectRouteWithMethods,
 } from "../middlewares";
 import { HTTPMethod } from "../../http/HttpMethod";
+import { prisma } from "../../../lib/prisma";
 
 const submissionPingInput = z
   .object({

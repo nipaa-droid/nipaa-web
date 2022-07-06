@@ -5,11 +5,12 @@ generator client {
 datasource db {
     provider = "cockroachdb"
     url      = env("DATABASE_URL")
+
 }
 
 model Account {
-    id                String  @id @default(cuid())
-    userId            String
+    id                Int     @id @default(sequence())
+    userId            Int
     type              String
     provider          String
     providerAccountId String
@@ -27,7 +28,7 @@ model Account {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            Int       @id @default(sequence())
     name          String    @unique
     oldNames      String[]
     email         String    @unique
@@ -37,7 +38,7 @@ model User {
     sessions      Session[]
 
     createdAt DateTime @default(now())
-    lastSeen  DateTime
+    lastSeen  DateTime @default(now())
 
     playing String?
 
@@ -54,25 +55,25 @@ model VerificationToken {
 }
 
 model Session {
-    id           String   @id @default(cuid())
+    id           Int      @id @default(sequence())
     sessionToken String   @unique
-    userId       String
+    userId       Int
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model OsuDroidStats {
-    id   String   @id @default(sequence())
+    id   Int      @id @default(sequence())
     mode GameMode
 
     playCount Int
 
-    userId String
-    user   User   @relation(fields: [userId], references: [id])
+    userId Int
+    user   User @relation(fields: [userId], references: [id])
 }
 
 model OsuDroidScore {
-    id String @id @default(sequence())
+    id Int @id @default(sequence())
 
     mode GameMode
 
@@ -102,8 +103,8 @@ model OsuDroidScore {
 
     status SubmissionStatus
 
-    playerId String
-    player   User   @relation(fields: [playerId], references: [id])
+    playerId Int
+    player   User @relation(fields: [playerId], references: [id])
 }
 
 enum SubmissionStatus {
