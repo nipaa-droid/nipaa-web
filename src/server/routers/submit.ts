@@ -1,4 +1,4 @@
-import { OsuDroidStats } from "@prisma/client";
+import { OsuDroidStats, Prisma } from "@prisma/client";
 import { Responses } from "../../api/Responses";
 import { DatabaseSetup } from "../../database/DatabaseSetup";
 import {
@@ -10,7 +10,6 @@ import { OsuDroidUserHelper } from "../../database/helpers/OsuDroidUserHelper";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
 import { createRouter } from "../createRouter";
 import { z } from "zod";
-import { schemaWithID } from "../schemas";
 import {
   protectRouteWithAuthentication,
   protectRouteWithMethods,
@@ -18,17 +17,13 @@ import {
 import { HTTPMethod } from "../../http/HttpMethod";
 import { prisma } from "../../../lib/prisma";
 
-const submissionPingInput = z
-  .object({
-    hash: z.string(),
-  })
-  .and(schemaWithID);
+const submissionPingInput = z.object({
+  hash: z.string(),
+});
 
-const submissionScoreInput = z
-  .object({
-    data: z.string(),
-  })
-  .and(schemaWithID);
+const submissionScoreInput = z.object({
+  data: z.string(),
+});
 
 export const submitRouter = protectRouteWithAuthentication(
   protectRouteWithMethods(createRouter(), [HTTPMethod.POST])
@@ -37,18 +32,21 @@ export const submitRouter = protectRouteWithAuthentication(
   async resolve({ input, ctx }) {
     const { session } = ctx;
 
+    const { id } = session.user;
+
     const isSubmissionPing = await submissionPingInput.safeParseAsync(input);
+
+    const whereUser: Prisma.UserWhereUniqueInput = {
+      id: Number(id),
+    };
 
     if (isSubmissionPing) {
       const parsedInput = await submissionPingInput.parseAsync(input);
 
-      const { id, hash } = parsedInput;
+      const { hash } = parsedInput;
 
       const user = await prisma.user.findUnique({
-        where: {
-          id: Number(id),
-          email: session.user.email,
-        },
+        where: whereUser,
         select: {
           playing: true,
         },
@@ -60,9 +58,7 @@ export const submitRouter = protectRouteWithAuthentication(
 
       if (user.playing !== hash) {
         await prisma.user.update({
-          where: {
-            id: Number(id),
-          },
+          where: whereUser,
           data: {
             playing: hash,
           },
@@ -73,12 +69,10 @@ export const submitRouter = protectRouteWithAuthentication(
     } else {
       const parsedInput = await submissionScoreInput.parseAsync(input);
 
-      const { data, id } = parsedInput;
+      const { data } = parsedInput;
 
       const user = await prisma.user.findUnique({
-        where: {
-          id: Number(id),
-        },
+        where: whereUser,
         select: {
           id: true,
           name: true,

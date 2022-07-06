@@ -5,6 +5,7 @@ import { NonNullableRequired } from "../utils/types";
 import * as trpc from "@trpc/server";
 import { AnyRouter } from "@trpc/server";
 import { Context } from "./context";
+import { prisma } from "../../lib/prisma";
 
 const MIDDLEWARE_ERRORS = {
   METHOD_NOT_SUPPORTED: new trpc.TRPCError({ code: "METHOD_NOT_SUPPORTED" }),
@@ -60,6 +61,26 @@ export const protectRouteWithAuthentication = (router: AnyRouter<Context>) => {
           user: ctx.session.user as NonNullableRequired<User>,
         },
       },
+    });
+  });
+};
+
+export const routeWithAccountInformation = (
+  router: trpc.inferAsyncReturnType<typeof protectRouteWithAuthentication>
+) => {
+  return router.middleware(async ({ next, ctx }) => {
+    const account = await prisma.account.findUnique({
+      where: {
+        id: Number(ctx.session.user.id),
+      },
+    });
+
+    if (!account) {
+      throw MIDDLEWARE_ERRORS.UNAUTHORIZED;
+    }
+
+    return next({
+      ctx: { ...ctx, account },
     });
   });
 };
