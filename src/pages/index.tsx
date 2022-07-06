@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 
 const Home: NextPage = () => {
@@ -14,7 +14,16 @@ const Home: NextPage = () => {
       </Head>
       <main>
         {session ? (
-          <p>{`Logged as ${session.user?.name}`}</p>
+          <>
+            <p>{`Logged as ${session.user?.name}`}</p>
+            <button
+              onClick={async () => {
+                await signOut();
+              }}
+            >
+              Sign out
+            </button>
+          </>
         ) : (
           <>
             <p>Not signed in</p>
