@@ -30,7 +30,7 @@ export class OsuDroidUserHelper {
    * @param mapHash The beatmap hash to get the best score from.
    */
   static async getBestScoreOnBeatmap(
-    playerId: string,
+    playerId: number,
     mapHash: string,
     mode: GameMode,
     options?: Prisma.OsuDroidScoreArgs

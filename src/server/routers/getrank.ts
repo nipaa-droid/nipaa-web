@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { prisma } from "../../../lib/prisma";
 import { Responses } from "../../api/Responses";
 import { assertDefined } from "../../assertions";
 import { OsuDroidScoreHelper } from "../../database/helpers/OsuDroidScoreHelper";

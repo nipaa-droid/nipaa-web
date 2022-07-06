@@ -437,7 +437,7 @@ export class OsuDroidScoreHelper {
   }
 
   static async calculateStatus(
-    userId: string,
+    userId: number,
     map: MapInfo,
     newScore: CalculatableScore,
     previousBestScore?: CalculatableScore | null

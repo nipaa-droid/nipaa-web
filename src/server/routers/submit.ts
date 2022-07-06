@@ -46,7 +46,7 @@ export const submitRouter = protectRouteWithAuthentication(
 
       const user = await prisma.user.findUnique({
         where: {
-          id,
+          id: Number(id),
           email: session.user.email,
         },
         select: {
@@ -61,7 +61,7 @@ export const submitRouter = protectRouteWithAuthentication(
       if (user.playing !== hash) {
         await prisma.user.update({
           where: {
-            id,
+            id: Number(id),
           },
           data: {
             playing: hash,
@@ -77,7 +77,7 @@ export const submitRouter = protectRouteWithAuthentication(
 
       const user = await prisma.user.findUnique({
         where: {
-          id,
+          id: Number(id),
         },
         select: {
           id: true,
@@ -108,8 +108,8 @@ export const submitRouter = protectRouteWithAuthentication(
 
       const statistics: OsuDroidStats[] = user.stats.map((s) => {
         return {
-          id: s.id,
-          userId: id,
+          id: Number(s.id),
+          userId: Number(id),
           playCount: s.playCount,
           mode: DatabaseSetup.game_mode,
         };

@@ -20,7 +20,7 @@ export const getTopRouter = protectRouteWithAuthentication(
 
     const score = await prisma.osuDroidScore.findUnique({
       where: {
-        id: playID,
+        id: Number(playID),
       },
       include: {
         player: {
