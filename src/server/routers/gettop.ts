@@ -38,7 +38,7 @@ export const getTopRouter = protectRouteWithAuthentication(
     const accuracy = OsuDroidScoreHelper.getAccuracyDroid(score);
 
     return Responses.SUCCESS(
-      NipaaModUtil.droidStringFromScore(score),
+      score.mods,
       OsuDroidScoreHelper.getRoundedMetric(score).toString(),
       score.maxCombo.toString(),
       score.grade.toString(),
