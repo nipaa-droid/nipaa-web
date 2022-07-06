@@ -19,8 +19,8 @@ const Home: NextPage = () => {
           <>
             <p>Not signed in</p>
             <button
-              onClick={() => {
-                signIn();
+              onClick={async () => {
+                await signIn();
               }}
             >
               Sign in
