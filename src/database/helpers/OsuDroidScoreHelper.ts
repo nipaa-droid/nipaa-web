@@ -13,7 +13,6 @@ import {
 import assert from "assert";
 import { differenceInSeconds } from "date-fns";
 import { EnumUtils } from "../../utils/enum";
-import { assertDefined } from "../../assertions";
 import { EnvironmentConstants } from "../../constants/EnvironmentConstants";
 import { IHasError } from "../../interfaces/IHasError";
 import { NipaaModUtil } from "../../osu/NipaaModUtils";
