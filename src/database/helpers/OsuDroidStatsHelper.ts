@@ -144,7 +144,9 @@ export class OsuDroidStatsHelper {
         where: {
           userId: { not: stats.id },
           mode: stats.mode,
-          [DatabaseSetup.metric]: stats.mode,
+        },
+        orderBy: {
+          [DatabaseSetup.metric]: true,
         },
       })) + 1
     );

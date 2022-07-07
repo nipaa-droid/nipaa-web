@@ -19,7 +19,9 @@ export const registerRouter = protectRouteWithMethods(createRouter(), [
     const existingUser = await prisma.osuDroidUser.findMany({
       where: {
         name: username,
-        email,
+        OR: {
+          email,
+        },
       },
       // we must select atleast something.
       select: {
