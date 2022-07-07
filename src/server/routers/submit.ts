@@ -177,7 +177,8 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
         },
       });
 
-      const userRank = await OsuDroidStatsHelper.getGlobalRank(statistic);
+      const pp = await OsuDroidStatsHelper.getPerformance(statistic);
+      const userRank = await OsuDroidStatsHelper.getGlobalRank(user.id, pp);
       const metric = await OsuDroidStatsHelper.getRoundedMetric(statistic);
       const accuracy = await OsuDroidStatsHelper.getAccuracy(statistic);
       const scoreRank = await OsuDroidScoreHelper.getPlacement(score);

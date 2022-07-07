@@ -1,7 +1,6 @@
 import {
   OsuDroidScore,
   OsuDroidStats,
-  OsuDroidUser,
   Prisma,
   SubmissionStatus,
 } from "@prisma/client";
@@ -145,14 +144,11 @@ export class OsuDroidStatsHelper {
     return await this.#getTotalScoreBase(this.#getScoresForStatsQuery(stats));
   }
 
-  static async getGlobalRank(
-    stats: OsuDroidStatsToCalculateScores & { player: OsuDroidUser },
-    pp: number
-  ) {
+  static async getGlobalRank(playerId: number, pp: number) {
     const users = await prisma.osuDroidUser.findMany({
       where: {
         id: {
-          not: stats.player.id,
+          not: playerId,
         },
       },
       select: {

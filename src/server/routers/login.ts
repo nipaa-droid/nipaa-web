@@ -66,7 +66,9 @@ export const loginRouter = protectRouteWithMethods(createRouter(), [
       return Responses.FAILED(Responses.USER_NOT_FOUND);
     }
 
-    const rank = await OsuDroidStatsHelper.getGlobalRank(statistic);
+    const pp = await OsuDroidStatsHelper.getPerformance(statistic);
+
+    const rank = await OsuDroidStatsHelper.getGlobalRank(user.id, pp);
 
     const metric = await OsuDroidStatsHelper.getRoundedMetric(statistic);
 
