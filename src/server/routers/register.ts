@@ -21,7 +21,10 @@ export const registerRouter = protectRouteWithMethods(createRouter(), [
         name: username,
         email,
       },
-      select: {},
+      // we must select atleast something.
+      select: {
+        id: true,
+      },
     });
 
     if (existingUser) {
