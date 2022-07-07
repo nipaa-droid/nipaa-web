@@ -27,7 +27,7 @@ export const registerRouter = protectRouteWithMethods(createRouter(), [
       },
     });
 
-    if (existingUser) {
+    if (existingUser.length > 0) {
       throw TRPC_ERRORS.UNAUTHORIZED;
     }
 
