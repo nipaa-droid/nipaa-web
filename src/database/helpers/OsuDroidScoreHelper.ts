@@ -215,8 +215,6 @@ export class OsuDroidScoreHelper {
       };
     }
 
-    assertDefined(customSpeed);
-
     if (extraModData.customSpeed !== 1) {
       extraModData.customSpeed = customSpeed;
       console.log(`Custom speed: ${extraModData.customSpeed}`);

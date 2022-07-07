@@ -1,7 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
 import { Responses } from "../../api/Responses";
-import { assertDefined } from "../../assertions";
 import { OsuDroidScoreHelper } from "../../database/helpers/OsuDroidScoreHelper";
 import { OsuDroidUserHelper } from "../../database/helpers/OsuDroidUserHelper";
 import { BeatmapManager } from "../../database/managers/BeatmapManager";
@@ -68,8 +67,6 @@ export const getRankRouter = protectRouteWithMethods(createRouter(), [
     }
 
     scores.forEach((s) => {
-      assertDefined(s.player);
-
       const accuracy = OsuDroidScoreHelper.getAccuracyDroid(s);
 
       responseScores.push(
