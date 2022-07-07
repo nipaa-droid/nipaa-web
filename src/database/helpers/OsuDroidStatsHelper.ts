@@ -1,12 +1,13 @@
 import {
   OsuDroidScore,
   OsuDroidStats,
+  OsuDroidUser,
   Prisma,
   SubmissionStatus,
 } from "@prisma/client";
 import assert from "assert";
 import { prisma } from "../../../lib/prisma";
-import { AtLeast, MustHave } from "../../utils/types";
+import { AtLeast } from "../../utils/types";
 import { DatabaseSetup } from "../DatabaseSetup";
 import { Metrics } from "../Metrics";
 import {
@@ -97,6 +98,14 @@ export class OsuDroidStatsHelper {
     return weightedData.accuracySum / weightedData.weighting;
   }
 
+  static getPerformanceRaw(scores: AtLeast<OsuDroidScore, "pp">[]) {
+    return this.#weightData<"pp", number>(
+      -1,
+      scores,
+      (score, weighting, acc) => acc + score.pp * weighting
+    );
+  }
+
   static async getPerformance(stats: OsuDroidStatsToCalculateScores) {
     const query = this.#getMetricToCalculateQuery(stats);
 
@@ -107,7 +116,7 @@ export class OsuDroidStatsHelper {
     const scores = await prisma.osuDroidScore.findMany(query);
 
     return this.#weightData<"pp", number>(
-      0,
+      -1,
       scores,
       (score, weighting, acc) => acc + score.pp * weighting
     );
@@ -137,19 +146,35 @@ export class OsuDroidStatsHelper {
   }
 
   static async getGlobalRank(
-    stats: MustHave<OsuDroidStatsToCalculateScores, "id">
+    stats: OsuDroidStatsToCalculateScores & { player: OsuDroidUser },
+    pp: number
   ) {
-    return (
-      (await prisma.osuDroidStats.count({
-        where: {
-          userId: { not: stats.id },
-          mode: stats.mode,
+    const users = await prisma.osuDroidUser.findMany({
+      where: {
+        id: {
+          not: stats.player.id,
         },
-        orderBy: {
-          [DatabaseSetup.metric]: true,
+      },
+      select: {
+        scores: {
+          select: {
+            pp: true,
+          },
+          orderBy: {
+            [OsuDroidScoreHelper.getMetricKey()]: "desc" as Prisma.SortOrder,
+          },
+          take: 50,
         },
-      })) + 1
-    );
+      },
+    });
+
+    const usersScores = users.map((user) => user.scores);
+
+    return usersScores
+      .map((scores) => this.getPerformanceRaw(scores))
+      .reduce((acc, cur) => {
+        return cur > pp ? acc++ : acc;
+      });
   }
 
   static async getMetric(stats: OsuDroidStatsToCalculateScores) {
