@@ -10,42 +10,44 @@ import { OsuDroidUserHelper } from "../../database/helpers/OsuDroidUserHelper";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
 import { createRouter } from "../createRouter";
 import { z } from "zod";
-import {
-  protectRouteWithAuthentication,
-  protectRouteWithMethods,
-} from "../middlewares";
+import { protectRouteWithMethods } from "../middlewares";
 import { HTTPMethod } from "../../http/HttpMethod";
 import { prisma } from "../../../lib/prisma";
+import { schemaWithSSID, schemaWithUserID } from "../schemas";
 
-const submissionPingInput = z.object({
-  hash: z.string(),
-});
+const submissionPingInput = z
+  .object({
+    hash: z.string(),
+  })
+  .and(schemaWithSSID)
+  .and(schemaWithUserID);
 
-const submissionScoreInput = z.object({
-  data: z.string(),
-});
+const submissionScoreInput = z
+  .object({
+    data: z.string(),
+  })
+  .and(schemaWithUserID);
 
-export const submitRouter = protectRouteWithAuthentication(
-  protectRouteWithMethods(createRouter(), [HTTPMethod.POST])
-).mutation("submit", {
+export const submitRouter = protectRouteWithMethods(createRouter(), [
+  HTTPMethod.POST,
+]).mutation("submit", {
   input: submissionPingInput.or(submissionScoreInput),
-  async resolve({ input, ctx }) {
-    const { session } = ctx;
-
-    const { id } = session.user;
+  async resolve({ input }) {
+    const { userID } = input;
 
     const isSubmissionPing = await submissionPingInput.safeParseAsync(input);
-
-    const whereUser: Prisma.UserWhereUniqueInput = {
-      id: Number(id),
-    };
 
     if (isSubmissionPing) {
       const parsedInput = await submissionPingInput.parseAsync(input);
 
-      const { hash } = parsedInput;
+      const { hash, ssid } = parsedInput;
 
-      const user = await prisma.user.findUnique({
+      const whereUser: Prisma.OsuDroidUserWhereUniqueInput = {
+        id: userID,
+        session: ssid,
+      };
+
+      const user = await prisma.osuDroidUser.findUnique({
         where: whereUser,
         select: {
           playing: true,
@@ -57,7 +59,7 @@ export const submitRouter = protectRouteWithAuthentication(
       }
 
       if (user.playing !== hash) {
-        await prisma.user.update({
+        await prisma.osuDroidUser.update({
           where: whereUser,
           data: {
             playing: hash,
@@ -65,14 +67,19 @@ export const submitRouter = protectRouteWithAuthentication(
         });
       }
 
-      return Responses.SUCCESS(String(Boolean(Number(true))), id.toString());
+      return Responses.SUCCESS(
+        String(Boolean(Number(true))),
+        userID.toString()
+      );
     } else {
       const parsedInput = await submissionScoreInput.parseAsync(input);
 
       const { data } = parsedInput;
 
-      const user = await prisma.user.findUnique({
-        where: whereUser,
+      const user = await prisma.osuDroidUser.findUnique({
+        where: {
+          id: userID,
+        },
         select: {
           id: true,
           name: true,
@@ -103,7 +110,7 @@ export const submitRouter = protectRouteWithAuthentication(
       const statistics: OsuDroidStats[] = user.stats.map((s) => {
         return {
           id: Number(s.id),
-          userId: Number(id),
+          userId: Number(user.id),
           playCount: s.playCount,
           mode: DatabaseSetup.game_mode,
         };

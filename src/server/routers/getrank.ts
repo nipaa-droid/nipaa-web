@@ -3,21 +3,19 @@ import { prisma } from "../../../lib/prisma";
 import { Responses } from "../../api/Responses";
 import { assertDefined } from "../../assertions";
 import { OsuDroidScoreHelper } from "../../database/helpers/OsuDroidScoreHelper";
+import { OsuDroidUserHelper } from "../../database/helpers/OsuDroidUserHelper";
 import { BeatmapManager } from "../../database/managers/BeatmapManager";
 import { HTTPMethod } from "../../http/HttpMethod";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
 import { createRouter } from "../createRouter";
-import {
-  protectRouteWithAuthentication,
-  protectRouteWithMethods,
-} from "../middlewares";
+import { protectRouteWithMethods } from "../middlewares";
 import { schemaWithHash } from "../schemas";
 
-export const getRankRouter = protectRouteWithAuthentication(
-  protectRouteWithMethods(createRouter(), [HTTPMethod.POST])
-).mutation("getrank", {
+export const getRankRouter = protectRouteWithMethods(createRouter(), [
+  HTTPMethod.POST,
+]).mutation("getrank", {
   input: schemaWithHash,
-  async resolve({ input, ctx }) {
+  async resolve({ input }) {
     const { hash } = input;
 
     const responseScores: string[] = [];
@@ -58,6 +56,7 @@ export const getRankRouter = protectRouteWithAuthentication(
         player: {
           select: {
             name: true,
+            image: true,
           },
         },
       },
@@ -84,7 +83,7 @@ export const getRankRouter = protectRouteWithAuthentication(
           s.maxCombo.toString(),
           s.grade.toString(),
           accuracy.toString(),
-          ctx.session.user.image
+          OsuDroidUserHelper.getImage(s.player.image)
         )
       );
     });

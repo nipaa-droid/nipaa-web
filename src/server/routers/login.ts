@@ -1,40 +1,42 @@
 import { HTTPMethod } from "../../http/HttpMethod";
 import { createRouter } from "../createRouter";
 import { z } from "zod";
-import {
-  protectRouteWithAuthentication,
-  protectRouteWithMethods,
-} from "../middlewares";
+import { protectRouteWithMethods } from "../middlewares";
 import { prisma } from "../../../lib/prisma";
-import * as trpc from "@trpc/server";
 import { Responses } from "../../api/Responses";
 import { Prisma } from "@prisma/client";
 import { OsuDroidStatsHelper } from "../../database/helpers/OsuDroidStatsHelper";
 import { DatabaseSetup } from "../../database/DatabaseSetup";
 import { OsuDroidUserHelper } from "../../database/helpers/OsuDroidUserHelper";
+import { v4 } from "uuid";
+import bcrypt from "bcrypt";
 
-export const loginRouter = protectRouteWithAuthentication(
-  protectRouteWithMethods(createRouter(), [HTTPMethod.POST])
-).mutation("login", {
+export const loginRouter = protectRouteWithMethods(createRouter(), [
+  HTTPMethod.POST,
+]).mutation("login", {
   input: z.object({
     username: z.string(),
     password: z.string(),
   }),
-  async resolve({ input, ctx }) {
-    if (input.username !== ctx.session.user.name) {
-      throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
-    }
+  async resolve({ input }) {
+    const { username, password } = input;
 
-    const userWhere: Prisma.UserWhereUniqueInput = {
-      name: ctx.session.user.name,
+    const userWhere: Prisma.OsuDroidUserWhereUniqueInput = {
+      name: username,
     };
 
-    const user = await prisma.user.findFirst({
+    const user = await prisma.osuDroidUser.findFirst({
       where: userWhere,
       select: {
         id: true,
         name: true,
-        stats: true,
+        image: true,
+        password: true,
+        stats: {
+          where: {
+            mode: DatabaseSetup.game_mode,
+          },
+        },
       },
     });
 
@@ -42,10 +44,19 @@ export const loginRouter = protectRouteWithAuthentication(
       return Responses.FAILED(Responses.USER_NOT_FOUND);
     }
 
-    await prisma.user.update({
+    const verify = await bcrypt.compare(password, user.password);
+
+    if (!verify) {
+      return Responses.FAILED("Wrong password");
+    }
+
+    const session = v4();
+
+    await prisma.osuDroidUser.update({
       where: userWhere,
       data: {
         lastSeen: new Date(),
+        session,
       },
     });
 
@@ -66,12 +77,12 @@ export const loginRouter = protectRouteWithAuthentication(
 
     return Responses.SUCCESS(
       user.id.toString(),
-      (69420).toString(),
+      session.toString(),
       rank.toString(),
       metric.toString(),
       accuracy.toString(),
       user.name,
-      ctx.session.user.image
+      OsuDroidUserHelper.getImage(user.image)
     );
   },
 });

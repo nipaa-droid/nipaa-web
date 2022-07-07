@@ -1,23 +1,18 @@
 import { HTTPMethod } from "../http/HttpMethod";
 import { EnumUtils } from "../utils/enum";
-import { User } from "next-auth";
-import { NonNullableRequired } from "../utils/types";
-import * as trpc from "@trpc/server";
 import { AnyRouter } from "@trpc/server";
 import { Context } from "./context";
+import { TRPC_ERRORS } from "./errors";
+import { schemaWithSSID } from "./schemas";
 import { prisma } from "../../lib/prisma";
-
-const MIDDLEWARE_ERRORS = {
-  METHOD_NOT_SUPPORTED: new trpc.TRPCError({ code: "METHOD_NOT_SUPPORTED" }),
-  UNAUTHORIZED: new trpc.TRPCError({ code: "UNAUTHORIZED" }),
-};
+import { Prisma } from "@prisma/client";
 
 export const protectRouteWithMethods = (
   router: AnyRouter<Context>,
   methods: HTTPMethod[]
 ) => {
   return router.middleware(({ next, ctx }) => {
-    const error = MIDDLEWARE_ERRORS.METHOD_NOT_SUPPORTED;
+    const error = TRPC_ERRORS.METHOD_NOT_SUPPORTED;
 
     if (!ctx.req.method) {
       throw error;
@@ -37,50 +32,30 @@ export const protectRouteWithMethods = (
   });
 };
 
-export const protectRouteWithAuthentication = (router: AnyRouter<Context>) => {
-  return router.middleware(({ next, ctx }) => {
-    const error = MIDDLEWARE_ERRORS.UNAUTHORIZED;
-
-    console.log("New session");
-    console.log(ctx.session);
-
-    if (
-      !ctx.session ||
-      !ctx.session.user ||
-      !ctx.session.user.email ||
-      !ctx.session.user.name
-    ) {
-      throw error;
-    }
-
-    return next({
-      ctx: {
-        ...ctx,
-        session: {
-          ...ctx.session,
-          user: ctx.session.user as NonNullableRequired<User>,
-        },
-      },
-    });
-  });
-};
-
-export const routeWithAccountInformation = (
-  router: trpc.inferAsyncReturnType<typeof protectRouteWithAuthentication>
+export const protectRouteWithAuthentication = (
+  router: AnyRouter<Context>,
+  query?: Prisma.OsuDroidUserFindUniqueArgs
 ) => {
   return router.middleware(async ({ next, ctx }) => {
-    const account = await prisma.account.findUnique({
-      where: {
-        id: Number(ctx.session.user.id),
-      },
-    });
+    const { body } = ctx.req.body;
 
-    if (!account) {
-      throw MIDDLEWARE_ERRORS.UNAUTHORIZED;
+    const withSessionID = await schemaWithSSID.safeParseAsync(body);
+
+    if (!withSessionID) {
+      throw TRPC_ERRORS.UNAUTHORIZED;
     }
 
-    return next({
-      ctx: { ...ctx, account },
+    const { ssid } = await schemaWithSSID.parseAsync(body);
+
+    const user = prisma.osuDroidUser.findUnique({
+      ...{
+        where: {
+          session: ssid,
+        },
+      },
+      ...query,
     });
+
+    return next({ ctx: { ...ctx, user } });
   });
 };

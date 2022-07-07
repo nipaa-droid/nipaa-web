@@ -2,16 +2,13 @@ import { createRouter } from "../createRouter";
 import { z } from "zod";
 import { Responses } from "../../api/Responses";
 import { OsuDroidScoreHelper } from "../../database/helpers/OsuDroidScoreHelper";
-import {
-  protectRouteWithAuthentication,
-  protectRouteWithMethods,
-} from "../middlewares";
+import { protectRouteWithMethods } from "../middlewares";
 import { HTTPMethod } from "../../http/HttpMethod";
 import { prisma } from "../../../lib/prisma";
 
-export const getTopRouter = protectRouteWithAuthentication(
-  protectRouteWithMethods(createRouter(), [HTTPMethod.POST])
-).mutation("gettop", {
+export const getTopRouter = protectRouteWithMethods(createRouter(), [
+  HTTPMethod.POST,
+]).mutation("gettop", {
   input: z.object({
     playID: z.string(),
   }),

@@ -1,16 +1,16 @@
 import {
   GameMode,
   OsuDroidStats,
+  OsuDroidUser,
   Prisma,
   SubmissionStatus,
-  User,
 } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
 import { AtLeast } from "../../utils/types";
 import { OsuDroidScoreWithoutGenerated } from "./OsuDroidScoreHelper";
 
-export type UserWithStats = User & {
+export type UserWithStats = OsuDroidUser & {
   stats: OsuDroidStats[];
 };
 
@@ -23,6 +23,10 @@ export class OsuDroidUserHelper {
     T extends OsuDroidStatsWithAtLeastMode = OsuDroidStatsWithAtLeastMode
   >(statistics: T[], mode: GameMode) {
     return statistics.find((s) => s.mode === mode);
+  }
+
+  static getImage(url: string | null) {
+    return url ?? "https://f4.bcbits.com/img/a1360862909_10.jpg";
   }
 
   /**
