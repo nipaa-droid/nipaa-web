@@ -1,5 +1,6 @@
 import {
   OsuDroidScore,
+  OsuDroidUser,
   Prisma,
   ScoreGrade,
   SubmissionStatus,
