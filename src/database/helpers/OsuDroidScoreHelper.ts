@@ -1,7 +1,6 @@
 import {
   OsuDroidScore,
   Prisma,
-  User,
   ScoreGrade,
   SubmissionStatus,
 } from "@prisma/client";
@@ -44,9 +43,12 @@ export type ExtraModData = {
   customSpeed: number;
 };
 
-type RequiredSubmissionPlayerKeys = keyof Pick<User, "name" | "playing" | "id">;
+type RequiredSubmissionPlayerKeys = keyof Pick<
+  OsuDroidUser,
+  "name" | "playing" | "id"
+>;
 
-type SubmissionPlayer = AtLeast<User, RequiredSubmissionPlayerKeys>;
+type SubmissionPlayer = AtLeast<OsuDroidUser, RequiredSubmissionPlayerKeys>;
 
 export type CalculatableScoreKeys = keyof Pick<
   OsuDroidScore,
