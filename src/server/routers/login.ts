@@ -1,6 +1,5 @@
 import { HTTPMethod } from "../../http/HttpMethod";
 import { createRouter } from "../createRouter";
-import { z } from "zod";
 import { protectRouteWithMethods } from "../middlewares";
 import { prisma } from "../../../lib/prisma";
 import { Responses } from "../../api/Responses";
@@ -10,14 +9,12 @@ import { DatabaseSetup } from "../../database/DatabaseSetup";
 import { OsuDroidUserHelper } from "../../database/helpers/OsuDroidUserHelper";
 import { v4 } from "uuid";
 import bcrypt from "bcrypt";
+import { schemaWithUsernameWithPassword } from "../schemas";
 
 export const loginRouter = protectRouteWithMethods(createRouter(), [
   HTTPMethod.POST,
 ]).mutation("login", {
-  input: z.object({
-    username: z.string(),
-    password: z.string(),
-  }),
+  input: schemaWithUsernameWithPassword,
   async resolve({ input }) {
     const { username, password } = input;
 

@@ -8,15 +8,12 @@ import { protectRouteWithMethods } from "../middlewares";
 import { HTTPMethod } from "../../http/HttpMethod";
 import { Responses } from "../../api/Responses";
 import { DatabaseSetup } from "../../database/DatabaseSetup";
+import { schemaWithAuth } from "../schemas";
 
 export const registerRouter = protectRouteWithMethods(createRouter(), [
   HTTPMethod.POST,
 ]).mutation("register", {
-  input: z.object({
-    username: z.string().min(4).max(16),
-    password: z.string().min(8).max(32),
-    email: z.string().email(),
-  }),
+  input: schemaWithAuth,
   async resolve({ input }) {
     const { username, password, email } = input;
 
