@@ -4,12 +4,13 @@ import {
   Prisma,
   SubmissionStatus,
 } from "@prisma/client";
-import assert from "assert";
 import { prisma } from "../../../lib/prisma";
-import { AtLeast } from "../../utils/types";
+import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
+import { AtLeast, MustHave } from "../../utils/types";
 import { DatabaseSetup } from "../DatabaseSetup";
 import { Metrics } from "../Metrics";
 import {
+  OsuDroidScoreAccuracyCalculatable,
   OsuDroidScoreHelper,
   OsuDroidScoreHitDataKeys,
 } from "./OsuDroidScoreHelper";
@@ -18,6 +19,11 @@ export type OsuDroidStatsToCalculateScores = AtLeast<
   OsuDroidStats,
   "userId" | "mode"
 >;
+
+export enum OsuDroidStatsBatchCalculate {
+  ACCURACY,
+  METRIC,
+}
 
 export class OsuDroidStatsHelper {
   static #getScoresForStatsQuery(
@@ -37,7 +43,7 @@ export class OsuDroidStatsHelper {
     return query;
   }
 
-  static #getMetricToCalculateQuery(
+  static getMetricToCalculateQuery(
     stats: OsuDroidStatsToCalculateScores
   ): Prisma.OsuDroidScoreFindManyArgs {
     return {
@@ -64,25 +70,14 @@ export class OsuDroidStatsHelper {
     return currentAccumulator;
   }
 
-  static async getAccuracy(stats: OsuDroidStatsToCalculateScores) {
-    const query = this.#getMetricToCalculateQuery(stats);
-
-    query.select = {
-      h300: true,
-      h100: true,
-      h50: true,
-      h0: true,
-    };
-
-    const scores = await prisma.osuDroidScore.findMany(query);
-
+  static getAccuracyFromScores(scores: OsuDroidScoreAccuracyCalculatable[]) {
     const weightedData = this.#weightData<
       OsuDroidScoreHitDataKeys,
       { accuracySum: number; weighting: number }
     >(
       {
-        accuracySum: 0,
-        weighting: 0,
+        accuracySum: -1,
+        weighting: -1,
       },
       scores,
       (score, weighting, acc) => {
@@ -97,16 +92,31 @@ export class OsuDroidStatsHelper {
     return weightedData.accuracySum / weightedData.weighting;
   }
 
-  static getPerformanceRaw(scores: AtLeast<OsuDroidScore, "pp">[]) {
+  static async getAccuracy(stats: OsuDroidStatsToCalculateScores) {
+    const query = this.getMetricToCalculateQuery(stats);
+
+    query.select = {
+      h300: true,
+      h100: true,
+      h50: true,
+      h0: true,
+    };
+
+    const scores = await prisma.osuDroidScore.findMany(query);
+
+    return this.getAccuracyFromScores(scores);
+  }
+
+  static getPerformanceFromScores(scores: AtLeast<OsuDroidScore, "pp">[]) {
     return this.#weightData<"pp", number>(
-      -1,
+      0,
       scores,
       (score, weighting, acc) => acc + score.pp * weighting
     );
   }
 
   static async getPerformance(stats: OsuDroidStatsToCalculateScores) {
-    const query = this.#getMetricToCalculateQuery(stats);
+    const query = this.getMetricToCalculateQuery(stats);
 
     query.select = {
       pp: true,
@@ -114,11 +124,7 @@ export class OsuDroidStatsHelper {
 
     const scores = await prisma.osuDroidScore.findMany(query);
 
-    return this.#weightData<"pp", number>(
-      -1,
-      scores,
-      (score, weighting, acc) => acc + score.pp * weighting
-    );
+    return this.getPerformanceFromScores(scores);
   }
 
   static async #getTotalScoreBase(where: Prisma.OsuDroidScoreWhereInput) {
@@ -128,10 +134,7 @@ export class OsuDroidStatsHelper {
         score: true,
       },
     });
-
-    assert(aggregate._sum.score);
-
-    return aggregate._sum.score;
+    return aggregate._sum.score ?? 0;
   }
 
   static async getTotalRankedScore(stats: OsuDroidStatsToCalculateScores) {
@@ -144,50 +147,139 @@ export class OsuDroidStatsHelper {
     return await this.#getTotalScoreBase(this.#getScoresForStatsQuery(stats));
   }
 
-  static async getGlobalRank(playerId: number, pp: number) {
-    const users = await prisma.osuDroidUser.findMany({
-      where: {
-        id: {
-          not: playerId,
-        },
+  static async getGlobalRank(playerId: number, metric: number) {
+    const userWhere: Prisma.OsuDroidUserWhereInput = {
+      id: {
+        not: playerId,
       },
-      select: {
-        scores: {
+    };
+
+    switch (DatabaseSetup.global_leaderboard_metric as Metrics) {
+      case Metrics.pp:
+        const betterUsersByPP = await prisma.osuDroidUser.findMany({
+          where: userWhere,
           select: {
-            pp: true,
+            scores: {
+              select: {
+                pp: true,
+              },
+              orderBy: {
+                pp: Prisma.SortOrder.desc,
+              },
+              take: 50,
+            },
+          },
+        });
+
+        const usersScores = betterUsersByPP.map((user) => user.scores);
+
+        return usersScores
+          .map((scores) => this.getPerformanceFromScores(scores))
+          .reduce((acc, cur) => {
+            return cur >= metric ? ++acc : acc;
+          });
+      case Metrics.rankedScore:
+      case Metrics.totalScore:
+        const rankByTotalScoreQuery: MustHave<
+          Prisma.OsuDroidScoreGroupByArgs,
+          "orderBy"
+        > = {
+          by: ["playerId"],
+          where: {
+            playerId: {
+              not: playerId,
+            },
           },
           orderBy: {
-            [OsuDroidScoreHelper.getMetricKey()]: "desc" as Prisma.SortOrder,
+            _sum: {
+              score: Prisma.SortOrder.desc,
+            },
           },
-          take: 50,
-        },
-      },
-    });
+          _sum: {
+            score: true,
+          },
+          having: {
+            score: {
+              _sum: {
+                gte: metric,
+              },
+            },
+          },
+        };
 
-    const usersScores = users.map((user) => user.scores);
+        switch (DatabaseSetup.global_leaderboard_metric as Metrics) {
+          case Metrics.rankedScore:
+            rankByTotalScoreQuery.where = {
+              status: {
+                in: SubmissionStatusUtils.USER_BEST_STATUS,
+              },
+            };
+        }
 
-    return usersScores
-      .map((scores) => this.getPerformanceRaw(scores))
-      .reduce((acc, cur) => {
-        return cur > pp ? acc++ : acc;
-      });
+        const better = await prisma.osuDroidScore.groupBy(
+          rankByTotalScoreQuery
+        );
+
+        return better.length + 1;
+    }
   }
 
   static async getMetric(stats: OsuDroidStatsToCalculateScores) {
-    switch (DatabaseSetup.metric) {
+    switch (DatabaseSetup.global_leaderboard_metric as Metrics) {
       case Metrics.pp:
         return await this.getPerformance(stats);
       case Metrics.rankedScore:
         return await this.getTotalRankedScore(stats);
       case Metrics.totalScore:
         return await this.getTotalScore(stats);
-      default:
-        throw "Metric for stats not found";
     }
   }
 
-  static async getRoundedMetric(stats: OsuDroidStats) {
-    const metric = await this.getMetric(stats);
-    return Math.round(metric);
+  static async batchCalculate(
+    stats: OsuDroidStatsToCalculateScores,
+    calculate: OsuDroidStatsBatchCalculate[]
+  ) {
+    const query = this.getMetricToCalculateQuery(stats);
+
+    if (
+      calculate.find((batch) => batch === OsuDroidStatsBatchCalculate.METRIC)
+    ) {
+      switch (DatabaseSetup.global_leaderboard_metric as Metrics) {
+        case Metrics.pp:
+          query.select = {
+            ...query.select,
+            pp: true,
+          };
+      }
+    }
+
+    const scores = await prisma.osuDroidScore.findMany(query);
+
+    const response = {
+      accuracy: 0,
+      metric: 0,
+    };
+
+    for (const batch of calculate) {
+      switch (batch) {
+        case OsuDroidStatsBatchCalculate.ACCURACY:
+          response.accuracy = this.getAccuracyFromScores(scores);
+          break;
+        case OsuDroidStatsBatchCalculate.METRIC:
+          switch (DatabaseSetup.global_leaderboard_metric as Metrics) {
+            case Metrics.pp:
+              response.metric = this.getPerformanceFromScores(scores);
+              break;
+            case Metrics.rankedScore:
+              response.metric = await this.getTotalRankedScore(stats);
+              break;
+            case Metrics.totalScore:
+              response.metric = await this.getTotalScore(stats);
+              break;
+          }
+      }
+    }
+
+    return response;
   }
 }

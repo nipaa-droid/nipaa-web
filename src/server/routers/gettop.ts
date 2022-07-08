@@ -36,7 +36,7 @@ export const getTopRouter = protectRouteWithMethods(createRouter(), [
 
     return Responses.SUCCESS(
       score.mods,
-      OsuDroidScoreHelper.getRoundedMetric(score).toString(),
+      OsuDroidScoreHelper.getScoreLeaderboardMetric(score).toString(),
       score.maxCombo.toString(),
       score.grade.toString(),
       score.hGeki.toString(),

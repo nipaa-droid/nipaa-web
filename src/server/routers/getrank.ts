@@ -37,14 +37,15 @@ export const getRankRouter = protectRouteWithMethods(createRouter(), [
         },
       },
       orderBy: {
-        [OsuDroidScoreHelper.getMetricKey()]: "desc" as Prisma.SortOrder,
+        [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]:
+          Prisma.SortOrder.desc,
       },
       take: 50,
       select: {
         id: true,
         maxCombo: true,
         grade: true,
-        [OsuDroidScoreHelper.getMetricKey()]: true,
+        [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]: true,
         h300: true,
         h100: true,
         h50: true,
@@ -73,7 +74,7 @@ export const getRankRouter = protectRouteWithMethods(createRouter(), [
         Responses.ARRAY(
           s.id.toString(),
           s.player.name,
-          OsuDroidScoreHelper.getRoundedMetric(s).toString(),
+          OsuDroidScoreHelper.getScoreLeaderboardMetric(s).toString(),
           s.maxCombo.toString(),
           s.grade.toString(),
           s.mods,

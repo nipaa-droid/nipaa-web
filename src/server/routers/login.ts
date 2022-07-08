@@ -4,7 +4,10 @@ import { protectRouteWithMethods } from "../middlewares";
 import { prisma } from "../../../lib/prisma";
 import { Responses } from "../../api/Responses";
 import { Prisma } from "@prisma/client";
-import { OsuDroidStatsHelper } from "../../database/helpers/OsuDroidStatsHelper";
+import {
+  OsuDroidStatsBatchCalculate,
+  OsuDroidStatsHelper,
+} from "../../database/helpers/OsuDroidStatsHelper";
 import { DatabaseSetup } from "../../database/DatabaseSetup";
 import { OsuDroidUserHelper } from "../../database/helpers/OsuDroidUserHelper";
 import { v4 } from "uuid";
@@ -70,15 +73,16 @@ export const loginRouter = protectRouteWithMethods(createRouter(), [
 
     const rank = await OsuDroidStatsHelper.getGlobalRank(user.id, pp);
 
-    const metric = await OsuDroidStatsHelper.getRoundedMetric(statistic);
-
-    const accuracy = await OsuDroidStatsHelper.getAccuracy(statistic);
+    const { metric, accuracy } = await OsuDroidStatsHelper.batchCalculate(
+      statistic,
+      [OsuDroidStatsBatchCalculate.METRIC, OsuDroidStatsBatchCalculate.METRIC]
+    );
 
     return Responses.SUCCESS(
       user.id.toString(),
       session.toString(),
       rank.toString(),
-      metric.toString(),
+      Math.round(metric).toString(),
       accuracy.toString(),
       user.name,
       OsuDroidUserHelper.getImage(user.image)

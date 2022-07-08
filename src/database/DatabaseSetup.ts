@@ -1,13 +1,19 @@
 import { GameMode } from "@prisma/client";
 import { Metrics } from "./Metrics";
 
-export class DatabaseSetup {
-  static game_mode = GameMode.std;
-  static metric = Metrics.pp;
+export type ActiveGlobalLeaderboardMetric = Metrics.totalScore;
+
+export enum OsuDroidScoreMetric {
+  score = "score",
+  pp = "pp",
 }
 
-export type ActiveMetric = typeof DatabaseSetup.metric extends Metrics.pp
-  ? Metrics.pp
-  : typeof DatabaseSetup.metric extends Metrics.rankedScore
-  ? Metrics.rankedScore
-  : Metrics.totalScore;
+export type ActiveScoreLeaderboardMetric = OsuDroidScoreMetric.score;
+
+export class DatabaseSetup {
+  static game_mode = GameMode.std;
+  static global_leaderboard_metric: ActiveGlobalLeaderboardMetric =
+    Metrics.totalScore;
+  static score_leaderboard_metric: ActiveScoreLeaderboardMetric =
+    OsuDroidScoreMetric.score;
+}

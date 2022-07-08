@@ -20,24 +20,36 @@ import { AccuracyUtils } from "../../osu_droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
 import { NumberUtils } from "../../utils/number";
 import { AtLeast, Tuple } from "../../utils/types";
-import { DatabaseSetup } from "../DatabaseSetup";
+import {
+  ActiveGlobalLeaderboardMetric,
+  ActiveScoreLeaderboardMetric,
+  DatabaseSetup,
+  OsuDroidScoreMetric,
+} from "../DatabaseSetup";
 import { BeatmapManager } from "../managers/BeatmapManager";
 import { Metrics } from "../Metrics";
 import { OsuDroidUserHelper } from "./OsuDroidUserHelper";
 import { prisma } from "../../../lib/prisma";
 
-export type ScoreMetricKeyType = keyof Pick<OsuDroidScore, "pp" | "score">;
+type ScoreMetricKey = keyof Pick<OsuDroidScore, "score" | "pp">;
 
-let scoreMetricKey: ActiveScoreMetric;
+const getActiveScoreMetricKeyFor = (
+  metric: OsuDroidScoreMetric | Metrics
+): ScoreKeyForMetric<typeof metric> => {
+  return metric === "pp" ? "pp" : "score";
+};
 
-switch (DatabaseSetup.metric) {
-  case Metrics.pp:
-    scoreMetricKey = "pp" as ActiveScoreMetric;
-    break;
-  case Metrics.rankedScore:
-  case Metrics.totalScore:
-    scoreMetricKey = "score" as ActiveScoreMetric;
-}
+const GLOBAL_LEADERBOARD_SCORE_METRIC_KEY = getActiveScoreMetricKeyFor(
+  DatabaseSetup.global_leaderboard_metric
+) as ScoreKeyForMetric<ActiveGlobalLeaderboardMetric>;
+
+const SCORE_LEADERBOARD_SCORE_METRIC_KEY = getActiveScoreMetricKeyFor(
+  DatabaseSetup.score_leaderboard_metric
+) as ScoreKeyForMetric<ActiveScoreLeaderboardMetric>;
+
+export type ScoreKeyForMetric<
+  T extends "pp" | "score" | "totalScore" | "rankedScore"
+> = keyof Pick<OsuDroidScore, T extends "pp" ? "pp" : "score">;
 
 export type ExtraModData = {
   customSpeed: number;
@@ -61,7 +73,7 @@ export type OsuDroidScoreWithPlayer = OsuDroidScore & {
 
 export type CalculatableScore = AtLeast<
   OsuDroidScore,
-  CalculatableScoreKeys | ScoreMetricKeyType
+  CalculatableScoreKeys | ScoreMetricKey
 >;
 
 export type SuccessSubmissionScoreReturnType = {
@@ -98,11 +110,6 @@ export type OsuDroidScoreAccuracyCalculatable = AtLeast<
   OsuDroidScoreHitDataKeys
 >;
 
-export type ActiveScoreMetric = keyof Pick<
-  OsuDroidScore,
-  typeof DatabaseSetup.metric extends Metrics.pp ? "pp" : "score"
->;
-
 export class OsuDroidScoreHelper {
   static ABLE_TO_SUBMIT_STATUS = [
     rankedStatus.RANKED,
@@ -114,16 +121,30 @@ export class OsuDroidScoreHelper {
     return NipaaModUtil.droidStringToMods(score.mods);
   }
 
-  static getMetricKey() {
-    return scoreMetricKey;
+  static getGlobalLeaderboardMetricKey() {
+    return GLOBAL_LEADERBOARD_SCORE_METRIC_KEY;
   }
 
-  static getMetric(score: AtLeast<OsuDroidScore, ActiveScoreMetric>): number {
-    return score[scoreMetricKey];
+  static getScoreLeaderboardMetricKey() {
+    return SCORE_LEADERBOARD_SCORE_METRIC_KEY;
   }
 
-  static getRoundedMetric(score: AtLeast<OsuDroidScore, ActiveScoreMetric>) {
-    return Math.round(this.getMetric(score));
+  static getGlobalLeaderboardMetric(
+    score: AtLeast<
+      OsuDroidScore,
+      ScoreKeyForMetric<ActiveGlobalLeaderboardMetric>
+    >
+  ) {
+    return score[GLOBAL_LEADERBOARD_SCORE_METRIC_KEY];
+  }
+
+  static getScoreLeaderboardMetric(
+    score: AtLeast<
+      OsuDroidScore,
+      ScoreKeyForMetric<ActiveScoreLeaderboardMetric>
+    >
+  ) {
+    return score[SCORE_LEADERBOARD_SCORE_METRIC_KEY];
   }
 
   static isBeatmapSubmittable(map: MapInfo) {
@@ -374,7 +395,7 @@ export class OsuDroidScoreHelper {
         select: {
           id: true,
           status: true,
-          [scoreMetricKey]: true,
+          [GLOBAL_LEADERBOARD_SCORE_METRIC_KEY]: true,
         },
       }
     );
@@ -415,8 +436,8 @@ export class OsuDroidScoreHelper {
     const query: Prisma.OsuDroidScoreCountArgs = {
       where: {
         mapHash: score.mapHash,
-        [scoreMetricKey]: {
-          gte: score[scoreMetricKey],
+        [GLOBAL_LEADERBOARD_SCORE_METRIC_KEY]: {
+          gte: score[GLOBAL_LEADERBOARD_SCORE_METRIC_KEY],
         },
         status: {
           in: SubmissionStatusUtils.USER_BEST_STATUS,
@@ -454,7 +475,7 @@ export class OsuDroidScoreHelper {
             select: {
               id: true,
               status: true,
-              [scoreMetricKey]: true,
+              [GLOBAL_LEADERBOARD_SCORE_METRIC_KEY]: true,
             },
           }
         );
@@ -473,8 +494,8 @@ export class OsuDroidScoreHelper {
     assert(previousBestScore);
 
     if (
-      OsuDroidScoreHelper.getMetric(newScore) >
-      OsuDroidScoreHelper.getMetric(previousBestScore)
+      OsuDroidScoreHelper.getGlobalLeaderboardMetric(newScore) >
+      OsuDroidScoreHelper.getGlobalLeaderboardMetric(previousBestScore)
     ) {
       console.log("The new score is better than the previous score.");
 

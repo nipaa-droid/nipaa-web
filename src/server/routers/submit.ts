@@ -179,13 +179,13 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
 
       const pp = await OsuDroidStatsHelper.getPerformance(statistic);
       const userRank = await OsuDroidStatsHelper.getGlobalRank(user.id, pp);
-      const metric = await OsuDroidStatsHelper.getRoundedMetric(statistic);
+      const metric = await OsuDroidStatsHelper.getMetric(statistic);
       const accuracy = await OsuDroidStatsHelper.getAccuracy(statistic);
       const scoreRank = await OsuDroidScoreHelper.getPlacement(score);
 
       const response: string[] = [
         userRank.toString(),
-        metric.toString(),
+        Math.round(metric).toString(),
         accuracy.toString(),
         scoreRank.toString(),
         ...extraResponse,
