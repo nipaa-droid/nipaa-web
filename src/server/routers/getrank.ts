@@ -20,7 +20,7 @@ export const getRankRouter = protectRouteWithMethods(createRouter(), [
     const responseScores: string[] = [];
 
     const end = () => {
-      return Responses.SUCCESS(responseScores.join("\n"));
+      return Responses.ARRAY(responseScores.join("\n"));
     };
 
     const beatmap = await BeatmapManager.fetchBeatmap(hash);
@@ -42,10 +42,10 @@ export const getRankRouter = protectRouteWithMethods(createRouter(), [
       },
       take: 50,
       select: {
+        [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]: true,
         id: true,
         maxCombo: true,
         grade: true,
-        [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]: true,
         h300: true,
         h100: true,
         h50: true,
