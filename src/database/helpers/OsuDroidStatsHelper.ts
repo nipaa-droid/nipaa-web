@@ -71,13 +71,17 @@ export class OsuDroidStatsHelper {
   }
 
   static getAccuracyFromScores(scores: OsuDroidScoreAccuracyCalculatable[]) {
+    if (scores.length === 0) {
+      return 1;
+    }
+
     const weightedData = this.#weightData<
       OsuDroidScoreHitDataKeys,
       { accuracySum: number; weighting: number }
     >(
       {
-        accuracySum: -1,
-        weighting: -1,
+        accuracySum: 0,
+        weighting: 0,
       },
       scores,
       (score, weighting, acc) => {
@@ -261,6 +265,7 @@ export class OsuDroidStatsHelper {
     };
 
     for (const batch of calculate) {
+      console.log(batch);
       switch (batch) {
         case OsuDroidStatsBatchCalculate.ACCURACY:
           response.accuracy = this.getAccuracyFromScores(scores);

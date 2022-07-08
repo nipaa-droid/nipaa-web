@@ -75,7 +75,7 @@ export const loginRouter = protectRouteWithMethods(createRouter(), [
 
     const { metric, accuracy } = await OsuDroidStatsHelper.batchCalculate(
       statistic,
-      [OsuDroidStatsBatchCalculate.METRIC, OsuDroidStatsBatchCalculate.METRIC]
+      [OsuDroidStatsBatchCalculate.METRIC, OsuDroidStatsBatchCalculate.ACCURACY]
     );
 
     return Responses.SUCCESS(
