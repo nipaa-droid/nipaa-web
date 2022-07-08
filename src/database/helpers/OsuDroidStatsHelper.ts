@@ -5,6 +5,7 @@ import {
   SubmissionStatus,
 } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
+import { AccuracyUtils } from "../../osu_droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
 import { AtLeast, MustHave } from "../../utils/types";
 import { DatabaseSetup } from "../DatabaseSetup";
@@ -72,7 +73,7 @@ export class OsuDroidStatsHelper {
 
   static getAccuracyFromScores(scores: OsuDroidScoreAccuracyCalculatable[]) {
     if (scores.length === 0) {
-      return 1;
+      return AccuracyUtils.acc100toDroid(100);
     }
 
     const weightedData = this.#weightData<

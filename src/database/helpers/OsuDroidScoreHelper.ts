@@ -152,18 +152,17 @@ export class OsuDroidScoreHelper {
   }
 
   static getAccuracyDroid(score: OsuDroidScoreAccuracyCalculatable) {
+    return AccuracyUtils.acc100toDroid(this.getAccuracyPercent(score));
+  }
+
+  static getAccuracyPercent(score: OsuDroidScoreAccuracyCalculatable) {
     const accuracy = new Accuracy({
       n300: score.h300,
       n100: score.h100,
       n50: score.h50,
       nmiss: score.h0,
     });
-
-    return accuracy.value();
-  }
-
-  static getAccuracyPercent(score: OsuDroidScoreAccuracyCalculatable) {
-    return AccuracyUtils.smallPercentTo100(this.getAccuracyDroid(score));
+    return AccuracyUtils.smallPercentTo100(accuracy.value());
   }
 
   static async fromSubmission(
@@ -494,8 +493,8 @@ export class OsuDroidScoreHelper {
     assert(previousBestScore);
 
     if (
-      OsuDroidScoreHelper.getGlobalLeaderboardMetric(newScore) >
-      OsuDroidScoreHelper.getGlobalLeaderboardMetric(previousBestScore)
+      this.getGlobalLeaderboardMetric(newScore) >
+      this.getGlobalLeaderboardMetric(previousBestScore)
     ) {
       console.log("The new score is better than the previous score.");
 
