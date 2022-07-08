@@ -63,8 +63,7 @@ export const getRankRouter = protectRouteWithMethods(createRouter(), [
     });
 
     if (!beatmap) {
-      end();
-      return;
+      return end();
     }
 
     scores.forEach((s) => {
