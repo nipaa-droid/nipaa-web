@@ -2409,11 +2409,6 @@ parent-module@^1.0.0:
   dependencies:
     callsites "^3.0.0"
 
-password-hash@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/password-hash/-/password-hash-1.2.2.tgz#3b451f014de4b2e1ebfa0e5493b9517b1063af1d"
-  integrity sha512-Dy/5+Srojwv+1XnMrK2bn7f2jN3k2p90DfBVA0Zd6PrjWF7lXHOTWgKT4uBp1gIsqV7/llYqm+hj+gwDBF/Fmg==
-
 path-exists@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/path-exists/-/path-exists-3.0.0.tgz#ce0ebeaa5f78cb18925ea7d810d7b59b010fd515"
