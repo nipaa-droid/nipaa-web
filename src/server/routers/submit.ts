@@ -41,18 +41,22 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
 
       const whereUser: Prisma.OsuDroidUserWhereUniqueInput = {
         id: userID,
-        session: ssid,
       };
 
       const user = await prisma.osuDroidUser.findUnique({
         where: whereUser,
         select: {
           playing: true,
+          session: true,
         },
       });
 
       if (!user) {
         return Responses.FAILED(Responses.USER_NOT_FOUND);
+      }
+
+      if (user.session != ssid) {
+        return Responses.FAILED("Couldn't authenticate request");
       }
 
       if (user.playing !== hash) {
