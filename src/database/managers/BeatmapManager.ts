@@ -14,8 +14,9 @@ export class BeatmapManager {
   ) {
     let selectedBeatmap: MapInfo | null;
 
-    const cacheBeatmap = (selectedBeatmap =
-      this.cache.get(beatmapIDOrHash) ?? null);
+    const cacheBeatmap = this.cache.get(beatmapIDOrHash);
+
+    selectedBeatmap = cacheBeatmap ?? null;
 
     /**
      * We also don't want to load cache from maps that we previously couldn't fetch.
