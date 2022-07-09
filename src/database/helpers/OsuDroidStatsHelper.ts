@@ -94,7 +94,7 @@ export class OsuDroidStatsHelper {
       }
     );
 
-    return weightedData.accuracySum / weightedData.weighting;
+    return Math.round(weightedData.accuracySum / weightedData.weighting);
   }
 
   static async getAccuracy(stats: OsuDroidStatsToCalculateScores) {
