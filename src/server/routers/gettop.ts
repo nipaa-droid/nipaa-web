@@ -47,7 +47,6 @@ export const getTopRouter = protectRouteWithMethods(createRouter(), [
       score.h0.toString(),
       accuracy.toString(),
       score.date.getTime().toString(),
-      Number(score.fc).toString(),
       score.player.name
     );
   },

@@ -189,7 +189,6 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
             maxCombo: score.maxCombo,
             grade: score.grade,
             mods: score.mods,
-            fc: score.fc,
             status: score.status,
             playerId: score.playerId,
           },
