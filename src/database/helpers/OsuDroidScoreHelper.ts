@@ -493,7 +493,7 @@ export class OsuDroidScoreHelper {
     assert(previousBestScore);
 
     if (
-      this.getGlobalLeaderboardMetric(newScore) >
+      this.getGlobalLeaderboardMetric(newScore) >=
       this.getGlobalLeaderboardMetric(previousBestScore)
     ) {
       console.log("The new score is better than the previous score.");
@@ -501,7 +501,6 @@ export class OsuDroidScoreHelper {
       approveSubmission();
 
       previousBestScore.status = SubmissionStatus.SUBMITTED;
-      newScore.status = SubmissionStatus.BEST;
 
       await prisma.osuDroidScore.update({
         where: {

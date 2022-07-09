@@ -39,21 +39,17 @@ export class OsuDroidUserHelper {
     mode: GameMode,
     options?: Prisma.OsuDroidScoreArgs
   ) {
-    const query: Prisma.OsuDroidScoreFindFirstArgs = {
-      where: {
-        playerId,
-        mapHash,
-        mode,
-        status: { in: SubmissionStatusUtils.USER_BEST_STATUS },
+    return await prisma.osuDroidScore.findFirst({
+      ...{
+        where: {
+          playerId,
+          mapHash,
+          mode,
+          status: { in: SubmissionStatusUtils.USER_BEST_STATUS },
+        },
       },
-    };
-
-    if (options) {
-      query.select = options.select;
-      query.include = options.include;
-    }
-
-    return await prisma.osuDroidScore.findFirst(query);
+      ...options,
+    });
   }
 
   static async submitScore(

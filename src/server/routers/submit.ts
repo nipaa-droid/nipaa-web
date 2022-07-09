@@ -5,7 +5,10 @@ import {
   OsuDroidScoreHelper,
   isSubmissionScoreReturnError,
 } from "../../database/helpers/OsuDroidScoreHelper";
-import { OsuDroidStatsHelper } from "../../database/helpers/OsuDroidStatsHelper";
+import {
+  OsuDroidStatsBatchCalculate,
+  OsuDroidStatsHelper,
+} from "../../database/helpers/OsuDroidStatsHelper";
 import { OsuDroidUserHelper } from "../../database/helpers/OsuDroidUserHelper";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
 import { createRouter } from "../createRouter";
@@ -126,8 +129,41 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
       const { score } = scoreData;
       const { map } = scoreData;
 
+      const statistic = OsuDroidUserHelper.getStatistic(statistics, score.mode);
+
+      if (!statistic) {
+        return fail("User statistics not found.");
+      }
+
+      const sendData = async () => {
+        const scoreRank = await OsuDroidScoreHelper.getPlacement(score);
+
+        const { metric, accuracy } = await OsuDroidStatsHelper.batchCalculate(
+          statistic,
+          [
+            OsuDroidStatsBatchCalculate.METRIC,
+            OsuDroidStatsBatchCalculate.ACCURACY,
+          ]
+        );
+
+        const userRank = await OsuDroidStatsHelper.getGlobalRank(
+          user.id,
+          metric
+        );
+
+        const response: string[] = [
+          userRank.toString(),
+          Math.round(metric).toString(),
+          accuracy.toString(),
+          scoreRank.toString(),
+          ...extraResponse,
+        ];
+
+        return Responses.SUCCESS(...response);
+      };
+
       if (!OsuDroidScoreHelper.isBeatmapSubmittable(map)) {
-        return Responses.FAILED("Beatmap not aproved.");
+        return await sendData();
       }
 
       const extraResponse: string[] = [];
@@ -156,40 +192,20 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
           },
         });
         extraResponse.push(sentScore.id.toString());
+
+        OsuDroidUserHelper.submitScore(statistic, score);
+
+        await prisma.osuDroidStats.update({
+          where: {
+            id: statistic.id,
+          },
+          data: {
+            playCount: statistic.playCount,
+          },
+        });
       }
 
-      const statistic = OsuDroidUserHelper.getStatistic(statistics, score.mode);
-
-      if (!statistic) {
-        return fail("User statistics not found.");
-      }
-
-      OsuDroidUserHelper.submitScore(statistic, score);
-
-      await prisma.osuDroidStats.update({
-        where: {
-          id: statistic.id,
-        },
-        data: {
-          playCount: statistic.playCount,
-        },
-      });
-
-      const pp = await OsuDroidStatsHelper.getPerformance(statistic);
-      const userRank = await OsuDroidStatsHelper.getGlobalRank(user.id, pp);
-      const metric = await OsuDroidStatsHelper.getMetric(statistic);
-      const accuracy = await OsuDroidStatsHelper.getAccuracy(statistic);
-      const scoreRank = await OsuDroidScoreHelper.getPlacement(score);
-
-      const response: string[] = [
-        userRank.toString(),
-        Math.round(metric).toString(),
-        accuracy.toString(),
-        scoreRank.toString(),
-        ...extraResponse,
-      ];
-
-      return Responses.SUCCESS(...response);
+      await sendData();
     }
   },
 });
