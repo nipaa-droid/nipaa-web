@@ -119,7 +119,7 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
 
       const scoreData = await OsuDroidScoreHelper.fromSubmission(data, {
         ...user,
-        ...{ playing: user.playing },
+        playing: user.playing,
       });
 
       if (isSubmissionScoreReturnError(scoreData)) {
@@ -206,7 +206,7 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
         });
       }
 
-      await sendData();
+      return await sendData();
     }
   },
 });
