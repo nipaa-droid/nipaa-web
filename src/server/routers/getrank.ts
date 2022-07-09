@@ -20,7 +20,7 @@ export const getRankRouter = protectRouteWithMethods(createRouter(), [
     const responseScores: string[] = [];
 
     const end = () => {
-      return Responses.ARRAY(responseScores.join("\n"));
+      return Responses.SUCCESS(responseScores.join("\n"));
     };
 
     const beatmap = await BeatmapManager.fetchBeatmap(hash);
