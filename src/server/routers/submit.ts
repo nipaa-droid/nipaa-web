@@ -34,7 +34,7 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
 
     const isSubmissionPing = await submissionPingInput.safeParseAsync(input);
 
-    if (isSubmissionPing) {
+    if (isSubmissionPing.success) {
       const parsedInput = await submissionPingInput.parseAsync(input);
 
       const { hash, ssid } = parsedInput;
