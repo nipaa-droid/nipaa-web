@@ -92,7 +92,9 @@ enum SubmissionStatus {
 }
 
 enum ScoreGrade {
-    SS
+    XH
+    X
+    SH
     S
     A
     B
