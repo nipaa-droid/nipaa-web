@@ -78,7 +78,6 @@ export const getRankRouter = protectRouteWithMethods(createRouter(), [
           s.grade.toString(),
           s.mods,
           s.maxCombo.toString(),
-          s.grade.toString(),
           accuracy.toString(),
           OsuDroidUserHelper.getImage(s.player.image)
         )
