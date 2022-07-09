@@ -50,7 +50,6 @@ model OsuDroidScore {
 
     pp Float
 
-    // TODO MAYBE THIS COLUMN IS UNNECESSARY WE COULD ANALYZE THE REPLAY BUFFER INSTEAD TO CHECK FOR THE SCORE
     score Int
 
     h300  Int
@@ -61,9 +60,6 @@ model OsuDroidScore {
     hKatu Int
 
     maxCombo Int
-
-    // TODO THIS MAYBE UNECESSARY ON DB
-    grade ScoreGrade
 
     mods String
 
@@ -89,18 +85,6 @@ enum SubmissionStatus {
     // Used when a play is submitted successfully, and is the best play from that user.
     //  although it should not reward any pp.
     APPROVED
-}
-
-enum ScoreGrade {
-    XH
-    X
-    SH
-    S
-    A
-    B
-    C
-    D
-    F
 }
 
 enum GameMode {

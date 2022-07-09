@@ -26,6 +26,11 @@ export class NipaaModUtil extends ModUtil {
     return mods.reduce((acc, cur) => acc + cur.bitwise, 0);
   }
 
+  static hasMods(mods: Mod[], has: typeof Mod[]) {
+    const proto = mods.map((m) => m.constructor.prototype);
+    return has.every((h) => proto.includes(h));
+  }
+
   static droidStatsFromDroidString(string: string): DroidStats {
     const data = string.split(this.#EXTRA_MODS_SEP);
 

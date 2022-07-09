@@ -5,6 +5,7 @@ import { OsuDroidScoreHelper } from "../../database/helpers/OsuDroidScoreHelper"
 import { OsuDroidUserHelper } from "../../database/helpers/OsuDroidUserHelper";
 import { BeatmapManager } from "../../database/managers/BeatmapManager";
 import { HTTPMethod } from "../../http/HTTPMethod";
+import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
 import { createRouter } from "../createRouter";
 import { protectRouteWithMethods } from "../middlewares";
@@ -45,7 +46,6 @@ export const getRankRouter = protectRouteWithMethods(createRouter(), [
         [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]: true,
         id: true,
         maxCombo: true,
-        grade: true,
         h300: true,
         h100: true,
         h50: true,
@@ -65,7 +65,8 @@ export const getRankRouter = protectRouteWithMethods(createRouter(), [
     }
 
     scores.forEach((s) => {
-      const accuracy = OsuDroidScoreHelper.getAccuracyDroid(s);
+      const accPercent = OsuDroidScoreHelper.getAccuracyPercent(s);
+      const accDroid = AccuracyUtils.acc100toDroid(accPercent);
 
       responseScores.push(
         Responses.ARRAY(
@@ -73,9 +74,9 @@ export const getRankRouter = protectRouteWithMethods(createRouter(), [
           s.player.name,
           OsuDroidScoreHelper.getScoreLeaderboardMetric(s).toString(),
           s.maxCombo.toString(),
-          s.grade.toString(),
+          OsuDroidScoreHelper.getGrade(s, { accuracy: accPercent }),
           s.mods,
-          accuracy.toString(),
+          accDroid.toString(),
           OsuDroidUserHelper.getImage(s.player.image)
         )
       );

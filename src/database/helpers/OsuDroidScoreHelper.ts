@@ -2,10 +2,16 @@ import {
   OsuDroidScore,
   OsuDroidUser,
   Prisma,
-  ScoreGrade,
   SubmissionStatus,
 } from "@prisma/client";
-import { Accuracy, MapInfo, MapStats, rankedStatus } from "@rian8337/osu-base";
+import {
+  Accuracy,
+  MapInfo,
+  MapStats,
+  Mod,
+  ModHidden,
+  rankedStatus,
+} from "@rian8337/osu-base";
 import {
   DroidStarRating,
   DroidPerformanceCalculator,
@@ -26,6 +32,7 @@ import {
   DatabaseSetup,
   OsuDroidScoreMetric,
 } from "../DatabaseSetup";
+import { ScoreGrade } from "../../osu/ScoreGrade";
 import { BeatmapManager } from "../managers/BeatmapManager";
 import { Metrics } from "../Metrics";
 import { OsuDroidUserHelper } from "./OsuDroidUserHelper";
@@ -331,8 +338,6 @@ export class OsuDroidScoreHelper {
       };
     }
 
-    toBuildScore.grade = grade;
-
     const secondIntegerData = sliceDataToInteger(4, 10);
 
     if (!secondIntegerData) {
@@ -409,7 +414,6 @@ export class OsuDroidScoreHelper {
       hGeki: toBuildScore.hGeki,
       hKatu: toBuildScore.hKatu,
       maxCombo: toBuildScore.maxCombo,
-      grade: toBuildScore.grade,
       mods: toBuildScore.mods,
       status: SubmissionStatus.FAILED,
       replay: null,
@@ -523,5 +527,60 @@ export class OsuDroidScoreHelper {
       map.approved === rankedStatus.APPROVED
         ? SubmissionStatus.BEST
         : SubmissionStatus.APPROVED;
+  }
+
+  static getGrade(
+    score: AtLeast<OsuDroidScore, OsuDroidScoreHitDataKeys | "mods">,
+    provide?: {
+      accuracy?: number;
+      mods?: Mod[];
+    }
+  ) {
+    if (!provide) {
+      provide = {};
+    }
+
+    if (!provide.accuracy) {
+      provide.accuracy = OsuDroidScoreHelper.getAccuracyPercent(score);
+    }
+
+    if (!provide.mods) {
+      provide.mods = NipaaModUtil.droidStatsFromDroidString(score.mods).mods;
+    }
+
+    const { accuracy, mods } = provide;
+
+    const isHidden = NipaaModUtil.hasMods(mods, [ModHidden]);
+
+    if (accuracy === 100) {
+      return isHidden ? ScoreGrade.XH : ScoreGrade.X;
+    }
+
+    const totalHitData = score.h300 + score.h100 + score.h50 + score.h0;
+
+    const percents = {
+      hit300: NumberUtils.percentFrom(score.h300, totalHitData),
+      hit50: NumberUtils.percentFrom(score.h50, totalHitData),
+    };
+
+    const noMisses = score.h0 === 0;
+
+    if (percents.hit300 >= 90 && percents.hit50 <= 1 && noMisses) {
+      return isHidden ? ScoreGrade.SH : ScoreGrade.S;
+    }
+
+    if ((percents.hit300 >= 80 && noMisses) || percents.hit300 >= 90) {
+      return ScoreGrade.A;
+    }
+
+    if ((percents.hit300 >= 70 && noMisses) || percents.hit300 >= 80) {
+      return ScoreGrade.B;
+    }
+
+    if (percents.hit300 >= 60) {
+      return ScoreGrade.C;
+    }
+
+    return ScoreGrade.D;
   }
 }

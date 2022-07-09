@@ -7,4 +7,8 @@ export class NumberUtils {
   static isNumber(number: number) {
     return !isNaN(number);
   }
+
+  static percentFrom(from: number, to: number) {
+    return 100 * Math.abs((from - to) / ((from + to) / 2));
+  }
 }
