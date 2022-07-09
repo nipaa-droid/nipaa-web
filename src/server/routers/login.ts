@@ -25,7 +25,7 @@ export const loginRouter = protectRouteWithMethods(createRouter(), [
       name: username,
     };
 
-    const user = await prisma.osuDroidUser.findFirst({
+    const user = await prisma.osuDroidUser.findUnique({
       where: userWhere,
       select: {
         id: true,

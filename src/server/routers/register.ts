@@ -48,6 +48,9 @@ export const registerRouter = protectRouteWithMethods(createRouter(), [
           ],
         },
       },
+      select: {
+        id: true,
+      },
     });
 
     return Responses.SUCCESS("Account created.");

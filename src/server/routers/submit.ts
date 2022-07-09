@@ -191,6 +191,10 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
             status: score.status,
             playerId: score.playerId,
           },
+          select: {
+            id: true,
+            mapHash: true,
+          },
         });
 
         extraResponse.push(sentScore.id.toString());
