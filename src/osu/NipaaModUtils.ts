@@ -27,7 +27,9 @@ export class NipaaModUtil extends ModUtil {
   }
 
   static hasMods(mods: Mod[], has: typeof Mod[]) {
-    const proto = mods.map((m) => m.constructor.prototype);
+    const proto = mods.map((m) => m.constructor);
+    console.log(proto);
+    console.log(has);
     return has.every((h) => proto.includes(h));
   }
 
