@@ -5,15 +5,15 @@ export const schemaWithID = z.object({
 });
 
 export const schemaWithHash = z.object({
-  hash: z.string(),
+  hash: z.string().length(32),
 });
 
 export const schemaWithSSID = z.object({
-  ssid: z.string(),
+  ssid: z.string().length(32),
 });
 
 export const schemaWithUserID = z.object({
-  userID: z.number(),
+  userID: z.string(),
 });
 
 export const schemaWithUsername = z.object({

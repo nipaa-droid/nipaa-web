@@ -13,14 +13,11 @@ import { z } from "zod";
 import { protectRouteWithMethods } from "../middlewares";
 import { HTTPMethod } from "../../http/HttpMethod";
 import { prisma } from "../../../lib/prisma";
-import { schemaWithSSID, schemaWithUserID } from "../schemas";
+import { schemaWithHash, schemaWithSSID, schemaWithUserID } from "../schemas";
 
-const submissionPingInput = z
-  .object({
-    hash: z.string(),
-  })
+const submissionPingInput = schemaWithUserID
   .and(schemaWithSSID)
-  .and(schemaWithUserID);
+  .and(schemaWithHash);
 
 const submissionScoreInput = z
   .object({
@@ -33,7 +30,7 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
 ]).mutation("submit", {
   input: submissionPingInput.or(submissionScoreInput),
   async resolve({ input }) {
-    const { userID } = input;
+    const userID = Number(input.userID);
 
     const isSubmissionPing = await submissionPingInput.safeParseAsync(input);
 
