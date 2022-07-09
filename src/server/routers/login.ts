@@ -1,4 +1,4 @@
-import { HTTPMethod } from "../../http/HttpMethod";
+import { HTTPMethod } from "../../http/HTTPMethod";
 import { createRouter } from "../createRouter";
 import { protectRouteWithMethods } from "../middlewares";
 import { prisma } from "../../../lib/prisma";

@@ -16,8 +16,8 @@ import { EnumUtils } from "../../utils/enum";
 import { EnvironmentConstants } from "../../constants/EnvironmentConstants";
 import { IHasError } from "../../interfaces/IHasError";
 import { NipaaModUtil } from "../../osu/NipaaModUtils";
-import { AccuracyUtils } from "../../osu_droid/AccuracyUtils";
-import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
+import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
+import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
 import { NumberUtils } from "../../utils/number";
 import { AtLeast, MustHave, Tuple } from "../../utils/types";
 import {
@@ -360,8 +360,6 @@ export class OsuDroidScoreHelper {
       nmiss: toBuildScore.h0,
     });
 
-    toBuildScore.fc = toBuildScore.maxCombo === mapInfo.map.maxCombo;
-
     const stars = new DroidStarRating().calculate({
       map: mapInfo.map,
       mods,
@@ -413,7 +411,6 @@ export class OsuDroidScoreHelper {
       maxCombo: toBuildScore.maxCombo,
       grade: toBuildScore.grade,
       mods: toBuildScore.mods,
-      fc: toBuildScore.fc,
       status: SubmissionStatus.FAILED,
       replay: null,
       playerId: playerId,
@@ -507,6 +504,7 @@ export class OsuDroidScoreHelper {
         },
         data: {
           status: previousBestScore.status,
+          replay: null,
         },
       });
 

@@ -1,12 +1,9 @@
 import { Beatmap, Mod, ModRelax, Slider, SliderTick } from "@rian8337/osu-base";
 import { hitResult, ReplayAnalyzer } from "@rian8337/osu-droid-replay-analyzer";
-import { NipaaModUtil } from "../osu/NipaaModUtils";
-import { NonNullableKeys } from "../utils/types";
+import { MustHave } from "../../utils/types";
+import { NipaaModUtil } from "../NipaaModUtils";
 
-export type BeatmapReplayAnalyzerWithData = NonNullableKeys<
-  ReplayAnalyzer,
-  ["data"]
-> & {
+export type BeatmapReplayAnalyzerWithData = MustHave<ReplayAnalyzer, "data"> & {
   map: Beatmap;
 };
 

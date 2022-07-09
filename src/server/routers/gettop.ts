@@ -3,7 +3,7 @@ import { z } from "zod";
 import { Responses } from "../../api/Responses";
 import { OsuDroidScoreHelper } from "../../database/helpers/OsuDroidScoreHelper";
 import { protectRouteWithMethods } from "../middlewares";
-import { HTTPMethod } from "../../http/HttpMethod";
+import { HTTPMethod } from "../../http/HTTPMethod";
 import { prisma } from "../../../lib/prisma";
 
 export const getTopRouter = protectRouteWithMethods(createRouter(), [

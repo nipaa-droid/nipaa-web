@@ -4,7 +4,7 @@ import { TRPC_ERRORS } from "../errors";
 import bcrypt from "bcrypt";
 import { AuthConstants } from "../auth";
 import { protectRouteWithMethods } from "../middlewares";
-import { HTTPMethod } from "../../http/HttpMethod";
+import { HTTPMethod } from "../../http/HTTPMethod";
 import { Responses } from "../../api/Responses";
 import { DatabaseSetup } from "../../database/DatabaseSetup";
 import { schemaWithAuth } from "../schemas";

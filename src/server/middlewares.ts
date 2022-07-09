@@ -1,4 +1,4 @@
-import { HTTPMethod } from "../http/HttpMethod";
+import { HTTPMethod } from "../http/HTTPMethod";
 import { EnumUtils } from "../utils/enum";
 import { AnyRouter } from "@trpc/server";
 import { Context } from "./context";

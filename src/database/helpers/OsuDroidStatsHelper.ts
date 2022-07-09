@@ -5,8 +5,8 @@ import {
   SubmissionStatus,
 } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
-import { AccuracyUtils } from "../../osu_droid/AccuracyUtils";
-import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
+import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
+import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
 import { AtLeast, MustHave } from "../../utils/types";
 import { DatabaseSetup } from "../DatabaseSetup";
 import { Metrics } from "../Metrics";

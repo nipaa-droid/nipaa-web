@@ -61,11 +61,12 @@ model OsuDroidScore {
     hKatu Int
 
     maxCombo Int
-    grade    ScoreGrade
+
+    // TODO THIS MAYBE UNECESSARY ON DB
+    grade ScoreGrade
 
     mods String
 
-    fc   Boolean
     date DateTime @default(now())
 
     status SubmissionStatus

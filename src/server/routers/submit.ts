@@ -1,4 +1,4 @@
-import { OsuDroidStats, Prisma } from "@prisma/client";
+import { OsuDroidScore, OsuDroidStats, Prisma } from "@prisma/client";
 import { Responses } from "../../api/Responses";
 import { DatabaseSetup } from "../../database/DatabaseSetup";
 import {
@@ -10,13 +10,14 @@ import {
   OsuDroidStatsHelper,
 } from "../../database/helpers/OsuDroidStatsHelper";
 import { OsuDroidUserHelper } from "../../database/helpers/OsuDroidUserHelper";
-import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
+import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
 import { createRouter } from "../createRouter";
 import { z } from "zod";
 import { protectRouteWithMethods } from "../middlewares";
-import { HTTPMethod } from "../../http/HttpMethod";
+import { HTTPMethod } from "../../http/HTTPMethod";
 import { prisma } from "../../../lib/prisma";
 import { schemaWithHash, schemaWithSSID, schemaWithUserID } from "../schemas";
+import { AtLeast } from "../../utils/types";
 
 const submissionPingInput = schemaWithUserID
   .and(schemaWithSSID)
@@ -135,8 +136,10 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
         return fail("User statistics not found.");
       }
 
-      const sendData = async () => {
-        const scoreRank = await OsuDroidScoreHelper.getPlacement(score);
+      const sendData = async (
+        submitScore: AtLeast<OsuDroidScore, "mapHash">
+      ) => {
+        const scoreRank = await OsuDroidScoreHelper.getPlacement(submitScore);
 
         const { metric, accuracy } = await OsuDroidStatsHelper.batchCalculate(
           statistic,
@@ -163,7 +166,7 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
       };
 
       if (!OsuDroidScoreHelper.isBeatmapSubmittable(map)) {
-        return await sendData();
+        return await sendData(score);
       }
 
       const extraResponse: string[] = [];
@@ -204,9 +207,11 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
             playCount: statistic.playCount,
           },
         });
+
+        return await sendData(sentScore);
       }
 
-      return await sendData();
+      return await sendData(score);
     }
   },
 });
