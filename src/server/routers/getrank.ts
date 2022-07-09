@@ -50,8 +50,6 @@ export const getRankRouter = protectRouteWithMethods(createRouter(), [
         h100: true,
         h50: true,
         h0: true,
-        hKatu: true,
-        hGeki: true,
         mods: true,
         player: {
           select: {
@@ -77,7 +75,6 @@ export const getRankRouter = protectRouteWithMethods(createRouter(), [
           s.maxCombo.toString(),
           s.grade.toString(),
           s.mods,
-          s.maxCombo.toString(),
           accuracy.toString(),
           OsuDroidUserHelper.getImage(s.player.image)
         )
