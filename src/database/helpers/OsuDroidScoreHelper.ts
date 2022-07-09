@@ -558,10 +558,13 @@ export class OsuDroidScoreHelper {
 
     const totalHitData = score.h300 + score.h100 + score.h50 + score.h0;
 
+    console.log(totalHitData);
     const percents = {
       hit300: NumberUtils.percentFrom(score.h300, totalHitData),
       hit50: NumberUtils.percentFrom(score.h50, totalHitData),
     };
+
+    console.log(percents);
 
     const noMisses = score.h0 === 0;
 

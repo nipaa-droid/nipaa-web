@@ -9,6 +9,6 @@ export class NumberUtils {
   }
 
   static percentFrom(from: number, to: number) {
-    return 100 * Math.abs((from - to) / ((from + to) / 2));
+    return Math.round((from / to) * 100);
   }
 }
