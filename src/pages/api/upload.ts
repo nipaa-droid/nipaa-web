@@ -32,7 +32,7 @@ const schema = z.object({
     replayID: z.string(),
   }),
   files: z.object({
-    uploadedFile: z.object({
+    uploadedfile: z.object({
       originalFilename: z.string(),
       lastModifiedDate: z.date(),
       filepath: z.string(),
@@ -66,7 +66,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   const { fields, files } = await schema.parseAsync(formData);
   const replayID = Number(fields.replayID);
-  const { uploadedFile: uploadedfile } = files;
+  const { uploadedfile: uploadedfile } = files;
 
   const dateNow = new Date();
 
