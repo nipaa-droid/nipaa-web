@@ -191,6 +191,7 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
             playerId: score.playerId,
           },
         });
+
         extraResponse.push(sentScore.id.toString());
 
         OsuDroidUserHelper.submitScore(statistic, score);

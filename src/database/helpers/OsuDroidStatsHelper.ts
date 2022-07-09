@@ -266,7 +266,6 @@ export class OsuDroidStatsHelper {
     };
 
     for (const batch of calculate) {
-      console.log(batch);
       switch (batch) {
         case OsuDroidStatsBatchCalculate.ACCURACY:
           response.accuracy = this.getAccuracyFromScores(scores);

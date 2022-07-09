@@ -19,7 +19,7 @@ import { NipaaModUtil } from "../../osu/NipaaModUtils";
 import { AccuracyUtils } from "../../osu_droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../osu_droid/enum/SubmissionStatus";
 import { NumberUtils } from "../../utils/number";
-import { AtLeast, Tuple } from "../../utils/types";
+import { AtLeast, MustHave, Tuple } from "../../utils/types";
 import {
   ActiveGlobalLeaderboardMetric,
   ActiveScoreLeaderboardMetric,
@@ -432,7 +432,7 @@ export class OsuDroidScoreHelper {
       | AtLeast<OsuDroidScore, "mapHash">
       | AtLeast<OsuDroidScore, "mapHash" | "id">
   ) {
-    const query: Prisma.OsuDroidScoreCountArgs = {
+    const query: MustHave<Prisma.OsuDroidScoreCountArgs, "where"> = {
       where: {
         mapHash: score.mapHash,
         [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: {
@@ -445,7 +445,6 @@ export class OsuDroidScoreHelper {
     };
 
     if (score.id) {
-      assert(query.where);
       query.where.id = {
         not: score.id,
       };
