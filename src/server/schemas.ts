@@ -9,7 +9,7 @@ export const schemaWithHash = z.object({
 });
 
 export const schemaWithSSID = z.object({
-  ssid: z.string().length(32),
+  ssid: z.string().length(36),
 });
 
 export const schemaWithUserID = z.object({

@@ -15,7 +15,7 @@ model OsuDroidUser {
 
     password String
 
-    session String? @unique
+    session String? @unique @db.Uuid()
 
     email String? @unique
     image String?
