@@ -435,8 +435,8 @@ export class OsuDroidScoreHelper {
     const query: Prisma.OsuDroidScoreCountArgs = {
       where: {
         mapHash: score.mapHash,
-        [GLOBAL_LEADERBOARD_SCORE_METRIC_KEY]: {
-          gte: score[GLOBAL_LEADERBOARD_SCORE_METRIC_KEY],
+        [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: {
+          gte: score[SCORE_LEADERBOARD_SCORE_METRIC_KEY],
         },
         status: {
           in: SubmissionStatusUtils.USER_BEST_STATUS,
@@ -501,6 +501,7 @@ export class OsuDroidScoreHelper {
       approveSubmission();
 
       previousBestScore.status = SubmissionStatus.SUBMITTED;
+      newScore.status = SubmissionStatus.BEST;
 
       await prisma.osuDroidScore.update({
         where: {
