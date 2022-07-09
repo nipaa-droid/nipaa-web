@@ -68,10 +68,7 @@ export const submitRouter = protectRouteWithMethods(createRouter(), [
         });
       }
 
-      return Responses.SUCCESS(
-        String(Boolean(Number(true))),
-        userID.toString()
-      );
+      return Responses.SUCCESS(String(Number(true)), userID.toString());
     } else {
       const parsedInput = await submissionScoreInput.parseAsync(input);
 
