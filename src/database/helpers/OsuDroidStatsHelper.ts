@@ -65,8 +65,7 @@ export class OsuDroidStatsHelper {
     let currentAccumulator = base;
     scores.forEach((score, i) => {
       const weighting = Math.pow(0.95, i);
-
-      currentAccumulator = calculate(score, weighting, base);
+      currentAccumulator = calculate(score, weighting, currentAccumulator);
     });
     return currentAccumulator;
   }
@@ -86,6 +85,7 @@ export class OsuDroidStatsHelper {
       },
       scores,
       (score, weighting, acc) => {
+        console.log(score);
         const accuracy = OsuDroidScoreHelper.getAccuracyDroid(score);
         return {
           accuracySum: acc.accuracySum + accuracy * weighting,
@@ -97,15 +97,19 @@ export class OsuDroidStatsHelper {
     return Math.round(weightedData.accuracySum / weightedData.weighting);
   }
 
-  static async getAccuracy(stats: OsuDroidStatsToCalculateScores) {
-    const query = this.getMetricToCalculateQuery(stats);
-
+  static #toAccuracyQuery(query: Prisma.OsuDroidScoreArgs) {
     query.select = {
+      ...query.select,
       h300: true,
       h100: true,
       h50: true,
       h0: true,
     };
+    return query;
+  }
+
+  static async getAccuracy(stats: OsuDroidStatsToCalculateScores) {
+    const query = this.#toAccuracyQuery(this.getMetricToCalculateQuery(stats));
 
     const scores = await prisma.osuDroidScore.findMany(query);
 
@@ -120,12 +124,18 @@ export class OsuDroidStatsHelper {
     );
   }
 
-  static async getPerformance(stats: OsuDroidStatsToCalculateScores) {
-    const query = this.getMetricToCalculateQuery(stats);
-
+  static #toPerformanceQuery(query: Prisma.OsuDroidScoreFindManyArgs) {
     query.select = {
+      ...query.select,
       pp: true,
     };
+    return query;
+  }
+
+  static async getPerformance(stats: OsuDroidStatsToCalculateScores) {
+    const query = this.#toPerformanceQuery(
+      this.getMetricToCalculateQuery(stats)
+    );
 
     const scores = await prisma.osuDroidScore.findMany(query);
 
@@ -246,17 +256,20 @@ export class OsuDroidStatsHelper {
   ) {
     const query = this.getMetricToCalculateQuery(stats);
 
-    if (
-      calculate.find((batch) => batch === OsuDroidStatsBatchCalculate.METRIC)
-    ) {
-      switch (DatabaseSetup.global_leaderboard_metric as Metrics) {
-        case Metrics.pp:
-          query.select = {
-            ...query.select,
-            pp: true,
-          };
+    calculate.forEach((batch) => {
+      switch (batch) {
+        case OsuDroidStatsBatchCalculate.ACCURACY:
+          this.#toAccuracyQuery(query);
+          break;
+        case OsuDroidStatsBatchCalculate.METRIC:
+          switch (DatabaseSetup.global_leaderboard_metric as Metrics) {
+            case Metrics.pp:
+              this.#toPerformanceQuery(query);
+              break;
+          }
+          break;
       }
-    }
+    });
 
     const scores = await prisma.osuDroidScore.findMany(query);
 
