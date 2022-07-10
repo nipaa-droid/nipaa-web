@@ -3,6 +3,7 @@ import { z } from "zod";
 import { Responses } from "../../api/Responses";
 import { OsuDroidScoreHelper } from "../../database/helpers/OsuDroidScoreHelper";
 import { prisma } from "../../../lib/prisma";
+import { BeatmapManager } from "../../database/managers/BeatmapManager";
 
 const path = "gettop";
 
@@ -36,6 +37,12 @@ export const getTopRouter = createRouter().mutation(path, {
 
     const accuracy = OsuDroidScoreHelper.getAccuracyDroid(score);
 
+    const map = await BeatmapManager.fetchBeatmap(score.mapHash);
+
+    if (!map) {
+      return Responses.FAILED("Couldn't retrieve beatmap for the score");
+    }
+
     return Responses.SUCCESS(
       score.mods,
       OsuDroidScoreHelper.getScoreLeaderboardMetric(score).toString(),
@@ -49,6 +56,7 @@ export const getTopRouter = createRouter().mutation(path, {
       score.h0.toString(),
       accuracy.toString(),
       score.date.getTime().toString(),
+      Number(map.maxCombo === score.maxCombo).toString(),
       score.player.name
     );
   },
