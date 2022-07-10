@@ -193,7 +193,7 @@ export class OsuDroidStatsHelper {
           .map((scores) => this.getPerformanceFromScores(scores))
           .reduce((acc, cur) => {
             return cur >= metric ? ++acc : acc;
-          });
+          }, 0);
 
         break;
       case Metrics.rankedScore:
