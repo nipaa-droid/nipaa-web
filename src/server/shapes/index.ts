@@ -1,39 +1,39 @@
-import { z, ZodRawShape } from "zod";
+import { z } from "zod";
 
-export const shapeWithID: ZodRawShape = {
+export const shapeWithID = {
   id: z.string(),
 };
 
-export const shapeWithHash: ZodRawShape = {
+export const shapeWithHash = {
   hash: z.string().length(32),
 };
 
-export const shapeWithSSID: ZodRawShape = {
+export const shapeWithSSID = {
   ssid: z.string().length(36),
 };
 
-export const shapeWithUserID: ZodRawShape = {
+export const shapeWithUserID = {
   userID: z.string(),
 };
 
-export const shapeWithUsername: ZodRawShape = {
+export const shapeWithUsername = {
   username: z.string().min(4).max(16),
 };
 
-export const shapeWithPassword: ZodRawShape = {
+export const shapeWithPassword = {
   password: z.string().min(8).max(32),
 };
 
-export const shapeWithEmail: ZodRawShape = {
+export const shapeWithEmail = {
   email: z.string().email(),
 };
 
-export const shapeWithUsernameWithPassword: ZodRawShape = {
+export const shapeWithUsernameWithPassword = {
   ...shapeWithUsername,
   ...shapeWithPassword,
 };
 
-export const shapeWithAuthentication: ZodRawShape = {
+export const shapeWithAuthentication = {
   ...shapeWithEmail,
   ...shapeWithUsernameWithPassword,
 };
