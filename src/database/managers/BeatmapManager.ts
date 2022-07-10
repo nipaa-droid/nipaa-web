@@ -1,8 +1,12 @@
 import { MapInfo } from "@rian8337/osu-base";
-import { EdgeFunctionCache } from "../../collections/EdgeFunctionCache";
+import { minutesToSeconds } from "date-fns";
+import { LimitedCapacityCollection } from "../../collections/LimitedCapacityCollection";
 
 export class BeatmapManager {
-  static cache = new EdgeFunctionCache<string, MapInfo | null>(32);
+  static cache = new LimitedCapacityCollection<string, MapInfo | null>(
+    64,
+    minutesToSeconds(1)
+  );
 
   static async fetchBeatmap(
     beatmapIDOrHash: string,

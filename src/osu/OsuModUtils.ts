@@ -13,7 +13,7 @@ type DroidStats = {
   customSpeed: number;
 };
 
-export class NipaaModUtil extends ModUtil {
+export class OsuModUtils extends ModUtil {
   static #EXTRA_MODS_SEP = "|";
 
   static #CUSTOM_SPEED_SEP = "x";
@@ -120,7 +120,7 @@ export class NipaaModUtil extends ModUtil {
 
   static get rankedMods() {
     return [
-      ...NipaaModUtil.allMods.filter(
+      ...OsuModUtils.allMods.filter(
         (m) => !this.unrankedMods.includes(m.constructor.prototype)
       ),
     ];

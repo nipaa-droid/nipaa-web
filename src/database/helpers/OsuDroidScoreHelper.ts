@@ -18,9 +18,8 @@ import {
 } from "@rian8337/osu-difficulty-calculator";
 import assert from "assert";
 import { differenceInSeconds } from "date-fns";
-import { EnvironmentConstants } from "../../constants/EnvironmentConstants";
 import { IHasError } from "../../interfaces/IHasError";
-import { NipaaModUtil } from "../../osu/NipaaModUtils";
+import { OsuModUtils } from "../../osu/OsuModUtils";
 import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
 import {
@@ -125,7 +124,7 @@ export class OsuDroidScoreHelper {
   ];
 
   static getMods(score: OsuDroidScore) {
-    return NipaaModUtil.droidStringToMods(score.mods);
+    return OsuModUtils.droidStringToMods(score.mods);
   }
 
   static getGlobalLeaderboardMetricKey() {
@@ -194,19 +193,19 @@ export class OsuDroidScoreHelper {
 
     const modsDroidString = dataTuple[0];
 
-    const modStats = NipaaModUtil.droidStatsFromDroidString(modsDroidString);
+    const modStats = OsuModUtils.droidStatsFromDroidString(modsDroidString);
 
     const { mods, customSpeed } = modStats;
 
     const toBuildScore: Partial<OsuDroidScoreWithPlayer> = {};
 
-    if (!NipaaModUtil.isCompatible(mods)) {
+    if (!OsuModUtils.isCompatible(mods)) {
       return {
         error: "Incompatible mods.",
       };
     }
 
-    if (!NipaaModUtil.isModRanked(mods)) {
+    if (!OsuModUtils.isModRanked(mods)) {
       return {
         error: "Unranked mods",
       };
@@ -251,10 +250,7 @@ export class OsuDroidScoreHelper {
     /**
      * space between score submission and requesting submission to the server way too long.
      */
-    if (
-      differenceInSeconds(dataDate, new Date()) >
-      EnvironmentConstants.EDGE_FUNCTION_LIMIT_RESPONSE_TIME
-    ) {
+    if (differenceInSeconds(dataDate, new Date()) > 10) {
       return {
         error: "Took to long to get score from submission.",
       };
@@ -545,12 +541,12 @@ export class OsuDroidScoreHelper {
     }
 
     if (!provide.mods) {
-      provide.mods = NipaaModUtil.droidStatsFromDroidString(score.mods).mods;
+      provide.mods = OsuModUtils.droidStatsFromDroidString(score.mods).mods;
     }
 
     const { accuracy, mods } = provide;
 
-    const isHidden = NipaaModUtil.hasMods(mods, [ModHidden]);
+    const isHidden = OsuModUtils.hasMods(mods, [ModHidden]);
 
     if (accuracy === 100) {
       return isHidden ? ScoreGrade.XH : ScoreGrade.X;

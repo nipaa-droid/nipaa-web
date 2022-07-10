@@ -3,7 +3,6 @@
  */
 
 import { minutesToSeconds, secondsToMilliseconds } from "date-fns";
-import { assertDefined } from "../assertions";
 
 /**
  * A collection with limited capacity.
@@ -65,8 +64,6 @@ export class LimitedCapacityCollection<K, V> extends Map<K, V> {
     }
 
     this.#interval = setInterval(() => {
-      assertDefined(this.#interval);
-
       const executionTime: number = Date.now();
 
       this.#addedTime.forEach((value, key) => {
@@ -94,8 +91,7 @@ export class LimitedCapacityCollection<K, V> extends Map<K, V> {
    */
   override set(key: K, value: V): this {
     while (this.size >= this.capacity) {
-      const firstKey = [...this.keys()][0];
-      assertDefined(firstKey);
+      const firstKey = [...this.keys()][0]!;
       this.#addedTime.delete(firstKey);
       this.delete(firstKey);
     }

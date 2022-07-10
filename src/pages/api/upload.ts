@@ -4,7 +4,6 @@ import { HTTPMethod } from "../../http/HTTPMethod";
 import { HTTPStatusCode } from "../../http/HTTPStatusCodes";
 import { NextApiRequest, NextApiResponse } from "next";
 import { IncomingForm } from "formidable";
-import { EnvironmentConstants } from "../../constants/EnvironmentConstants";
 import { differenceInSeconds } from "date-fns";
 import { prisma } from "../../../lib/prisma";
 import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
@@ -18,7 +17,7 @@ import {
   BeatmapReplayAnalyzerWithData,
   ReplayAnalyzerUtils,
 } from "../../osu/droid/ReplayAnalyzerUtils";
-import { NipaaModUtil } from "../../osu/NipaaModUtils";
+import { OsuModUtils } from "../../osu/OsuModUtils";
 import { LATEST_REPLAY_VERSION } from "../../osu/droid/enum/ReplayVersions";
 import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
 import mean from "lodash.mean";
@@ -73,7 +72,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const verifyDate = async (
     dateToCompare: Date,
     name: string,
-    MAXIMUM_SECONDS_DIFFERENCE = EnvironmentConstants.EDGE_FUNCTION_LIMIT_RESPONSE_TIME
+    MAXIMUM_SECONDS_DIFFERENCE = 10
   ) => {
     const differenceToUpload = differenceInSeconds(dateNow, dateToCompare);
 
@@ -268,7 +267,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   const { mods: scoreMods, customSpeed: scoreCustomSpeed } =
-    NipaaModUtil.droidStatsFromDroidString(score.mods);
+    OsuModUtils.droidStatsFromDroidString(score.mods);
 
   replayData.convertedMods.length = 0;
   replayData.convertedMods.push(...scoreMods);
@@ -308,14 +307,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
-  if (!NipaaModUtil.checkEquality(replayData.convertedMods, scoreMods)) {
+  if (!OsuModUtils.checkEquality(replayData.convertedMods, scoreMods)) {
     console.log("Mod combination does not match.");
     console.log(
-      `Replay mods: ${NipaaModUtil.toModAcronymString(
-        replayData.convertedMods
-      )}`
+      `Replay mods: ${OsuModUtils.toModAcronymString(replayData.convertedMods)}`
     );
-    console.log(`Score mods: ${NipaaModUtil.toModAcronymString(scoreMods)}`);
+    console.log(`Score mods: ${OsuModUtils.toModAcronymString(scoreMods)}`);
     await invalidateReplay();
     return;
   }
@@ -411,12 +408,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (!validatedScore) return;
 
   const customScoreMultiplierMods = replayData.convertedMods.filter((m) =>
-    NipaaModUtil.MODS_WITH_CUSTOM_MULTIPLIER.includes(m.constructor.prototype)
+    OsuModUtils.MODS_WITH_CUSTOM_MULTIPLIER.includes(m.constructor.prototype)
   );
 
   if (customScoreMultiplierMods.length > 0) {
     console.log(
-      `Score has the following custom server score mods: ${NipaaModUtil.toModAcronymString(
+      `Score has the following custom server score mods: ${OsuModUtils.toModAcronymString(
         customScoreMultiplierMods
       )}`
     );
