@@ -39,7 +39,10 @@ const schema = z.object({
   }),
 });
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== HTTPMethod.POST) {
     return;
   }
@@ -475,7 +478,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       pp: score.pp,
     },
   });
-};
+}
 
 export const config = {
   api: {
