@@ -106,7 +106,7 @@ export const submitRouter = createRouter().mutation(path, {
       const response: string[] = [
         userRank.toString(),
         Math.round(metric).toString(),
-        accuracy.toString(),
+        Math.round(accuracy).toString(),
         scoreRank.toString(),
         ...extraResponse,
       ];
