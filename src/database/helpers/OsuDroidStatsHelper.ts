@@ -85,7 +85,6 @@ export class OsuDroidStatsHelper {
       },
       scores,
       (score, weighting, acc) => {
-        console.log(score);
         const accuracy = OsuDroidScoreHelper.getAccuracyDroid(score);
         return {
           accuracySum: acc.accuracySum + accuracy * weighting,
@@ -169,6 +168,8 @@ export class OsuDroidStatsHelper {
       },
     };
 
+    let amountBetter: number;
+
     switch (DatabaseSetup.global_leaderboard_metric as Metrics) {
       case Metrics.pp:
         const betterUsersByPP = await prisma.osuDroidUser.findMany({
@@ -188,11 +189,13 @@ export class OsuDroidStatsHelper {
 
         const usersScores = betterUsersByPP.map((user) => user.scores);
 
-        return usersScores
+        amountBetter = usersScores
           .map((scores) => this.getPerformanceFromScores(scores))
           .reduce((acc, cur) => {
             return cur >= metric ? ++acc : acc;
           });
+
+        break;
       case Metrics.rankedScore:
       case Metrics.totalScore:
         const rankByTotalScoreQuery: MustHave<
@@ -235,8 +238,10 @@ export class OsuDroidStatsHelper {
           rankByTotalScoreQuery
         );
 
-        return better.length + 1;
+        amountBetter = better.length;
     }
+
+    return amountBetter + 1;
   }
 
   static async getMetric(stats: OsuDroidStatsToCalculateScores) {
