@@ -4,17 +4,20 @@ import { Responses } from "../../api/Responses";
 import { OsuDroidScoreHelper } from "../../database/helpers/OsuDroidScoreHelper";
 import { OsuDroidUserHelper } from "../../database/helpers/OsuDroidUserHelper";
 import { BeatmapManager } from "../../database/managers/BeatmapManager";
-import { HTTPMethod } from "../../http/HTTPMethod";
 import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
-import { createRouter } from "../createRouter";
-import { protectRouteWithMethods } from "../middlewares";
-import { schemaWithHash } from "../schemas";
+import { createRouter, toApiEndpoint } from "../createRouter";
+import { z } from "zod";
+import { shapeWithHash } from "../shapes";
 
-export const getRankRouter = protectRouteWithMethods(createRouter(), [
-  HTTPMethod.POST,
-]).mutation("getrank", {
-  input: schemaWithHash,
+const path = "getrank";
+
+export const getRankRouter = createRouter().mutation(path, {
+  meta: {
+    openapi: { enabled: true, method: "POST", path: toApiEndpoint(path) },
+  },
+  input: z.object({ ...shapeWithHash }),
+  output: z.string(),
   async resolve({ input }) {
     const { hash } = input;
 

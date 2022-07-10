@@ -1,6 +1,4 @@
-import { HTTPMethod } from "../../http/HTTPMethod";
-import { createRouter } from "../createRouter";
-import { protectRouteWithMethods } from "../middlewares";
+import { createRouter, toApiEndpoint } from "../createRouter";
 import { prisma } from "../../../lib/prisma";
 import { Responses } from "../../api/Responses";
 import { Prisma } from "@prisma/client";
@@ -12,12 +10,17 @@ import { DatabaseSetup } from "../../database/DatabaseSetup";
 import { OsuDroidUserHelper } from "../../database/helpers/OsuDroidUserHelper";
 import { v4 } from "uuid";
 import bcrypt from "bcrypt";
-import { schemaWithUsernameWithPassword } from "../schemas";
+import { z } from "zod";
+import { shapeWithUsernameWithPassword } from "../shapes";
 
-export const loginRouter = protectRouteWithMethods(createRouter(), [
-  HTTPMethod.POST,
-]).mutation("login", {
-  input: schemaWithUsernameWithPassword,
+const path = "login";
+
+export const loginRouter = createRouter().mutation(path, {
+  meta: {
+    openapi: { enabled: true, method: "POST", path: toApiEndpoint(path) },
+  },
+  input: z.object({ ...shapeWithUsernameWithPassword }),
+  output: z.string(),
   async resolve({ input }) {
     const { username, password } = input;
 

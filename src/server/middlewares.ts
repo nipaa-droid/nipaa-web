@@ -1,11 +1,8 @@
 import { HTTPMethod } from "../http/HTTPMethod";
-import { EnumUtils } from "../utils/enum";
 import { AnyRouter } from "@trpc/server";
 import { Context } from "./context";
 import { TRPC_ERRORS } from "./errors";
-import { schemaWithSSID } from "./schemas";
-import { prisma } from "../../lib/prisma";
-import { Prisma } from "@prisma/client";
+import { EnumUtils } from "../utils/enum";
 
 export const protectRouteWithMethods = (
   router: AnyRouter<Context>,
@@ -29,33 +26,5 @@ export const protectRouteWithMethods = (
     }
 
     return next();
-  });
-};
-
-export const protectRouteWithAuthentication = (
-  router: AnyRouter<Context>,
-  query?: Prisma.OsuDroidUserFindUniqueArgs
-) => {
-  return router.middleware(async ({ next, ctx }) => {
-    const { body } = ctx.req.body;
-
-    const withSessionID = await schemaWithSSID.safeParseAsync(body);
-
-    if (!withSessionID) {
-      throw TRPC_ERRORS.UNAUTHORIZED;
-    }
-
-    const { ssid } = await schemaWithSSID.parseAsync(body);
-
-    const user = prisma.osuDroidUser.findUnique({
-      ...{
-        where: {
-          session: ssid,
-        },
-      },
-      ...query,
-    });
-
-    return next({ ctx: { ...ctx, user } });
   });
 };

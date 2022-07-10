@@ -1,27 +1,27 @@
-import { createRouter } from "../createRouter";
+import { createRouter, toApiEndpoint } from "../createRouter";
 import { prisma } from "../../../lib/prisma";
 import { TRPC_ERRORS } from "../errors";
 import bcrypt from "bcrypt";
 import { AuthConstants } from "../auth";
-import { protectRouteWithMethods } from "../middlewares";
-import { HTTPMethod } from "../../http/HTTPMethod";
 import { Responses } from "../../api/Responses";
 import { DatabaseSetup } from "../../database/DatabaseSetup";
-import { schemaWithAuth } from "../schemas";
+import { z } from "zod";
+import { shapeWithAuthentication } from "../shapes";
 
-export const registerRouter = protectRouteWithMethods(createRouter(), [
-  HTTPMethod.POST,
-]).mutation("register", {
-  input: schemaWithAuth,
+const path = "register";
+
+export const registerRouter = createRouter().mutation(path, {
+  meta: {
+    openapi: { enabled: true, method: "POST", path: toApiEndpoint(path) },
+  },
+  input: z.object({ ...shapeWithAuthentication }),
+  output: z.string(),
   async resolve({ input }) {
     const { username, password, email } = input;
 
-    const existingUser = await prisma.osuDroidUser.findMany({
+    const existingUserByName = await prisma.osuDroidUser.findUnique({
       where: {
         name: username,
-        OR: {
-          email,
-        },
       },
       // we must select atleast something.
       select: {
@@ -29,7 +29,20 @@ export const registerRouter = protectRouteWithMethods(createRouter(), [
       },
     });
 
-    if (existingUser.length > 0) {
+    if (existingUserByName) {
+      throw TRPC_ERRORS.UNAUTHORIZED;
+    }
+
+    const existingUserByEmail = await prisma.osuDroidUser.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (existingUserByEmail) {
       throw TRPC_ERRORS.UNAUTHORIZED;
     }
 

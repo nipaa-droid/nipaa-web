@@ -1,17 +1,19 @@
-import { createRouter } from "../createRouter";
+import { createRouter, toApiEndpoint } from "../createRouter";
 import { z } from "zod";
 import { Responses } from "../../api/Responses";
 import { OsuDroidScoreHelper } from "../../database/helpers/OsuDroidScoreHelper";
-import { protectRouteWithMethods } from "../middlewares";
-import { HTTPMethod } from "../../http/HTTPMethod";
 import { prisma } from "../../../lib/prisma";
 
-export const getTopRouter = protectRouteWithMethods(createRouter(), [
-  HTTPMethod.POST,
-]).mutation("gettop", {
+const path = "gettop";
+
+export const getTopRouter = createRouter().mutation(path, {
+  meta: {
+    openapi: { enabled: true, method: "POST", path: toApiEndpoint(path) },
+  },
   input: z.object({
     playID: z.string(),
   }),
+  output: z.string(),
   async resolve({ input }) {
     const { playID } = input;
 

@@ -18,14 +18,11 @@ import {
 } from "@rian8337/osu-difficulty-calculator";
 import assert from "assert";
 import { differenceInSeconds } from "date-fns";
-import { EnumUtils } from "../../utils/enum";
 import { EnvironmentConstants } from "../../constants/EnvironmentConstants";
 import { IHasError } from "../../interfaces/IHasError";
 import { NipaaModUtil } from "../../osu/NipaaModUtils";
 import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
-import { NumberUtils } from "../../utils/number";
-import { AtLeast, MustHave, Tuple } from "../../utils/types";
 import {
   ActiveGlobalLeaderboardMetric,
   ActiveScoreLeaderboardMetric,
@@ -37,6 +34,9 @@ import { BeatmapManager } from "../managers/BeatmapManager";
 import { Metrics } from "../Metrics";
 import { OsuDroidUserHelper } from "./OsuDroidUserHelper";
 import { prisma } from "../../../lib/prisma";
+import { EnumUtils } from "../../utils/enum";
+import { NumberUtils } from "../../utils/number";
+import { AtLeast, Tuple, MustHave } from "../../utils/types";
 
 type ScoreMetricKey = keyof Pick<OsuDroidScore, "score" | "pp">;
 
