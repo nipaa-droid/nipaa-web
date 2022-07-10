@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mantine/core": "^4.2.12",
+    "@mantine/hooks": "^4.2.12",
+    "@mantine/next": "^4.2.12",
     "@rian8337/osu-base": "^1.0.5",
     "@rian8337/osu-difficulty-calculator": "^1.1.1",
     "@rian8337/osu-droid-replay-analyzer": "^1.1.1",
