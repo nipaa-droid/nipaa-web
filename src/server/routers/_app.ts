@@ -5,7 +5,6 @@ import { loginRouter } from "./login";
 import { playRouter } from "./play";
 import { registerRouter } from "./register";
 import { submitRouter } from "./submit";
-import { downloadReplayRouter } from "./upload/[replayID]";
 
 export const appRouter = createRouter()
   .merge(getRankRouter)
@@ -13,7 +12,6 @@ export const appRouter = createRouter()
   .merge(loginRouter)
   .merge(registerRouter)
   .merge(submitRouter)
-  .merge(playRouter)
-  .merge(downloadReplayRouter);
+  .merge(playRouter);
 
 export type AppRouter = typeof appRouter;
