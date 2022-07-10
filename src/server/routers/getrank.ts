@@ -75,7 +75,9 @@ export const getRankRouter = createRouter().mutation(path, {
         Responses.ARRAY(
           s.id.toString(),
           s.player.name,
-          OsuDroidScoreHelper.getScoreLeaderboardMetric(s).toString(),
+          Math.round(
+            OsuDroidScoreHelper.getScoreLeaderboardMetric(s)
+          ).toString(),
           s.maxCombo.toString(),
           OsuDroidScoreHelper.getGrade(s, { accuracy: accPercent }),
           s.mods,

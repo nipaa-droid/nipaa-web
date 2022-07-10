@@ -84,7 +84,7 @@ export const loginRouter = createRouter().mutation(path, {
       session.toString(),
       rank.toString(),
       Math.round(metric).toString(),
-      accuracy.toString(),
+      Math.round(accuracy).toString(),
       user.name,
       OsuDroidUserHelper.getImage(user.image)
     );

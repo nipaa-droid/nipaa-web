@@ -45,7 +45,9 @@ export const getTopRouter = createRouter().mutation(path, {
 
     return Responses.SUCCESS(
       score.mods,
-      OsuDroidScoreHelper.getScoreLeaderboardMetric(score).toString(),
+      Math.round(
+        OsuDroidScoreHelper.getScoreLeaderboardMetric(score)
+      ).toString(),
       score.maxCombo.toString(),
       OsuDroidScoreHelper.getGrade(score),
       score.hGeki.toString(),
@@ -54,7 +56,7 @@ export const getTopRouter = createRouter().mutation(path, {
       score.h100.toString(),
       score.h50.toString(),
       score.h0.toString(),
-      accuracy.toString(),
+      Math.round(accuracy).toString(),
       score.date.getTime().toString(),
       Number(map.maxCombo === score.maxCombo).toString(),
       score.player.name

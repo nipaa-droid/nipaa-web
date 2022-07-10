@@ -93,7 +93,7 @@ export class OsuDroidStatsHelper {
       }
     );
 
-    return Math.round(weightedData.accuracySum / weightedData.weighting);
+    return weightedData.accuracySum / weightedData.weighting;
   }
 
   static #toAccuracyQuery(query: Prisma.OsuDroidScoreArgs) {
