@@ -1,9 +1,4 @@
-import {
-  OsuDroidScore,
-  OsuDroidStats,
-  Prisma,
-  SubmissionStatus,
-} from "@prisma/client";
+import { OsuDroidScore, OsuDroidStats, Prisma } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
 import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
@@ -27,7 +22,7 @@ export enum OsuDroidStatsBatchCalculate {
 }
 
 export class OsuDroidStatsHelper {
-  static #getScoresForStatsQuery(
+  static getScoresForStatsQuery(
     stats: OsuDroidStatsToCalculateScores
   ): Prisma.OsuDroidScoreWhereInput {
     return {
@@ -36,20 +31,42 @@ export class OsuDroidStatsHelper {
     };
   }
 
-  static #getRankedScoresForStatsQuery(
+  static getRankedScoresForStatsQuery(
     stats: OsuDroidStatsToCalculateScores
   ): Prisma.OsuDroidScoreWhereInput {
-    const query = this.#getScoresForStatsQuery(stats);
-    query.status = SubmissionStatus.BEST;
+    const query = this.getScoresForStatsQuery(stats);
+    query.status = {
+      in: SubmissionStatusUtils.USER_BEST_STATUS,
+    };
     return query;
+  }
+
+  static getMetricToCalculateQueryWithoutStats(): Prisma.OsuDroidScoreFindManyArgs {
+    return {
+      where: {
+        status: {
+          in: SubmissionStatusUtils.USER_BEST_STATUS,
+        },
+      },
+      take: 100,
+      orderBy: {
+        pp: Prisma.SortOrder.desc,
+      },
+    };
   }
 
   static getMetricToCalculateQuery(
     stats: OsuDroidStatsToCalculateScores
   ): Prisma.OsuDroidScoreFindManyArgs {
+    const metricToCalculateQuery = this.getMetricToCalculateQueryWithoutStats();
     return {
-      where: this.#getRankedScoresForStatsQuery(stats),
-      take: 100,
+      ...metricToCalculateQuery,
+      ...{
+        where: {
+          ...metricToCalculateQuery.where,
+          ...this.getScoresForStatsQuery(stats),
+        },
+      },
     };
   }
 
@@ -96,7 +113,7 @@ export class OsuDroidStatsHelper {
     return weightedData.accuracySum / weightedData.weighting;
   }
 
-  static #toAccuracyQuery(query: Prisma.OsuDroidScoreArgs) {
+  static toAccuracyQuery(query: Prisma.OsuDroidScoreArgs) {
     query.select = {
       ...query.select,
       h300: true,
@@ -108,7 +125,7 @@ export class OsuDroidStatsHelper {
   }
 
   static async getAccuracy(stats: OsuDroidStatsToCalculateScores) {
-    const query = this.#toAccuracyQuery(this.getMetricToCalculateQuery(stats));
+    const query = this.toAccuracyQuery(this.getMetricToCalculateQuery(stats));
 
     const scores = await prisma.osuDroidScore.findMany(query);
 
@@ -141,7 +158,7 @@ export class OsuDroidStatsHelper {
     return this.getPerformanceFromScores(scores);
   }
 
-  static async #getTotalScoreBase(where: Prisma.OsuDroidScoreWhereInput) {
+  static async getTotalScoreBaseQuery(where: Prisma.OsuDroidScoreWhereInput) {
     const aggregate = await prisma.osuDroidScore.aggregate({
       where,
       _sum: {
@@ -152,13 +169,32 @@ export class OsuDroidStatsHelper {
   }
 
   static async getTotalRankedScore(stats: OsuDroidStatsToCalculateScores) {
-    return await this.#getTotalScoreBase(
-      this.#getRankedScoresForStatsQuery(stats)
+    return await this.getTotalScoreBaseQuery(
+      this.getRankedScoresForStatsQuery(stats)
     );
   }
 
   static async getTotalScore(stats: OsuDroidStatsToCalculateScores) {
-    return await this.#getTotalScoreBase(this.#getScoresForStatsQuery(stats));
+    return await this.getTotalScoreBaseQuery(
+      this.getScoresForStatsQuery(stats)
+    );
+  }
+
+  static getTotalScoreRankQuery(): MustHave<
+    Prisma.OsuDroidScoreGroupByArgs,
+    "orderBy"
+  > {
+    return {
+      by: ["playerId"],
+      orderBy: {
+        _sum: {
+          score: Prisma.SortOrder.desc,
+        },
+      },
+      _sum: {
+        score: true,
+      },
+    };
   }
 
   static async getGlobalRank(playerId: number, metric: number) {
@@ -176,13 +212,10 @@ export class OsuDroidStatsHelper {
           where: userWhere,
           select: {
             scores: {
+              ...this.getMetricToCalculateQueryWithoutStats(),
               select: {
                 pp: true,
               },
-              orderBy: {
-                pp: Prisma.SortOrder.desc,
-              },
-              take: 50,
             },
           },
         });
@@ -202,19 +235,12 @@ export class OsuDroidStatsHelper {
           Prisma.OsuDroidScoreGroupByArgs,
           "orderBy"
         > = {
-          by: ["playerId"],
+          ...this.getTotalScoreRankQuery(),
+
           where: {
             playerId: {
               not: playerId,
             },
-          },
-          orderBy: {
-            _sum: {
-              score: Prisma.SortOrder.desc,
-            },
-          },
-          _sum: {
-            score: true,
           },
           having: {
             score: {
@@ -228,6 +254,7 @@ export class OsuDroidStatsHelper {
         switch (DatabaseSetup.global_leaderboard_metric as Metrics) {
           case Metrics.rankedScore:
             rankByTotalScoreQuery.where = {
+              ...rankByTotalScoreQuery.where,
               status: {
                 in: SubmissionStatusUtils.USER_BEST_STATUS,
               },
@@ -264,7 +291,7 @@ export class OsuDroidStatsHelper {
     calculate.forEach((batch) => {
       switch (batch) {
         case OsuDroidStatsBatchCalculate.ACCURACY:
-          this.#toAccuracyQuery(query);
+          this.toAccuracyQuery(query);
           break;
         case OsuDroidStatsBatchCalculate.METRIC:
           switch (DatabaseSetup.global_leaderboard_metric as Metrics) {

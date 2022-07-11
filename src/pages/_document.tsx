@@ -5,13 +5,12 @@ import Document, {
   Main,
   NextScript,
 } from "next/document";
-import React from "react";
 import { ServerStyles, createStylesServer } from "@mantine/next";
 
 const stylesServer = createStylesServer();
 
 export default class _Document extends Document {
-  static async getInitialProps(ctx: DocumentContext) {
+  static override async getInitialProps(ctx: DocumentContext) {
     const initialProps = await Document.getInitialProps(ctx);
 
     return {
@@ -35,7 +34,7 @@ export default class _Document extends Document {
           <link rel="apple-touch-icon" href="/icon.png" />
           <meta name="theme-color" content="#fff" />
         </Head>
-        <body>
+        <body style={{ backgroundColor: "black", height: "100vh" }}>
           <Main />
           <NextScript />
         </body>

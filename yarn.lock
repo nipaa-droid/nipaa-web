@@ -5078,6 +5078,11 @@ type-is@^1.6.16:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
+typesafe-i18n@^5.6.0:
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/typesafe-i18n/-/typesafe-i18n-5.6.0.tgz#b86d7fd45b8a310625f7a96896df312f2e090b4f"
+  integrity sha512-WC9cCrp774msggO6Z1ssFL6+8JM76qMn1nCjr9AxDyzV9m3KTh07oJ5oLcsvs/PpZRkaSHKp5cfLEVVDw1eKOg==
+
 typescript@4.5.5:
   version "4.5.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.5.tgz#d8c953832d28924a9e3d37c73d729c846c5896f3"
