@@ -236,7 +236,6 @@ export class OsuDroidStatsHelper {
           "orderBy"
         > = {
           ...this.getTotalScoreRankQuery(),
-
           where: {
             playerId: {
               not: playerId,

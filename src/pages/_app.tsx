@@ -39,21 +39,23 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-const app: AppType = ({ Component, pageProps }) => {
+const MyApp: AppType = ({ Component, pageProps }) => {
   const [locale, setLocale] = useState<Locales | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [opened, setOpened] = useState(false);
   const { classes } = useStyles();
 
   useEffect(() => {
-    setTimeout(() => {
+    setTimeout(async () => {
       setLoading(false);
     }, 250);
+
     const locale = detectLocale(
       router.locale ?? baseLocale,
       locales
     ) as Locales;
-    loadLocaleAsync(locale).then(() => setLocale(locale));
+
+    void loadLocaleAsync(locale).then(() => setLocale(locale));
   }, []);
 
   return (
@@ -76,12 +78,12 @@ const app: AppType = ({ Component, pageProps }) => {
               hidden={!opened}
               width={{ sm: 200, lg: 300 }}
             >
-              <Link href="/">
+              <Link passHref href="/">
                 <Button component="a" className={classes.button}>
                   <Text className={classes.buttonText}>Home</Text>
                 </Button>
               </Link>
-              <Link href="/leaderboard">
+              <Link passHref href="/leaderboard">
                 <Button component="a" className={classes.button}>
                   <Text className={classes.buttonText}>Leaderboard</Text>
                 </Button>
@@ -112,7 +114,11 @@ const app: AppType = ({ Component, pageProps }) => {
                 <SimpleGrid cols={2}>
                   <div>
                     <Center>
-                      <Image src="icon-192x192.png" style={{ width: 32 }} />
+                      <Image
+                        alt="The app's logo"
+                        src="icon-192x192.png"
+                        style={{ width: 32 }}
+                      />
                     </Center>
                   </div>
                   <div>
@@ -167,4 +173,4 @@ export default withTRPC<AppRouter>({
    * @link https://trpc.io/docs/ssr
    */
   ssr: true,
-})(app);
+})(MyApp);

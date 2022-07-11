@@ -20,7 +20,7 @@ export default function Leaderboard() {
           ) : (
             users.data.map((data) => {
               return (
-                <List.Item style={{ listStyle: "none" }} id={data.userID}>
+                <List.Item style={{ listStyle: "none" }} key={data.userID}>
                   <Center>
                     <Card style={{ width: "60%" }}>
                       <Grid justify={"flex-end"}>
