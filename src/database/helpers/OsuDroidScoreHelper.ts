@@ -175,7 +175,7 @@ export class OsuDroidScoreHelper {
     data: string,
     user: SubmissionPlayer,
     playerId = user?.id
-  ): SubmissionScoreReturnType {
+  ): Promise<SubmissionScoreReturnType> {
     const dataArray: string[] = data.split(" ");
 
     const DATA_ARRAY_LENGHT = 14;
