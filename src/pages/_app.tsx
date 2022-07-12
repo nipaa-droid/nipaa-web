@@ -15,23 +15,13 @@ import TypesafeI18n from "../i18n/i18n-react";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   const [locale, setLocale] = useState<Locales | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    const l = detectLocale(router.locale ?? baseLocale, locales) as Locales;
+    loadLocaleAsync(l).then(() => {
+      setLocale(l);
+    });
   }, []);
-
-  useEffect(() => {
-    /**
-     * Works around thread locking when loading locale for whatever reason
-     */
-    if (!loading) {
-      const l = detectLocale(router.locale ?? baseLocale, locales) as Locales;
-      loadLocaleAsync(l).then(() => setLocale(l));
-    }
-  }, [loading]);
 
   return (
     <MantineProvider
@@ -41,16 +31,12 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         colorScheme: "dark",
       }}
     >
-      {!locale && loading ? (
-        <AppLoader />
-      ) : (
-        locale && (
-          <TypesafeI18n locale={locale}>
-            <ClientShell>
-              <Component {...pageProps} />
-            </ClientShell>
-          </TypesafeI18n>
-        )
+      {locale && (
+        <TypesafeI18n locale={locale}>
+          <ClientShell>
+            <Component {...pageProps} />
+          </ClientShell>
+        </TypesafeI18n>
       )}
     </MantineProvider>
   );

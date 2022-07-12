@@ -10,14 +10,17 @@ import {
   Image,
   MediaQuery,
   Navbar,
+  PolymorphicComponentProps,
+  SharedButtonProps,
   SimpleGrid,
   Text,
   Title,
 } from "@mantine/core";
 import { useI18nContext } from "../i18n/i18n-react";
-import React, { useState, PropsWithChildren } from "react";
+import React, { useState, PropsWithChildren, useEffect } from "react";
 import { ServerConstants } from "../constants";
 import Link from "next/link";
+import { LinkButton, LinkButtonProps } from "./LinkButton";
 
 const useStyles = createStyles((theme) => ({
   button: {
@@ -34,6 +37,28 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
   const [opened, setOpened] = useState(false);
   const { LL } = useI18nContext();
 
+  function ShellButton<C>({
+    children,
+    buttonProps,
+    linkProps,
+  }: PropsWithChildren<LinkButtonProps<C>>) {
+    return (
+      <LinkButton<C>
+        buttonProps={{
+          component: "a",
+          className: classes.button,
+          onClick: () => setOpened(false),
+          ...(buttonProps as any),
+        }}
+        linkProps={{
+          ...linkProps,
+        }}
+      >
+        <Text className={classes.buttonText}>{children}</Text>
+      </LinkButton>
+    );
+  }
+
   return (
     <AppShell
       navbarOffsetBreakpoint="sm"
@@ -46,16 +71,10 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
           hidden={!opened}
           width={{ sm: 200, lg: 300 }}
         >
-          <Link passHref href="/">
-            <Button component="a" className={classes.button}>
-              <Text className={classes.buttonText}>{LL.home()}</Text>
-            </Button>
-          </Link>
-          <Link passHref href="/leaderboard">
-            <Button component="a" className={classes.button}>
-              <Text className={classes.buttonText}>{LL.leaderboard()}</Text>
-            </Button>
-          </Link>
+          <ShellButton linkProps={{ href: "/" }}>{LL.home()}</ShellButton>
+          <ShellButton linkProps={{ href: "/leaderboard" }}>
+            {LL.leaderboard()}
+          </ShellButton>
         </Navbar>
       }
       footer={
