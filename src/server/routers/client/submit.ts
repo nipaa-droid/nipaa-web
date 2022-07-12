@@ -13,7 +13,7 @@ import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper
 import { SubmissionStatusUtils } from "../../../osu/droid/enum/SubmissionStatus";
 import {
   createRouter,
-  toApiClientEndpoint,
+  toApiEndpoint,
   toApiClientTrpc,
 } from "../../createRouter";
 import { z } from "zod";
@@ -30,7 +30,7 @@ export const clientGetSubmitRouter = createRouter().mutation(
       openapi: {
         enabled: true,
         method: "POST",
-        path: toApiClientEndpoint(path),
+        path: toApiEndpoint(path),
       },
     },
     input: z.object({

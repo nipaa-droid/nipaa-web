@@ -34,7 +34,13 @@ export default class _Document extends Document {
           <link rel="apple-touch-icon" href="/icon.png" />
           <meta name="theme-color" content="#fff" />
         </Head>
-        <body style={{ backgroundColor: "black", height: "100vh" }}>
+        <body
+          style={{
+            backgroundColor: "black",
+            overflow: "hidden",
+            height: "100vh",
+          }}
+        >
           <Main />
           <NextScript />
         </body>

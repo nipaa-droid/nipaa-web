@@ -1,6 +1,6 @@
 import {
   createRouter,
-  toApiClientEndpoint,
+  toApiEndpoint,
   toApiClientTrpc,
 } from "../../createRouter";
 import { prisma } from "../../../../lib/prisma";
@@ -21,7 +21,7 @@ export const clientGetRegisterRouter = createRouter().mutation(
       openapi: {
         enabled: true,
         method: "POST",
-        path: toApiClientEndpoint(path),
+        path: toApiEndpoint(path),
       },
     },
     input: z.object({ ...shapeWithAuthentication }),

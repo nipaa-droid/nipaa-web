@@ -5,7 +5,7 @@ import { clientGetLoginRouter } from "./client/login";
 import { clientGetPlayRouter } from "./client/play";
 import { clientGetRegisterRouter } from "./client/register";
 import { clientGetSubmitRouter } from "./client/submit";
-import { trpcGlobalLeaderboardRouter } from "./trpc/globalLeaderboard";
+import { trpcGlobalLeaderboardRouter } from "./web/globalLeaderboard";
 
 export const appRouter = createRouter()
   .merge(clientGetRankRouter)

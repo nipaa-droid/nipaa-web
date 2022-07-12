@@ -452,6 +452,28 @@ export class OsuDroidScoreHelper {
     return nextRank + 1;
   }
 
+  static toAccuracyQuery(query: Prisma.OsuDroidScoreArgs) {
+    query.select = {
+      ...query.select,
+      ...{
+        h300: true,
+        h100: true,
+        h50: true,
+        h0: true,
+      },
+    };
+    return query;
+  }
+
+  static toGradeableQuery(query: Prisma.OsuDroidScoreArgs) {
+    this.toAccuracyQuery(query);
+    query.select = {
+      ...query.select,
+      mods: true,
+    };
+    return query;
+  }
+
   static async calculateStatus(
     userId: number,
     map: MapInfo,
@@ -526,12 +548,12 @@ export class OsuDroidScoreHelper {
   }
 
   static getGrade(
-    score: AtLeast<OsuDroidScore, OsuDroidScoreHitDataKeys | "mods">,
+    score: MustHave<OsuDroidScoreAccuracyCalculatable, "mods">,
     provide?: {
       accuracy?: number;
       mods?: Mod[];
     }
-  ) {
+  ): ScoreGrade {
     if (!provide) {
       provide = {};
     }

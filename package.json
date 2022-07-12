@@ -39,8 +39,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.17.0",
-    "@babel/plugin-proposal-decorators": "^7.17.0",
-    "@babel/plugin-proposal-logical-assignment-operators": "^7.16.7",
     "@prisma/client": "^4.0.0",
     "@types/bcrypt": "^5.0.0",
     "@types/formidable": "^2.0.5",

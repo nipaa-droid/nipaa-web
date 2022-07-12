@@ -9,4 +9,4 @@ export const createRouter = () => trpc.router<Context, OpenApiMeta>();
 
 export const toApiClientTrpc = (path: string) => `client-${path}`;
 
-export const toApiClientEndpoint = (path: string): `/${string}` => `/${path}`;
+export const toApiEndpoint = (path: string): `/${string}` => `/${path}`;

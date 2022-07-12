@@ -8,7 +8,7 @@ import { AccuracyUtils } from "../../../osu/droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../../osu/droid/enum/SubmissionStatus";
 import {
   createRouter,
-  toApiClientEndpoint,
+  toApiEndpoint,
   toApiClientTrpc,
 } from "../../createRouter";
 import { z } from "zod";
@@ -23,7 +23,7 @@ export const clientGetRankRouter = createRouter().mutation(
       openapi: {
         enabled: true,
         method: "POST",
-        path: toApiClientEndpoint(path),
+        path: toApiEndpoint(path),
       },
     },
     input: z.object({ ...shapeWithHash }),

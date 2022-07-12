@@ -1,9 +1,9 @@
 import { Center, Loader } from "@mantine/core";
 
-export const AppLoading = () => {
+export function AppLoader() {
   return (
     <Center>
-      <Loader style={{ marginTop: "50%" }} />
+      <Loader style={{ marginTop: "10rem" }} />
     </Center>
   );
-};
+}

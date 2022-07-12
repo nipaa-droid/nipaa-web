@@ -16,14 +16,12 @@ export default function Home() {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
-        <Group style={{ display: "flex" }}>
-          <Paper p="xl" shadow="xs" style={{ flexGrow: 1 }} withBorder>
-            <Title>{ServerConstants.SERVER_NAME}</Title>
-            <Text>{LL.description()}</Text>
-          </Paper>
-        </Group>
-      </main>
+      <Group style={{ display: "flex" }}>
+        <Paper p="xl" shadow="xs" style={{ flexGrow: 1 }} withBorder>
+          <Title>{ServerConstants.SERVER_NAME}</Title>
+          <Text>{LL.description()}</Text>
+        </Paper>
+      </Group>
     </>
   );
 }

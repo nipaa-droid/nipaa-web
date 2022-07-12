@@ -4,7 +4,7 @@ import { prisma } from "../../../../lib/prisma";
 import { Responses } from "../../../api/Responses";
 import {
   createRouter,
-  toApiClientEndpoint,
+  toApiEndpoint,
   toApiClientTrpc,
 } from "../../createRouter";
 import { shapeWithUserID, shapeWithHash, shapeWithSSID } from "../../shapes";
@@ -18,7 +18,7 @@ export const clientGetPlayRouter = createRouter().mutation(
       openapi: {
         enabled: true,
         method: "POST",
-        path: toApiClientEndpoint(path),
+        path: toApiEndpoint(path),
       },
     },
     input: z.object({

@@ -14,16 +14,56 @@ export type Translations = RootTranslation
 
 type RootTranslation = {
 	/**
-	 * Nipaa is a osu!droid server built by dasher
+	 * Nipaa! is an osu!droid server built by Dasher
 	 */
 	description: string
+	/**
+	 * Accuracy
+	 */
+	accuracy: string
+	/**
+	 * Playcount
+	 */
+	playCount: string
+	/**
+	 * Performance
+	 */
+	performance: string
+	/**
+	 * Leaderboard
+	 */
+	leaderboard: string
+	/**
+	 * Home
+	 */
+	home: string
 }
 
 export type TranslationFunctions = {
 	/**
-	 * Nipaa is a osu!droid server built by dasher
+	 * Nipaa! is an osu!droid server built by Dasher
 	 */
 	description: () => LocalizedString
+	/**
+	 * Accuracy
+	 */
+	accuracy: () => LocalizedString
+	/**
+	 * Playcount
+	 */
+	playCount: () => LocalizedString
+	/**
+	 * Performance
+	 */
+	performance: () => LocalizedString
+	/**
+	 * Leaderboard
+	 */
+	leaderboard: () => LocalizedString
+	/**
+	 * Home
+	 */
+	home: () => LocalizedString
 }
 
 export type Formatters = {}

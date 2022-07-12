@@ -6,4 +6,8 @@ export class AccuracyUtils {
   static acc100toDroid(acc100: number) {
     return Math.round(acc100 * 1000);
   }
+
+  static accDroidToAcc100(accDroid: number) {
+    return accDroid / 1000;
+  }
 }

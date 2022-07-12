@@ -1,6 +1,6 @@
 import {
   createRouter,
-  toApiClientEndpoint,
+  toApiEndpoint,
   toApiClientTrpc,
 } from "../../createRouter";
 import { z } from "zod";
@@ -18,7 +18,7 @@ export const clientGetTopRouter = createRouter().mutation(
       openapi: {
         enabled: true,
         method: "POST",
-        path: toApiClientEndpoint(path),
+        path: toApiEndpoint(path),
       },
     },
     input: z.object({
