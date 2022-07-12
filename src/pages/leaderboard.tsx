@@ -69,69 +69,62 @@ export default function Leaderboard() {
       {!users.data ? (
         <AppLoader />
       ) : (
-        <Container styles={{ display: "flex", justifyContent: "center" }}>
+        <Container style={{ display: "flex", justifyContent: "center" }}>
           <Transition mounted={mounted} transition="slide-down" duration={1000}>
             {(styles) => {
               return (
-                <Paper styles={{ overflowX: "auto", width: "95%" }} withBorder>
-                  <div style={styles}>
-                    <Table
-                      className={classes.table}
-                      horizontalSpacing="xs"
-                      verticalSpacing="xs"
-                      highlightOnHover
-                    >
-                      <thead>
-                        <tr>
-                          <UnfocusedTableHead />
-                          <UnfocusedTableHead />
-                          <UnfocusedTableHead>
-                            {LL.accuracy()}
-                          </UnfocusedTableHead>
-                          <UnfocusedTableHead>
-                            {LL.playCount()}
-                          </UnfocusedTableHead>
-                          <FocusedTableHead>
-                            {LL.performance()}
-                          </FocusedTableHead>
-                          <UnfocusedTableHead>SS</UnfocusedTableHead>
-                          <UnfocusedTableHead>S</UnfocusedTableHead>
-                          <UnfocusedTableHead>A</UnfocusedTableHead>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {users.data.map((data, i) => {
-                          const {
-                            username,
-                            metric,
-                            playCount,
-                            accuracy,
-                            grades,
-                          } = data;
-                          const { SS, S, A } = grades;
+                <Paper style={{ overflowX: "auto", width: "95%" }} withBorder>
+                  <Table
+                    className={classes.table}
+                    horizontalSpacing="xs"
+                    verticalSpacing="xs"
+                    style={styles}
+                    highlightOnHover
+                  >
+                    <thead>
+                      <tr>
+                        <UnfocusedTableHead />
+                        <UnfocusedTableHead />
+                        <UnfocusedTableHead>{LL.accuracy()}</UnfocusedTableHead>
+                        <UnfocusedTableHead>
+                          {LL.playCount()}
+                        </UnfocusedTableHead>
+                        <FocusedTableHead>{LL.performance()}</FocusedTableHead>
+                        <UnfocusedTableHead>SS</UnfocusedTableHead>
+                        <UnfocusedTableHead>S</UnfocusedTableHead>
+                        <UnfocusedTableHead>A</UnfocusedTableHead>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.data.map((data, i) => {
+                        const {
+                          username,
+                          metric,
+                          playCount,
+                          accuracy,
+                          grades,
+                        } = data;
+                        const { SS, S, A } = grades;
 
-                          return (
-                            <tr key={data.userID}>
-                              <FocusedTableData>#{i + 1}</FocusedTableData>
-                              <FocusedTableData>{username}</FocusedTableData>
-                              <UnfocusedTableData>
-                                {accuracy.toFixed(2).toLocaleLowerCase(locale)}%
-                              </UnfocusedTableData>
-                              <UnfocusedTableData>
-                                {playCount}
-                              </UnfocusedTableData>
-                              <FocusedTableData>
-                                {Math.round(metric).toLocaleString(locale)}
-                              </FocusedTableData>
-                              <UnfocusedTableData>{SS}</UnfocusedTableData>
-                              <UnfocusedTableData>{S}</UnfocusedTableData>
-                              <UnfocusedTableData>{A}</UnfocusedTableData>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </Table>
-                  </div>
+                        return (
+                          <tr key={data.userID}>
+                            <FocusedTableData>#{i + 1}</FocusedTableData>
+                            <FocusedTableData>{username}</FocusedTableData>
+                            <UnfocusedTableData>
+                              {accuracy.toFixed(2).toLocaleLowerCase(locale)}%
+                            </UnfocusedTableData>
+                            <UnfocusedTableData>{playCount}</UnfocusedTableData>
+                            <FocusedTableData>
+                              {Math.round(metric).toLocaleString(locale)}
+                            </FocusedTableData>
+                            <UnfocusedTableData>{SS}</UnfocusedTableData>
+                            <UnfocusedTableData>{S}</UnfocusedTableData>
+                            <UnfocusedTableData>{A}</UnfocusedTableData>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </Table>
                 </Paper>
               );
             }}
