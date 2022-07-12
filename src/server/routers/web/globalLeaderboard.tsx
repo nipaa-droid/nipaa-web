@@ -14,6 +14,7 @@ import { ScoreGrade } from "../../../osu/ScoreGrade";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 import { MustHave } from "../../../utils/types";
 import { AccuracyUtils } from "../../../osu/droid/AccuracyUtils";
+import sortBy from "lodash.sortby";
 
 const output = z.array(
   z.object({
@@ -198,6 +199,6 @@ export const trpcGlobalLeaderboardRouter = createRouter().query(path, {
         break;
     }
 
-    return data;
+    return sortBy(data, (o) => o.metric);
   },
 });
