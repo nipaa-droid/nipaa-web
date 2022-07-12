@@ -15,10 +15,15 @@ import { useI18nContext } from "../i18n/i18n-react";
 import { ServerConstants } from "../constants";
 import { CSSProperties, PropsWithChildren, useEffect, useState } from "react";
 import { LinkButton } from "../components/LinkButton";
+import { DiscordInvitation } from "../components/index/DiscordInvitation";
+import { BriefIntroduction } from "../components/index/BriefIntroduction";
 
 const useStyles = createStyles(() => ({
   header: {
     height: "10rem",
+  },
+  paper: {
+    flexGrow: 0.9,
   },
 }));
 
@@ -33,24 +38,6 @@ export default function Home() {
   }, []);
 
   const duration = 1000;
-
-  const StyledPaper = ({
-    children,
-    styles,
-    className,
-  }: PropsWithChildren<{ styles: CSSProperties; className?: string }>) => {
-    return (
-      <Paper
-        className={className}
-        p="xl"
-        shadow="xs"
-        style={{ flexGrow: 0.9, ...styles }}
-        withBorder
-      >
-        {children}
-      </Paper>
-    );
-  };
 
   return (
     <>
@@ -76,40 +63,14 @@ export default function Home() {
           {(styles) => {
             return (
               <>
-                <StyledPaper className={classes.header} styles={styles.paper1}>
-                  <div style={styles.text1}>
-                    <Title>{ServerConstants.SERVER_NAME}</Title>
-                    <Text>{LL.description()}</Text>
-                  </div>
-                </StyledPaper>
-                <Container style={{ flexGrow: 0.8 }}>
-                  <StyledPaper styles={styles.paper3}>
-                    <Card style={{ height: "8rem" }}>
-                      <Card.Section padding="lg" m="xs">
-                        <Center>
-                          <Image
-                            alt="discord logo"
-                            src="discord.svg"
-                            width={64}
-                            withPlaceholder
-                          />
-                        </Center>
-                      </Card.Section>
-                      <LinkButton
-                        buttonProps={{
-                          component: "a",
-                          fullWidth: true,
-                          style: {
-                            marginBottom: "1rem",
-                          },
-                        }}
-                        linkProps={{ href: ServerConstants.DISCORD_URL }}
-                      >
-                        <Text>Join our discord</Text>
-                      </LinkButton>
-                    </Card>
-                  </StyledPaper>
-                </Container>
+                <BriefIntroduction
+                  className={classes.paper}
+                  styles={styles.paper1}
+                />
+                <DiscordInvitation
+                  className={classes.paper}
+                  styles={styles.paper3}
+                />
                 <StyledPaper styles={styles.paper2}>
                   <div
                     style={{
