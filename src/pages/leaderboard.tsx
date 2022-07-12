@@ -2,7 +2,6 @@ import { ServerConstants } from "../constants";
 import Head from "next/head";
 import { trpc } from "../utils/trpc";
 import {
-  Card,
   Container,
   createStyles,
   Paper,
@@ -14,7 +13,6 @@ import { AppLoader } from "../components/AppLoader";
 import { useI18nContext } from "../i18n/i18n-react";
 import { CenteredTableHead } from "../components/CenteredTableHead";
 import { PropsWithChildren, useEffect, useState } from "react";
-import { boolean } from "zod";
 
 const useStyles = createStyles((theme) => ({
   unfocused: {
