@@ -30,7 +30,7 @@ import {
 } from "../DatabaseSetup";
 import { ScoreGrade } from "../../osu/ScoreGrade";
 import { BeatmapManager } from "../managers/BeatmapManager";
-import { Metrics } from "../Metrics";
+import { GameMetrics } from "../GameMetrics";
 import { OsuDroidUserHelper } from "./OsuDroidUserHelper";
 import { prisma } from "../../../lib/prisma";
 import { EnumUtils } from "../../utils/enum";
@@ -40,7 +40,7 @@ import { AtLeast, Tuple, MustHave } from "../../utils/types";
 type ScoreMetricKey = keyof Pick<OsuDroidScore, "score" | "pp">;
 
 const getActiveScoreMetricKeyFor = (
-  metric: OsuDroidScoreMetric | Metrics
+  metric: OsuDroidScoreMetric | GameMetrics
 ): ScoreKeyForMetric<typeof metric> => {
   return metric === "pp" ? "pp" : "score";
 };

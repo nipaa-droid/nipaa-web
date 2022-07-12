@@ -1,7 +1,7 @@
 import { GameMode } from "@prisma/client";
-import { Metrics } from "./Metrics";
+import { GameMetrics } from "./GameMetrics";
 
-export type ActiveGlobalLeaderboardMetric = Metrics.pp;
+export type ActiveGlobalLeaderboardMetric = GameMetrics.pp;
 
 export enum OsuDroidScoreMetric {
   score = "score",
@@ -12,7 +12,8 @@ export type ActiveScoreLeaderboardMetric = OsuDroidScoreMetric.pp;
 
 export class DatabaseSetup {
   static game_mode = GameMode.std;
-  static global_leaderboard_metric: ActiveGlobalLeaderboardMetric = Metrics.pp;
+  static global_leaderboard_metric: ActiveGlobalLeaderboardMetric =
+    GameMetrics.pp;
   static score_leaderboard_metric: ActiveScoreLeaderboardMetric =
     OsuDroidScoreMetric.pp;
 }

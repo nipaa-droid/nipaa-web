@@ -4,7 +4,7 @@ import { prisma } from "../../../../lib/prisma";
 import { OsuDroidStatsHelper } from "../../../database/helpers/OsuDroidStatsHelper";
 import { DatabaseSetup } from "../../../database/DatabaseSetup";
 import { shapeWithUsername } from "../../shapes";
-import { Metrics } from "../../../database/Metrics";
+import { GameMetrics } from "../../../database/GameMetrics";
 import { SubmissionStatusUtils } from "../../../osu/droid/enum/SubmissionStatus";
 import {
   OsuDroidScoreAccuracyCalculatable,
@@ -76,8 +76,8 @@ export const trpcGlobalLeaderboardRouter = createRouter().query(path, {
       return gradesData;
     };
 
-    switch (DatabaseSetup.global_leaderboard_metric as Metrics) {
-      case Metrics.pp:
+    switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
+      case GameMetrics.pp:
         const users = await prisma.osuDroidUser.findMany({
           select: {
             name: true,
@@ -130,12 +130,12 @@ export const trpcGlobalLeaderboardRouter = createRouter().query(path, {
         });
 
         break;
-      case Metrics.rankedScore:
-      case Metrics.totalScore:
+      case GameMetrics.rankedScore:
+      case GameMetrics.totalScore:
         const query = { ...OsuDroidStatsHelper.getTotalScoreRankQuery() };
 
-        switch (DatabaseSetup.global_leaderboard_metric as Metrics) {
-          case Metrics.rankedScore:
+        switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
+          case GameMetrics.rankedScore:
             query.where = {
               ...query.where,
               status: {
