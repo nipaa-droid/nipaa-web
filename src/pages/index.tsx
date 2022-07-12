@@ -1,10 +1,26 @@
 import Head from "next/head";
-import { Group, Paper, Text, Title } from "@mantine/core";
+import {
+  Group,
+  GroupedTransition,
+  Paper,
+  Text,
+  Title,
+  Transition,
+} from "@mantine/core";
 import { useI18nContext } from "../i18n/i18n-react";
 import { ServerConstants } from "../constants";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const { LL } = useI18nContext();
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const duration = 1000;
 
   return (
     <>
@@ -17,10 +33,29 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Group style={{ display: "flex" }}>
-        <Paper p="xl" shadow="xs" style={{ flexGrow: 1 }} withBorder>
-          <Title>{ServerConstants.SERVER_NAME}</Title>
-          <Text>{LL.description()}</Text>
-        </Paper>
+        <GroupedTransition
+          mounted={mounted}
+          transitions={{
+            paper: { transition: "slide-up", duration },
+            text: { transition: "slide-left", duration: duration / 2 },
+          }}
+        >
+          {(styles) => {
+            return (
+              <Paper
+                p="xl"
+                shadow="xs"
+                style={{ flexGrow: 1, ...styles.paper }}
+                withBorder
+              >
+                <div style={styles.text}>
+                  <Title>{ServerConstants.SERVER_NAME}</Title>
+                  <Text>{LL.description()}</Text>
+                </div>
+              </Paper>
+            );
+          }}
+        </GroupedTransition>
       </Group>
     </>
   );
