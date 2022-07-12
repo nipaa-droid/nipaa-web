@@ -20,11 +20,11 @@ import {
 import { OsuModUtils } from "../../osu/OsuModUtils";
 import { LATEST_REPLAY_VERSION } from "../../osu/droid/enum/ReplayVersions";
 import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
-import mean from "lodash.mean";
 import {
   DroidPerformanceCalculator,
   DroidStarRating,
 } from "@rian8337/osu-difficulty-calculator";
+import { mean } from "lodash";
 
 const schema = z.object({
   fields: z.object({
