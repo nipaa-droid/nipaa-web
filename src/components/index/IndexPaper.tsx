@@ -1,6 +1,8 @@
-import { WithClassname, WithStyles } from "../props/styled";
+import { CSSProperties } from "react";
 
-export type IndexPaperPropTypes = WithStyles<WithClassname<{}>>;
+export type IndexPraperProvidedProps = {
+  textStyle: CSSProperties;
+};
 
 export const IndexPaperProps = () => {
   return {

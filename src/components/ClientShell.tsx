@@ -2,16 +2,12 @@ import Head from "next/head";
 import {
   AppShell,
   Burger,
-  Button,
   Center,
   createStyles,
   Footer,
   Header,
-  Image,
   MediaQuery,
   Navbar,
-  PolymorphicComponentProps,
-  SharedButtonProps,
   SimpleGrid,
   Text,
   Title,
@@ -19,8 +15,8 @@ import {
 import { useI18nContext } from "../i18n/i18n-react";
 import React, { useState, PropsWithChildren, useEffect } from "react";
 import { ServerConstants } from "../constants";
-import Link from "next/link";
 import { LinkButton, LinkButtonProps } from "./LinkButton";
+import { AppLogo } from "./images/AppLogo";
 
 const useStyles = createStyles((theme) => ({
   button: {
@@ -92,25 +88,23 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
           >
             <MediaQuery largerThan="sm" styles={{ display: "none" }}>
               <Burger
+                styles={(t) => ({ root: { color: t.white } })}
                 opened={opened}
                 onClick={() => setOpened((o) => !o)}
                 size="sm"
                 mr="xl"
+                title="Navigation bar button"
               />
             </MediaQuery>
             <SimpleGrid cols={2}>
               <div>
                 <Center>
-                  <Image
-                    alt="The app's logo"
-                    src="icon-192x192.png"
-                    style={{ width: 32 }}
-                  />
+                  <AppLogo />
                 </Center>
               </div>
               <div>
                 <Center style={{ marginTop: "10%", marginRight: "10%" }}>
-                  <Title order={4} style={{ color: "white" }}>
+                  <Title order={4} sx={(t) => ({ color: t.white })}>
                     {ServerConstants.SERVER_NAME}
                   </Title>
                 </Center>

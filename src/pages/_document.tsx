@@ -38,7 +38,6 @@ export default class _Document extends Document {
           style={{
             backgroundColor: "black",
             overflowX: "hidden",
-            height: "100vh",
           }}
         >
           <Main />

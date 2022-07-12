@@ -3,7 +3,6 @@ import { AppType } from "next/dist/shared/lib/utils";
 import { AppRouter } from "../server/routers/_app";
 import { MantineProvider } from "@mantine/core";
 import { ClientShell } from "../components/ClientShell";
-import { AppLoader } from "../components/AppLoader";
 import router from "next/router";
 import { useState, useEffect } from "react";
 import { detectLocale } from "typesafe-i18n/detectors";

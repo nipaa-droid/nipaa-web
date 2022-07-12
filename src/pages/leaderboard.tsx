@@ -69,11 +69,11 @@ export default function Leaderboard() {
       {!users.data ? (
         <AppLoader />
       ) : (
-        <Container style={{ display: "flex", justifyContent: "center" }}>
+        <Container styles={{ display: "flex", justifyContent: "center" }}>
           <Transition mounted={mounted} transition="slide-down" duration={1000}>
             {(styles) => {
               return (
-                <Paper style={{ overflowX: "auto", width: "95%" }} withBorder>
+                <Paper styles={{ overflowX: "auto", width: "95%" }} withBorder>
                   <div style={styles}>
                     <Table
                       className={classes.table}

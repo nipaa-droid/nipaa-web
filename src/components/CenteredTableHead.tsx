@@ -7,7 +7,7 @@ export const CenteredTableHead = (
   return (
     <th {...props}>
       <Container
-        style={{
+        styles={{
           display: "flex",
           flexDirection: "row",
           justifyContent: "center",
