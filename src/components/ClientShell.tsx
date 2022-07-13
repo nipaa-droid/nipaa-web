@@ -8,7 +8,7 @@ import {
   Header,
   MediaQuery,
   Navbar,
-  SimpleGrid,
+  Stack,
   Text,
   Title,
 } from "@mantine/core";
@@ -96,7 +96,7 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
                 title="Navigation bar button"
               />
             </MediaQuery>
-            <SimpleGrid cols={2}>
+            <Stack>
               <div>
                 <Center>
                   <AppLogo />
@@ -109,7 +109,7 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
                   </Title>
                 </Center>
               </div>
-            </SimpleGrid>
+            </Stack>
           </div>
         </Header>
       }
