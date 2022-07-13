@@ -12,7 +12,8 @@ import {
   NumberInput,
 } from "@mantine/core";
 import assert from "assert";
-import { GetStaticPaths, GetStaticProps } from "next";
+import { clamp } from "lodash";
+import { GetStaticPaths, GetStaticPropsContext } from "next";
 import { useRouter } from "next/router";
 import { PropsWithChildren, useState, useEffect } from "react";
 import { prisma } from "../../../../lib/prisma";
@@ -55,22 +56,29 @@ type Params = {
   page: string;
 };
 
-export const getStaticProps: GetStaticProps<StaticPropsType, Params> = async (
-  context
-) => {
+export async function getStaticProps(context: GetStaticPropsContext<Params>) {
   const ssg = getSSGHelper({});
 
   const { params } = context;
 
   assert(params);
 
-  const page = Math.min(1, Math.floor(Number(params.page)));
-  const pageIndex = page - 1;
-
   const fullData = await ssg.fetchQuery("global-leaderboard", {});
   const maxPages = NumberUtils.maxPagesFor(fullData.length, AMOUNT_PER_PAGE);
 
-  const start = Math.max(pageIndex * AMOUNT_PER_PAGE, maxPages - 1);
+  const page = parseInt(params.page);
+
+  if (page > maxPages || page < 1) {
+    const redirectPage = clamp(page, 1, maxPages);
+    return {
+      redirect: {
+        destination: `/leaderboard/page/${redirectPage}`,
+      },
+    };
+  }
+
+  const pageIndex = page - 1;
+  const start = pageIndex * AMOUNT_PER_PAGE;
 
   const providedData = fullData.slice(start, start + AMOUNT_PER_PAGE);
 
@@ -82,7 +90,7 @@ export const getStaticProps: GetStaticProps<StaticPropsType, Params> = async (
     },
     revalidate: 60,
   };
-};
+}
 
 const useStyles = createStyles((theme) => ({
   unfocused: {
