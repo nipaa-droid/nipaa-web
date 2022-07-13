@@ -10,7 +10,6 @@ import assert from "assert";
 import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import { PropsWithChildren, useState, useEffect } from "react";
-import { z } from "zod";
 import { prisma } from "../../../../lib/prisma";
 import { CenteredTableHead } from "../../../components/CenteredTableHead";
 import { ServerConstants } from "../../../constants";
