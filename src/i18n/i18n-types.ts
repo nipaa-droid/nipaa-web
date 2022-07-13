@@ -38,6 +38,10 @@ type RootTranslation = {
 	 */
 	leaderboard: string
 	/**
+	 * Page
+	 */
+	leaderboardPageSearch: string
+	/**
 	 * Home
 	 */
 	home: string
@@ -68,6 +72,10 @@ export type TranslationFunctions = {
 	 * Leaderboard
 	 */
 	leaderboard: () => LocalizedString
+	/**
+	 * Page
+	 */
+	leaderboardPageSearch: () => LocalizedString
 	/**
 	 * Home
 	 */
