@@ -31,6 +31,8 @@ const output = z.array(
   })
 );
 
+export type TRPCGlobalLeaderboardReturnType = z.infer<typeof output>;
+
 const path = "global-leaderboard";
 
 export const trpcGlobalLeaderboardRouter = createRouter().query(path, {
@@ -132,7 +134,7 @@ export const trpcGlobalLeaderboardRouter = createRouter().query(path, {
         break;
       case GameMetrics.rankedScore:
       case GameMetrics.totalScore:
-        const query = { ...OsuDroidStatsHelper.getTotalScoreRankQuery() };
+        const query = OsuDroidStatsHelper.toTotalScoreRankQuery({});
 
         switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
           case GameMetrics.rankedScore:

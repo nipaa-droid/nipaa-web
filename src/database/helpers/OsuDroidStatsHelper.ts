@@ -2,7 +2,7 @@ import { OsuDroidScore, OsuDroidStats, Prisma } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
 import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
-import { AtLeast, MustHave } from "../../utils/types";
+import { AtLeast, MustHave, NullableKeys } from "../../utils/types";
 import { DatabaseSetup } from "../DatabaseSetup";
 import { GameMetrics } from "../GameMetrics";
 import {
@@ -170,12 +170,11 @@ export class OsuDroidStatsHelper {
     );
   }
 
-  static getTotalScoreRankQuery(): MustHave<
-    Prisma.OsuDroidScoreGroupByArgs,
-    "orderBy"
-  > {
+  static toTotalScoreRankQuery(
+    query: NullableKeys<Prisma.OsuDroidScoreGroupByArgs, "by">
+  ): MustHave<Prisma.OsuDroidScoreGroupByArgs, "orderBy"> {
     return {
-      by: ["playerId"],
+      by: ["playerId", ...(query.by ?? [])],
       orderBy: {
         _sum: {
           score: Prisma.SortOrder.desc,
@@ -183,6 +182,7 @@ export class OsuDroidStatsHelper {
       },
       _sum: {
         score: true,
+        ...query._sum,
       },
     };
   }
@@ -223,8 +223,7 @@ export class OsuDroidStatsHelper {
         const rankByTotalScoreQuery: MustHave<
           Prisma.OsuDroidScoreGroupByArgs,
           "orderBy"
-        > = {
-          ...this.getTotalScoreRankQuery(),
+        > = this.toTotalScoreRankQuery({
           where: {
             playerId: {
               not: playerId,
@@ -237,7 +236,7 @@ export class OsuDroidStatsHelper {
               },
             },
           },
-        };
+        });
 
         switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
           case GameMetrics.rankedScore:

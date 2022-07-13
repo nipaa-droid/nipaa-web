@@ -9,7 +9,6 @@ const cacheMiddleware = createPrismaRedisCache({
     type: "memory",
     options: {
       invalidation: true,
-      log: console,
     },
   },
   cacheTime: minutesToMilliseconds(1),

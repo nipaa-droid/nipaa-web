@@ -11,4 +11,8 @@ export class NumberUtils {
   static percentFrom(from: number, to: number) {
     return Math.round((from / to) * 100);
   }
+
+  static maxPagesFor(amount: number, itemsPerPage: number) {
+    return Math.max(1, Math.floor(amount / itemsPerPage));
+  }
 }

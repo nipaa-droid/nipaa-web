@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { IndexPresentation } from "../components/index/IndexPresentation";
 import { ServerAbout } from "../components/index/ServerAbout";
 import { ServerConstants } from "../constants";
-import { DiscordWidget } from "../components/images/DiscordWidget";
+import { DiscordWidget } from "../components/iframes/DiscordWidget";
 
 const useStyles = createStyles(() => ({
   discoWidget: {

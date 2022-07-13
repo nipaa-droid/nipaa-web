@@ -1,18 +1,12 @@
-export type NonNullableKeys<T, K extends (keyof T)[]> = {
-  [P in keyof T]: T[P];
-} & {
-  [P in K[number]]-?: NonNullable<T[P]>;
-};
+export type NonNullableKeys<T, K extends keyof T> = Omit<T, K> &
+  Required<Pick<T, K>>;
 
 export type NonNullableRequired<T> = {
   [P in keyof T]-?: NonNullable<T[P]>;
 };
 
-export type NullableKeys<T, K extends (keyof T)[]> = {
-  [P in keyof T]: T[P];
-} & {
-  [P in K[number]]+?: NonNullable<T[P]>;
-};
+export type NullableKeys<T, K extends keyof T> = Omit<T, K> &
+  Partial<Pick<T, K>>;
 
 export type Tuple<
   T,
