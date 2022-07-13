@@ -1,7 +1,6 @@
 import {
   createStyles,
   Container,
-  Transition,
   Paper,
   Table,
   Text,
@@ -10,6 +9,7 @@ import {
   Center,
   Grid,
   NumberInput,
+  GroupedTransition,
 } from "@mantine/core";
 import assert from "assert";
 import { clamp } from "lodash";
@@ -107,6 +107,9 @@ const useStyles = createStyles((theme) => ({
       fontWeight: "bold",
     },
   },
+  inputWrapper: {
+    margin: "2.5rem",
+  },
 }));
 
 export default function Leaderboard({
@@ -164,6 +167,8 @@ Partial<StaticPropsType>) {
     }
   };
 
+  const duration = 500;
+
   return (
     <>
       {!(data && maxPages && staticCurrentPage) ? (
@@ -172,103 +177,114 @@ Partial<StaticPropsType>) {
         </Center>
       ) : (
         <>
-          <Grid
-            style={{
-              margin: "2.5rem",
+          <GroupedTransition
+            mounted={mounted}
+            transitions={{
+              table: { duration, transition: "slide-down" },
+              pageInput: { duration, transition: "slide-up" },
             }}
           >
-            <Grid.Col span={12}>
-              <NumberInput
-                value={currentPage}
-                placeholder={LL.leaderboardPageSearch()}
-                onChange={handlePageChange}
-                formatter={(s) =>
-                  s ? Math.min(parseInt(s), maxPages!).toString() : ""
-                }
-              />
-            </Grid.Col>
-            <Grid.Col span={12}>
-              <Pagination
-                page={currentPage}
-                onChange={handlePageChange}
-                position="center"
-                boundaries={0}
-                siblings={0}
-                total={maxPages}
-              />
-            </Grid.Col>
-          </Grid>
-          <Container style={{ display: "flex", justifyContent: "center" }}>
-            <Transition
-              mounted={mounted}
-              transition="slide-down"
-              duration={1000}
-            >
-              {(styles) => {
-                return (
-                  <Paper style={{ overflowX: "auto", width: "95%" }} withBorder>
-                    <Table
-                      className={classes.table}
-                      horizontalSpacing="xs"
-                      verticalSpacing="xs"
-                      style={styles}
-                      highlightOnHover
+            {(styles) => {
+              return (
+                <>
+                  <Grid
+                    className={classes.inputWrapper}
+                    style={styles.pageInput}
+                  >
+                    <Grid.Col offset={3} span={6}>
+                      <NumberInput
+                        value={currentPage}
+                        placeholder={LL.leaderboardPageSearch()}
+                        onChange={handlePageChange}
+                        formatter={(s) =>
+                          s ? Math.min(parseInt(s), maxPages!).toString() : ""
+                        }
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={12}>
+                      <Pagination
+                        page={currentPage}
+                        onChange={handlePageChange}
+                        position="center"
+                        boundaries={0}
+                        siblings={0}
+                        total={maxPages}
+                      />
+                    </Grid.Col>
+                  </Grid>
+                  <Container
+                    style={{ display: "flex", justifyContent: "center" }}
+                  >
+                    <Paper
+                      style={{ overflowX: "auto", width: "95%" }}
+                      withBorder
                     >
-                      <thead>
-                        <tr>
-                          <UnfocusedTableHead />
-                          <UnfocusedTableHead />
-                          <UnfocusedTableHead>
-                            {LL.accuracy()}
-                          </UnfocusedTableHead>
-                          <UnfocusedTableHead>
-                            {LL.playCount()}
-                          </UnfocusedTableHead>
-                          <FocusedTableHead>
-                            {LL.performance()}
-                          </FocusedTableHead>
-                          <UnfocusedTableHead>SS</UnfocusedTableHead>
-                          <UnfocusedTableHead>S</UnfocusedTableHead>
-                          <UnfocusedTableHead>A</UnfocusedTableHead>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.map((data, i) => {
-                          const {
-                            username,
-                            metric,
-                            playCount,
-                            accuracy,
-                            grades,
-                          } = data;
-                          const { SS, S, A } = grades;
+                      <Table
+                        className={classes.table}
+                        horizontalSpacing="xs"
+                        verticalSpacing="xs"
+                        style={styles.table}
+                        highlightOnHover
+                      >
+                        <thead>
+                          <tr>
+                            <UnfocusedTableHead />
+                            <UnfocusedTableHead />
+                            <UnfocusedTableHead>
+                              {LL.accuracy()}
+                            </UnfocusedTableHead>
+                            <UnfocusedTableHead>
+                              {LL.playCount()}
+                            </UnfocusedTableHead>
+                            <FocusedTableHead>
+                              {LL.performance()}
+                            </FocusedTableHead>
+                            <UnfocusedTableHead>SS</UnfocusedTableHead>
+                            <UnfocusedTableHead>S</UnfocusedTableHead>
+                            <UnfocusedTableHead>A</UnfocusedTableHead>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {data.map((data, i) => {
+                            const {
+                              username,
+                              metric,
+                              playCount,
+                              accuracy,
+                              grades,
+                            } = data;
+                            const { SS, S, A } = grades;
 
-                          return (
-                            <tr key={data.userID}>
-                              <FocusedTableData>#{i + 1}</FocusedTableData>
-                              <FocusedTableData>{username}</FocusedTableData>
-                              <UnfocusedTableData>
-                                {accuracy.toFixed(2).toLocaleLowerCase(locale)}%
-                              </UnfocusedTableData>
-                              <UnfocusedTableData>
-                                {playCount}
-                              </UnfocusedTableData>
-                              <FocusedTableData>
-                                {Math.round(metric).toLocaleString(locale)}
-                              </FocusedTableData>
-                              <UnfocusedTableData>{SS}</UnfocusedTableData>
-                              <UnfocusedTableData>{S}</UnfocusedTableData>
-                              <UnfocusedTableData>{A}</UnfocusedTableData>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </Table>
-                  </Paper>
-                );
-              }}
-            </Transition>
-          </Container>
+                            return (
+                              <tr key={data.userID}>
+                                <FocusedTableData>#{i + 1}</FocusedTableData>
+                                <FocusedTableData>{username}</FocusedTableData>
+                                <UnfocusedTableData>
+                                  {accuracy
+                                    .toFixed(2)
+                                    .toLocaleLowerCase(locale)}
+                                  %
+                                </UnfocusedTableData>
+                                <UnfocusedTableData>
+                                  {playCount}
+                                </UnfocusedTableData>
+                                <FocusedTableData>
+                                  {Math.round(metric).toLocaleString(locale)}
+                                </FocusedTableData>
+                                <UnfocusedTableData>{SS}</UnfocusedTableData>
+                                <UnfocusedTableData>{S}</UnfocusedTableData>
+                                <UnfocusedTableData>{A}</UnfocusedTableData>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </Table>
+                    </Paper>
+                  </Container>
+                </>
+              );
+            }}
+          </GroupedTransition>
         </>
       )}
     </>
