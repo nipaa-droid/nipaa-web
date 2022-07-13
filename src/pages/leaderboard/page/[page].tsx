@@ -184,7 +184,7 @@ Partial<StaticPropsType>) {
                 position="center"
                 boundaries={0}
                 siblings={0}
-                total={maxPages + 100}
+                total={maxPages}
               />
             </Grid.Col>
           </Grid>
