@@ -165,12 +165,22 @@ export const clientGetSubmitRouter = createRouter().mutation(
 
         OsuDroidUserHelper.submitScore(statistic, score);
 
-        await prisma.osuDroidStats.update({
+        await prisma.osuDroidUser.update({
           where: {
-            id: statistic.id,
+            id: user.id,
           },
           data: {
-            playCount: statistic.playCount,
+            playing: null,
+            stats: {
+              update: {
+                where: {
+                  id: statistic.id,
+                },
+                data: {
+                  playCount: statistic.playCount,
+                },
+              },
+            },
           },
         });
 
