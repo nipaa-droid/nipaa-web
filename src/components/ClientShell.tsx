@@ -21,6 +21,7 @@ import { LinkButton, LinkButtonProps } from "./LinkButton";
 import { AppLogo } from "./images/AppLogo";
 import { useMediaQuery } from "@mantine/hooks";
 import { translateMediaQuery } from "../utils/mediaquery";
+import { getHome, getLeaderboardPage } from "../utils/router";
 
 const useStyles = createStyles((theme) => ({
   button: {
@@ -66,8 +67,8 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
   const NavigationContent = () => {
     return (
       <Stack>
-        <ShellButton linkProps={{ href: "/" }}>{LL.home()}</ShellButton>
-        <ShellButton linkProps={{ href: "/leaderboard/page/1" }}>
+        <ShellButton linkProps={{ href: getHome() }}>{LL.home()}</ShellButton>
+        <ShellButton linkProps={{ href: getLeaderboardPage(1) }}>
           {LL.leaderboard()}
         </ShellButton>
       </Stack>

@@ -22,6 +22,7 @@ import { useI18nContext } from "../../../i18n/i18n-react";
 import { TRPCGlobalLeaderboardReturnType } from "../../../server/routers/web/globalLeaderboard";
 import { getSSGHelper } from "../../../utils/backend";
 import { NumberUtils } from "../../../utils/number";
+import { getLeaderboardPage } from "../../../utils/router";
 
 const AMOUNT_PER_PAGE = 50;
 
@@ -71,7 +72,7 @@ export async function getStaticProps(context: GetStaticPropsContext<Params>) {
     const redirectPage = clamp(page, 1, maxPages);
     return {
       redirect: {
-        destination: `/leaderboard/page/${redirectPage}`,
+        destination: getLeaderboardPage(redirectPage),
       },
     };
   }
