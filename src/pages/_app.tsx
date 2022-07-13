@@ -11,6 +11,7 @@ import { loadLocaleAsync } from "../i18n/i18n-util.async";
 import { ServerConstants } from "../constants";
 import { Locales } from "../i18n/i18n-types";
 import TypesafeI18n from "../i18n/i18n-react";
+import { mediaBreakPoints } from "../utils/breakpoints";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   const [locale, setLocale] = useState<Locales | undefined>(undefined);
@@ -25,6 +26,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   return (
     <MantineProvider
       theme={{
+        breakpoints: mediaBreakPoints,
         primaryColor: "gray",
         /** Put your mantine theme override here */
         colorScheme: "dark",

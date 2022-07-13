@@ -4,19 +4,23 @@ import {
   Burger,
   Center,
   createStyles,
+  Drawer,
   Footer,
   Header,
   MediaQuery,
   Navbar,
   SimpleGrid,
+  Stack,
   Text,
   Title,
 } from "@mantine/core";
 import { useI18nContext } from "../i18n/i18n-react";
-import { useState, PropsWithChildren } from "react";
+import { useState, PropsWithChildren, useEffect } from "react";
 import { ServerConstants } from "../constants";
 import { LinkButton, LinkButtonProps } from "./LinkButton";
 import { AppLogo } from "./images/AppLogo";
+import { useMediaQuery } from "@mantine/hooks";
+import { mediaBreakPoints } from "../utils/breakpoints";
 
 const useStyles = createStyles((theme) => ({
   button: {
@@ -55,23 +59,49 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
     );
   }
 
+  const NavigationContent = () => {
+    return (
+      <Stack>
+        <ShellButton linkProps={{ href: "/" }}>{LL.home()}</ShellButton>
+        <ShellButton linkProps={{ href: "/leaderboard/page/1" }}>
+          {LL.leaderboard()}
+        </ShellButton>
+      </Stack>
+    );
+  };
+
+  const isSmall = useMediaQuery(`(max-width: ${mediaBreakPoints.sm}px)`);
+
+  useEffect(() => {
+    setOpened(!isSmall);
+  }, [isSmall]);
+
   return (
     <AppShell
       navbarOffsetBreakpoint="sm"
       asideOffsetBreakpoint="sm"
       fixed
       navbar={
-        <Navbar
-          p="md"
-          hiddenBreakpoint="sm"
-          hidden={!opened}
-          width={{ sm: 200, lg: 300 }}
-        >
-          <ShellButton linkProps={{ href: "/" }}>{LL.home()}</ShellButton>
-          <ShellButton linkProps={{ href: "/leaderboard/page/1" }}>
-            {LL.leaderboard()}
-          </ShellButton>
-        </Navbar>
+        isSmall ? (
+          <Drawer
+            opened={opened}
+            onClose={() => setOpened(false)}
+            padding="xl"
+            overlayBlur={4}
+            size="sm"
+          >
+            <NavigationContent />
+          </Drawer>
+        ) : (
+          <Navbar
+            hidden={!opened}
+            width={{ sm: 200, lg: 300 }}
+            p="md"
+            hiddenBreakpoint="sm"
+          >
+            <NavigationContent />
+          </Navbar>
+        )
       }
       footer={
         <Footer height={60} p="md">
