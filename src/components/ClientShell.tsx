@@ -20,7 +20,7 @@ import { ServerConstants } from "../constants";
 import { LinkButton, LinkButtonProps } from "./LinkButton";
 import { AppLogo } from "./images/AppLogo";
 import { useMediaQuery } from "@mantine/hooks";
-import { mediaBreakPoints } from "../utils/breakpoints";
+import { translateMediaQuery } from "../utils/mediaquery";
 
 const useStyles = createStyles((theme) => ({
   button: {
@@ -47,7 +47,11 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
         buttonProps={{
           component: "a",
           className: classes.button,
-          onClick: () => setOpened(false),
+          onClick: () => {
+            if (isSmall) {
+              setOpened(false);
+            }
+          },
           ...(buttonProps as any),
         }}
         linkProps={{
@@ -70,7 +74,11 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
     );
   };
 
-  const isSmall = useMediaQuery(`(max-width: ${mediaBreakPoints.sm}px)`);
+  const isSmall = useMediaQuery(
+    translateMediaQuery({
+      maxWidth: "xs",
+    })
+  );
 
   useEffect(() => {
     setOpened(!isSmall);
@@ -95,7 +103,7 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
         ) : (
           <Navbar
             hidden={!opened}
-            width={{ sm: 200, lg: 300 }}
+            width={{ base: 250 }}
             p="md"
             hiddenBreakpoint="sm"
           >
