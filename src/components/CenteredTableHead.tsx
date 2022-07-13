@@ -1,4 +1,4 @@
-import React, { HTMLProps, PropsWithChildren } from "react";
+import { HTMLProps, PropsWithChildren } from "react";
 import { Container } from "@mantine/core";
 
 export const CenteredTableHead = (

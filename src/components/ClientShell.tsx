@@ -8,12 +8,12 @@ import {
   Header,
   MediaQuery,
   Navbar,
-  Stack,
+  SimpleGrid,
   Text,
   Title,
 } from "@mantine/core";
 import { useI18nContext } from "../i18n/i18n-react";
-import React, { useState, PropsWithChildren, useEffect } from "react";
+import { useState, PropsWithChildren } from "react";
 import { ServerConstants } from "../constants";
 import { LinkButton, LinkButtonProps } from "./LinkButton";
 import { AppLogo } from "./images/AppLogo";
@@ -68,7 +68,7 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
           width={{ sm: 200, lg: 300 }}
         >
           <ShellButton linkProps={{ href: "/" }}>{LL.home()}</ShellButton>
-          <ShellButton linkProps={{ href: "/leaderboard" }}>
+          <ShellButton linkProps={{ href: "/leaderboard/page/1" }}>
             {LL.leaderboard()}
           </ShellButton>
         </Navbar>
@@ -96,7 +96,7 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
                 title="Navigation bar button"
               />
             </MediaQuery>
-            <Stack>
+            <SimpleGrid>
               <div>
                 <Center>
                   <AppLogo />
@@ -109,7 +109,7 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
                   </Title>
                 </Center>
               </div>
-            </Stack>
+            </SimpleGrid>
           </div>
         </Header>
       }
