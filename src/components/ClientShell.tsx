@@ -96,7 +96,7 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
                 title="Navigation bar button"
               />
             </MediaQuery>
-            <SimpleGrid>
+            <SimpleGrid cols={2}>
               <div>
                 <Center>
                   <AppLogo />
