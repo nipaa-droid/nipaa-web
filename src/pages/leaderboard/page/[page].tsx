@@ -25,14 +25,17 @@ import { NumberUtils } from "../../../utils/number";
 
 const AMOUNT_PER_PAGE = 50;
 
-export const getStaticPaths: GetStaticPaths = async () => {
+const getMaxPages = async () => {
   const users = await prisma.osuDroidUser.count();
+  return NumberUtils.maxPagesFor(users, AMOUNT_PER_PAGE);
+};
 
-  const amountStaticPages = NumberUtils.maxPagesFor(users, AMOUNT_PER_PAGE);
+export const getStaticPaths: GetStaticPaths = async () => {
+  const maxPages = await getMaxPages();
 
   const result: { params: Params }[] = [];
 
-  for (let i = 1; i < amountStaticPages + 1; i++) {
+  for (let i = 1; i < maxPages + 1; i++) {
     result.push({
       params: {
         page: i.toString(),
@@ -57,15 +60,11 @@ type Params = {
 };
 
 export async function getStaticProps(context: GetStaticPropsContext<Params>) {
-  const ssg = getSSGHelper({});
-
   const { params } = context;
 
   assert(params);
 
-  const fullData = await ssg.fetchQuery("global-leaderboard", {});
-  const maxPages = NumberUtils.maxPagesFor(fullData.length, AMOUNT_PER_PAGE);
-
+  const maxPages = await getMaxPages();
   const page = parseInt(params.page);
 
   if (page > maxPages || page < 1) {
@@ -76,6 +75,9 @@ export async function getStaticProps(context: GetStaticPropsContext<Params>) {
       },
     };
   }
+
+  const ssg = getSSGHelper({});
+  const fullData = await ssg.fetchQuery("global-leaderboard", {});
 
   const pageIndex = page - 1;
   const start = pageIndex * AMOUNT_PER_PAGE;
