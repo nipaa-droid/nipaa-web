@@ -6,6 +6,7 @@ import {
   Table,
   Text,
 } from "@mantine/core";
+import assert from "assert";
 import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import { PropsWithChildren, useState, useEffect } from "react";
@@ -18,10 +19,6 @@ import { TRPCGlobalLeaderboardReturnType } from "../../../server/routers/web/glo
 import { getSSGHelper } from "../../../utils/backend";
 import { NumberUtils } from "../../../utils/number";
 
-const schema = z.object({
-  page: z.string(),
-});
-
 const AMOUNT_PER_PAGE = 50;
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -29,7 +26,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   const amountStaticPages = NumberUtils.maxPagesFor(users, AMOUNT_PER_PAGE);
 
-  const result: { params: z.infer<typeof schema> }[] = [];
+  const result: { params: Params }[] = [];
 
   for (let i = 1; i < amountStaticPages + 1; i++) {
     result.push({
@@ -49,23 +46,22 @@ type StaticPropsType = {
   data: TRPCGlobalLeaderboardReturnType;
 };
 
-export const getStaticProps: GetStaticProps<StaticPropsType> = async (
+type Params = {
+  page: string;
+};
+
+export const getStaticProps: GetStaticProps<StaticPropsType, Params> = async (
   context
 ) => {
   const ssg = getSSGHelper({});
 
   const { params } = context;
 
-  const validated = await schema.safeParseAsync(params);
+  assert(params);
 
-  let page = 1;
+  const { page } = params;
 
-  if (validated.success) {
-    const res = await schema.parseAsync(params);
-    page = Number(res.page);
-  }
-
-  const pageIndex = page - 1;
+  const pageIndex = Number(page) - 1;
 
   const fullData = await ssg.fetchQuery("global-leaderboard", {});
 
