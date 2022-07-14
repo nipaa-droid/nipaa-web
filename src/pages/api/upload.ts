@@ -11,7 +11,7 @@ import { BeatmapManager } from "../../database/managers/BeatmapManager";
 import fs from "fs/promises";
 import { OsuDroidScoreHelper } from "../../database/helpers/OsuDroidScoreHelper";
 import { Prisma } from "@prisma/client";
-import { Accuracy, MapInfo, MapStats, Precision } from "@rian8337/osu-base";
+import { MapInfo, MapStats, Precision } from "@rian8337/osu-base";
 import { ReplayAnalyzer } from "@rian8337/osu-droid-replay-analyzer";
 import {
   BeatmapReplayAnalyzerWithData,
@@ -20,10 +20,7 @@ import {
 import { OsuModUtils } from "../../osu/OsuModUtils";
 import { LATEST_REPLAY_VERSION } from "../../osu/droid/enum/ReplayVersions";
 import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
-import {
-  DroidPerformanceCalculator,
-  DroidStarRating,
-} from "@rian8337/osu-difficulty-calculator";
+import { DroidStarRating } from "@rian8337/osu-difficulty-calculator";
 import { mean } from "lodash";
 
 const schema = z.object({
@@ -450,24 +447,14 @@ export default async function handler(
 
   replay.checkFor3Finger();
 
-  /**
-   * We only recalculate the score if it is affected by any
-   * replay analyzer changes.
-   */
-  if (replay.tapPenalty >= 0) {
-    const performance = new DroidPerformanceCalculator().calculate({
-      stars: replay.map,
-      tapPenalty: replay.tapPenalty,
-      combo: score.maxCombo,
-      accPercent: new Accuracy({
-        n300: score.h300,
-        n100: score.h100,
-        n50: score.h50,
-        nmiss: score.h0,
-      }),
-    });
-    score.pp = performance.total;
-  }
+  const validateNot3Fingered = await validateDifference(
+    replay.tapPenalty,
+    replay.tapPenalty,
+    "Not 3 fingered",
+    score.pp / 10
+  );
+
+  if (!validateNot3Fingered) return;
 
   await prisma.osuDroidScore.update({
     where: {
