@@ -105,9 +105,24 @@ export default async function handler(
     where: {
       id: replayID,
     },
-    include: {
-      player: true,
-    },
+    select: OsuDroidScoreHelper.toGradeableSelect({
+      id: true,
+      score: true,
+      status: true,
+      playerId: true,
+      mapHash: true,
+      replay: true,
+      date: true,
+      hKatu: true,
+      maxCombo: true,
+      pp: true,
+      hGeki: true,
+      player: {
+        select: {
+          name: true,
+        },
+      },
+    }),
   });
 
   if (!score) {
