@@ -11,6 +11,7 @@ import { shapeWithSecret } from "../../shapes";
 
 const path = "cron-1-day";
 
+// this should be run by a service such as easy cron
 export const cron1DayRouter = createRouter().mutation(path, {
   meta: {
     openapi: { enabled: true, method: "PATCH", path: toApiEndpoint(path) },
