@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { AnyRouter } from "@trpc/server";
+import assert from "assert";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
 import { Context } from "./context";
@@ -43,6 +44,8 @@ export const protectedWithSessionMiddleware = <
   return router.middleware(async ({ next, rawInput, ctx }) => {
     const sessionIDSchema = z.object({ ...shapeWithSSID });
 
+    assert(select);
+
     const validate = await sessionIDSchema.safeParseAsync(rawInput);
 
     if (!validate.success) {
@@ -65,7 +68,7 @@ export const protectedWithSessionMiddleware = <
     return next({
       ctx: {
         ...ctx,
-        user,
+        user: user,
       },
     });
   });
