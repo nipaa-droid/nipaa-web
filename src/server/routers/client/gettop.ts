@@ -52,13 +52,13 @@ export const clientGetTopRouter = createRouter().mutation(
         return Responses.FAILED("Score not found.");
       }
 
-      const accuracy = OsuDroidScoreHelper.getAccuracyDroid(score);
-
       const map = await BeatmapManager.fetchBeatmap(score.mapHash);
 
       if (!map) {
         return Responses.FAILED("Couldn't retrieve beatmap for the score");
       }
+
+      const accuracy = OsuDroidScoreHelper.getAccuracyDroid(score);
 
       return Responses.SUCCESS(
         score.mods,
