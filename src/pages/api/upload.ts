@@ -476,6 +476,7 @@ export default async function handler(
     data: {
       replay: rawReplay,
       pp: score.pp,
+      replayOnceVerified: true,
     },
   });
 }

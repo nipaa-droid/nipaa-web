@@ -104,7 +104,10 @@ export function isSubmissionScoreReturnError(
   return typeof tData.error === "string";
 }
 
-export type OsuDroidScoreWithoutGenerated = Omit<OsuDroidScore, "id" | "date">;
+export type OsuDroidScoreWithoutGenerated = Omit<
+  OsuDroidScore,
+  "id" | "date" | "replayOnceVerified"
+>;
 
 export type OsuDroidScoreHitDataKeys = keyof Pick<
   OsuDroidScore,

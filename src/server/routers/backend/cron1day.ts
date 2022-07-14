@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { isYesterday } from "date-fns";
 import { groupBy } from "lodash";
 import { z } from "zod";
 import { prisma } from "../../../../lib/prisma";
@@ -38,6 +39,8 @@ export const cron1DayRouter = createRouter().mutation(path, {
             id: true,
             mapHash: true,
             replay: true,
+            replayOnceVerified: true,
+            date: true,
             [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]: true,
           },
           orderBy: {
@@ -72,6 +75,24 @@ export const cron1DayRouter = createRouter().mutation(path, {
           },
           data: {
             replay: null,
+          },
+        });
+
+        const scoresMadeYesterday = scores.filter((s) => isYesterday(s.date));
+
+        const scoresWithUnverifiedReplays = scoresMadeYesterday.filter(
+          (s) => !s.replayOnceVerified
+        );
+
+        const unverifiedScoresIds = scoresWithUnverifiedReplays.map(
+          (s) => s.id
+        );
+
+        await prisma.osuDroidScore.deleteMany({
+          where: {
+            id: {
+              in: unverifiedScoresIds,
+            },
           },
         });
       },
