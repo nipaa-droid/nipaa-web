@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { minutesToMilliseconds } from "date-fns";
+import { secondsToMilliseconds } from "date-fns";
 import { createPrismaRedisCache } from "prisma-redis-middleware";
 
 const prisma = new PrismaClient();
@@ -11,7 +11,7 @@ const cacheMiddleware = createPrismaRedisCache({
       invalidation: true,
     },
   },
-  cacheTime: minutesToMilliseconds(1),
+  cacheTime: secondsToMilliseconds(3),
   onHit: (key) => console.log(`Got from cache ${key}`),
 }) as Prisma.Middleware;
 

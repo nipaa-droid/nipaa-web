@@ -13,6 +13,7 @@ import {
   Stack,
   Text,
   Title,
+  Transition,
 } from "@mantine/core";
 import { useI18nContext } from "../i18n/i18n-react";
 import { useState, PropsWithChildren, useEffect } from "react";
@@ -102,14 +103,19 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
             <NavigationContent />
           </Drawer>
         ) : (
-          <Navbar
-            hidden={!opened}
-            width={{ base: 250 }}
-            p="md"
-            hiddenBreakpoint="sm"
-          >
-            <NavigationContent />
-          </Navbar>
+          <Transition mounted={opened} transition="slide-right" duration={500}>
+            {(styles) => (
+              <Navbar
+                style={styles}
+                hidden={!opened}
+                width={{ base: 250 }}
+                p="md"
+                hiddenBreakpoint="sm"
+              >
+                <NavigationContent />
+              </Navbar>
+            )}
+          </Transition>
         )
       }
       footer={

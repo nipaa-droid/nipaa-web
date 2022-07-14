@@ -13,6 +13,7 @@ import {
 } from "../../createRouter";
 import { z } from "zod";
 import { shapeWithHash } from "../../shapes";
+import { ServerConstants } from "../../../constants";
 
 const path = "getrank";
 
@@ -54,7 +55,7 @@ export const clientGetRankRouter = createRouter().mutation(
           [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]:
             Prisma.SortOrder.desc,
         },
-        take: 50,
+        take: ServerConstants.AMOUNT_SCORES_ON_SCORE_LEADERBOARD,
         select: {
           [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]: true,
           id: true,
@@ -72,10 +73,6 @@ export const clientGetRankRouter = createRouter().mutation(
           },
         },
       });
-
-      if (!beatmap) {
-        return end();
-      }
 
       scores.forEach((s) => {
         const accPercent = OsuDroidScoreHelper.getAccuracyPercent(s);

@@ -12,6 +12,10 @@ export const shapeWithSSID = {
   ssid: z.string().length(36),
 };
 
+export const shapeWithSecret = {
+  secret: z.string(),
+};
+
 export const shapeWithUserID = {
   userID: z.string(),
 };

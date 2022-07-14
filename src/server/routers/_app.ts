@@ -5,7 +5,8 @@ import { clientGetLoginRouter } from "./client/login";
 import { clientGetPlayRouter } from "./client/play";
 import { clientGetRegisterRouter } from "./client/register";
 import { clientGetSubmitRouter } from "./client/submit";
-import { trpcGlobalLeaderboardRouter } from "./web/globalLeaderboard";
+import { cron1HourRouter } from "./backend/cron1hour";
+import { trpcGlobalLeaderboardRouter } from "./backend/globalLeaderboard";
 
 export const appRouter = createRouter()
   .merge(clientGetRankRouter)
@@ -14,6 +15,7 @@ export const appRouter = createRouter()
   .merge(clientGetRegisterRouter)
   .merge(clientGetSubmitRouter)
   .merge(clientGetPlayRouter)
-  .merge(trpcGlobalLeaderboardRouter);
+  .merge(trpcGlobalLeaderboardRouter)
+  .merge(cron1HourRouter);
 
 export type AppRouter = typeof appRouter;
