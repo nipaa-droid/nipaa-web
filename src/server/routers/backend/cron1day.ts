@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { isYesterday } from "date-fns";
+import { endOfYesterday, isYesterday } from "date-fns";
 import { groupBy } from "lodash";
 import { z } from "zod";
 import { prisma } from "../../../../lib/prisma";
@@ -88,6 +88,22 @@ export const cron1DayRouter = requiredApplicationSecretMiddleware(
         id: {
           in: unverifiedScoresIds,
         },
+      },
+    });
+
+    // invalidate sessions
+    await prisma.osuDroidUser.updateMany({
+      where: {
+        lastSeen: {
+          lt: endOfYesterday(),
+        },
+        session: {
+          not: null,
+        },
+      },
+      data: {
+        playing: null,
+        session: null,
       },
     });
   },
