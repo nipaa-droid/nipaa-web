@@ -447,11 +447,15 @@ export default async function handler(
 
   replay.checkFor3Finger();
 
+  const pp3fingerCheckRatio = 10;
+
+  const pp3fingerCheckResult = score.pp / pp3fingerCheckRatio;
+
   const validateNot3Fingered = await validateDifference(
     replay.tapPenalty,
-    replay.tapPenalty,
+    pp3fingerCheckResult,
     "Not 3 fingered",
-    score.pp / 10
+    pp3fingerCheckResult
   );
 
   if (!validateNot3Fingered) return;
