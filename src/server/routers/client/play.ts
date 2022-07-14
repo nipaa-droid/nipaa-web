@@ -26,7 +26,6 @@ export const clientGetPlayRouter = protectedWithSessionMiddleware(
     },
   },
   input: z.object({
-    ...shapeWithHash,
     ...shapeWithSSID,
     ...shapeWithHash,
   }),
