@@ -3,12 +3,11 @@ import { AnyRouter } from "@trpc/server";
 import assert from "assert";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
-import { Context } from "./context";
 import { TRPC_ERRORS } from "./errors";
 import { shapeWithSecret, shapeWithSSID } from "./shapes";
 
-export const requiredApplicationSecretMiddleware = (
-  router: AnyRouter<Context>
+export const requiredApplicationSecretMiddleware = <C>(
+  router: AnyRouter<C>
 ) => {
   return router.middleware(async ({ next, rawInput }) => {
     const secretSchema = z.object({ ...shapeWithSecret });
@@ -32,9 +31,10 @@ export const requiredApplicationSecretMiddleware = (
 };
 
 export const protectedWithSessionMiddleware = <
+  C,
   T extends Prisma.OsuDroidUserSelect
 >(
-  router: AnyRouter<Context>,
+  router: AnyRouter<C>,
   select: T
 ) => {
   if (!select) {
