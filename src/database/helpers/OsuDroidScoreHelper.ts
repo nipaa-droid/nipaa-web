@@ -455,9 +455,11 @@ export class OsuDroidScoreHelper {
     return nextRank + 1;
   }
 
-  static toAccuracyQuery(query: Prisma.OsuDroidScoreArgs) {
-    query.select = {
-      ...query.select,
+  static toAccuracySelect<T extends Prisma.OsuDroidScoreSelect>(
+    select: T
+  ): T & MustHave<Prisma.OsuDroidScoreSelect, OsuDroidScoreHitDataKeys> {
+    return {
+      ...select,
       ...{
         h300: true,
         h100: true,
@@ -465,16 +467,16 @@ export class OsuDroidScoreHelper {
         h0: true,
       },
     };
-    return query;
   }
 
-  static toGradeableQuery(query: Prisma.OsuDroidScoreArgs) {
-    this.toAccuracyQuery(query);
-    query.select = {
-      ...query.select,
+  static toGradeableSelect<T extends Prisma.OsuDroidScoreSelect>(
+    select: T
+  ): T &
+    MustHave<Prisma.OsuDroidScoreSelect, OsuDroidScoreHitDataKeys | "mods"> {
+    return this.toAccuracySelect({
+      ...select,
       mods: true,
-    };
-    return query;
+    });
   }
 
   static async calculateStatus(

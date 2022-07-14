@@ -32,13 +32,20 @@ export const clientGetTopRouter = createRouter().mutation(
         where: {
           id: Number(playID),
         },
-        include: {
+        select: OsuDroidScoreHelper.toGradeableSelect({
           player: {
             select: {
               name: true,
             },
           },
-        },
+          mapHash: true,
+          score: true,
+          maxCombo: true,
+          date: true,
+          hGeki: true,
+          hKatu: true,
+          [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]: true,
+        }),
       });
 
       if (!score || !score.player) {

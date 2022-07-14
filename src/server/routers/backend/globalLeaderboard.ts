@@ -93,11 +93,11 @@ export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
                 mode: true,
               },
             },
-            scores: OsuDroidScoreHelper.toGradeableQuery({
-              select: {
+            scores: {
+              select: OsuDroidScoreHelper.toGradeableSelect({
                 pp: true,
-              },
-            }),
+              }),
+            },
           },
         });
 

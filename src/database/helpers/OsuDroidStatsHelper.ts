@@ -113,9 +113,9 @@ export class OsuDroidStatsHelper {
   }
 
   static async getAccuracy(stats: OsuDroidStatsToCalculateScores) {
-    const query = OsuDroidScoreHelper.toAccuracyQuery(
-      this.toMetricToCalculateQueryForStats(stats)
-    );
+    const query = this.toMetricToCalculateQueryForStats(stats);
+
+    query.select = OsuDroidScoreHelper.toAccuracySelect(query.select ?? {});
 
     const scores = await prisma.osuDroidScore.findMany(query);
 
@@ -278,7 +278,9 @@ export class OsuDroidStatsHelper {
     calculate.forEach((batch) => {
       switch (batch) {
         case OsuDroidStatsBatchCalculate.ACCURACY:
-          OsuDroidScoreHelper.toAccuracyQuery(query);
+          query.select = OsuDroidScoreHelper.toAccuracySelect(
+            query.select ?? {}
+          );
           break;
         case OsuDroidStatsBatchCalculate.METRIC:
           switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {

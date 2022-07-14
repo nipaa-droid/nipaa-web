@@ -1,10 +1,11 @@
 import { AnyRouter } from "@trpc/server";
 import { z } from "zod";
+import { Context } from "./context";
 import { TRPC_ERRORS } from "./errors";
 import { shapeWithSecret } from "./shapes";
 
-export const requiredApplicationSecretMiddleware = <C>(
-  router: AnyRouter<C>
+export const requiredApplicationSecretMiddleware = (
+  router: AnyRouter<Context>
 ) => {
   return router.middleware(async ({ next, rawInput, ctx }) => {
     const secretSchema = z.object({ ...shapeWithSecret });
@@ -21,7 +22,7 @@ export const requiredApplicationSecretMiddleware = <C>(
       throw TRPC_ERRORS.UNAUTHORIZED;
     }
 
-    return await next({
+    return next({
       ctx: {
         ...ctx,
         secret,

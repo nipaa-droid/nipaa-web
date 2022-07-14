@@ -15,17 +15,8 @@ export function isCommonRequest(
 }
 
 export async function createContext(
-  options: trpcNext.CreateNextContextOptions
+  _options: trpcNext.CreateNextContextOptions
 ) {
-  // Handles client side requests
-  if (isCommonRequest(options)) {
-    const { req, res } = options;
-    return {
-      req,
-      res,
-    };
-  }
-  // Handles server side requests
   return {};
 }
 
