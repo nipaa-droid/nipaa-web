@@ -94,6 +94,11 @@ export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
               },
             },
             scores: {
+              where: {
+                status: {
+                  in: SubmissionStatusUtils.USER_BEST_STATUS,
+                },
+              },
               select: OsuDroidScoreHelper.toGradeableSelect({
                 pp: true,
               }),
