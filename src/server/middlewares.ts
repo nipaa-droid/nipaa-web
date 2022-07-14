@@ -1,40 +1,31 @@
-import { ProcedureType } from "@trpc/server";
-import { ProcedureResolver } from "@trpc/server/dist/declarations/src/internals/procedure";
+import { AnyRouter } from "@trpc/server";
+import { z } from "zod";
 import { TRPC_ERRORS } from "./errors";
-import { InputWithSecret, validateSecret } from "./utils";
+import { shapeWithSecret } from "./shapes";
 
-export type ProcedureResolverArguments<C, I, T extends ProcedureType> = {
-  input: I;
-  ctx: C;
-  type: T;
-};
+export const requiredApplicationSecretMiddleware = <C>(
+  router: AnyRouter<C>
+) => {
+  return router.middleware(async ({ next, rawInput, ctx }) => {
+    const secretSchema = z.object({ ...shapeWithSecret });
 
-export type ServerSideMiddlewareArguments<
-  C,
-  I,
-  T extends ProcedureType,
-  O
-> = ProcedureResolverArguments<C, I, T> & { next: ProcedureResolver<C, I, O> };
+    const validated = await secretSchema.safeParseAsync(rawInput);
 
-export type ServerSideMiddleWare = <C, I, T extends ProcedureType, O>(
-  args: ServerSideMiddlewareArguments<C, I, T, O>
-) => Promise<O>;
+    if (!validated.success) {
+      throw TRPC_ERRORS.UNAUTHORIZED;
+    }
 
-// We can't use trpc middlewares for that since we don't have access to input on backend trpc requests
-export const requiredApplicationSecretMiddleware = async <
-  C,
-  I extends InputWithSecret,
-  T extends ProcedureType,
-  O
->({
-  input,
-  ctx,
-  type,
-  next,
-}: ServerSideMiddlewareArguments<C, I, T, O>): Promise<O> => {
-  if (!validateSecret(input)) {
-    throw TRPC_ERRORS.UNAUTHORIZED;
-  }
+    const { secret } = validated.data;
 
-  return await next({ ctx, input, type });
+    if (secret !== process.env.APP_SECRET) {
+      throw TRPC_ERRORS.UNAUTHORIZED;
+    }
+
+    return await next({
+      ctx: {
+        ...ctx,
+        secret,
+      },
+    });
+  });
 };

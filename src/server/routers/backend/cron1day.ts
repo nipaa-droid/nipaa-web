@@ -13,7 +13,9 @@ import { shapeWithSecret } from "../../shapes";
 const path = "cron-1-day";
 
 // this should be run by a service such as easy cron
-export const cron1DayRouter = createRouter().mutation(path, {
+export const cron1DayRouter = requiredApplicationSecretMiddleware(
+  createRouter()
+).mutation(path, {
   meta: {
     openapi: { enabled: true, method: "PATCH", path: toApiEndpoint(path) },
   },
@@ -21,80 +23,71 @@ export const cron1DayRouter = createRouter().mutation(path, {
     ...shapeWithSecret,
   }),
   output: z.any(),
-  async resolve({ input, ctx, type }) {
-    await requiredApplicationSecretMiddleware({
-      input,
-      ctx,
-      type,
-      next: async () => {
-        const scores = await prisma.osuDroidScore.findMany({
-          where: {
-            status: {
-              // We only want to fetch scores which are user best so we can get the actual
-              // leaderboard of the map after
-              in: SubmissionStatusUtils.USER_BEST_STATUS,
-            },
-          },
-          select: {
-            id: true,
-            mapHash: true,
-            replay: true,
-            replayOnceVerified: true,
-            date: true,
-            [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]: true,
-          },
-          orderBy: {
-            [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]:
-              Prisma.SortOrder.desc,
-          },
-        });
+  async resolve() {
+    const scores = await prisma.osuDroidScore.findMany({
+      where: {
+        status: {
+          // We only want to fetch scores which are user best so we can get the actual
+          // leaderboard of the map after
+          in: SubmissionStatusUtils.USER_BEST_STATUS,
+        },
+      },
+      select: {
+        id: true,
+        mapHash: true,
+        replay: true,
+        replayOnceVerified: true,
+        date: true,
+        [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]: true,
+      },
+      orderBy: {
+        [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]:
+          Prisma.SortOrder.desc,
+      },
+    });
 
-        const groupedByMap = groupBy(scores, (o) => o.mapHash);
+    const groupedByMap = groupBy(scores, (o) => o.mapHash);
 
-        const toDeleteReplayIDS: number[] = [];
+    const toDeleteReplayIDS: number[] = [];
 
-        for (const key in groupedByMap) {
-          const group = groupedByMap[key];
+    for (const key in groupedByMap) {
+      const group = groupedByMap[key];
 
-          // we remove the amount of scores that won't be checked for replay deletion from the group
-          group.splice(0, ServerConstants.AMOUNT_SCORES_ON_SCORE_LEADERBOARD);
+      // we remove the amount of scores that won't be checked for replay deletion from the group
+      group.splice(0, ServerConstants.AMOUNT_SCORES_ON_SCORE_LEADERBOARD);
 
-          // we only want to get the scores that still have replays that aren't on the leaderboard
-          const selectedForDeletion = group.filter((s) => s.replay !== null);
+      // we only want to get the scores that still have replays that aren't on the leaderboard
+      const selectedForDeletion = group.filter((s) => s.replay !== null);
 
-          const forReplayDeletionIDs = selectedForDeletion.map((s) => s.id);
+      const forReplayDeletionIDs = selectedForDeletion.map((s) => s.id);
 
-          toDeleteReplayIDS.push(...forReplayDeletionIDs);
-        }
+      toDeleteReplayIDS.push(...forReplayDeletionIDs);
+    }
 
-        await prisma.osuDroidScore.updateMany({
-          where: {
-            id: {
-              in: toDeleteReplayIDS,
-            },
-          },
-          data: {
-            replay: null,
-          },
-        });
+    await prisma.osuDroidScore.updateMany({
+      where: {
+        id: {
+          in: toDeleteReplayIDS,
+        },
+      },
+      data: {
+        replay: null,
+      },
+    });
 
-        const scoresMadeYesterday = scores.filter((s) => isYesterday(s.date));
+    const scoresMadeYesterday = scores.filter((s) => isYesterday(s.date));
 
-        const scoresWithUnverifiedReplays = scoresMadeYesterday.filter(
-          (s) => !s.replayOnceVerified
-        );
+    const scoresWithUnverifiedReplays = scoresMadeYesterday.filter(
+      (s) => !s.replayOnceVerified
+    );
 
-        const unverifiedScoresIds = scoresWithUnverifiedReplays.map(
-          (s) => s.id
-        );
+    const unverifiedScoresIds = scoresWithUnverifiedReplays.map((s) => s.id);
 
-        await prisma.osuDroidScore.deleteMany({
-          where: {
-            id: {
-              in: unverifiedScoresIds,
-            },
-          },
-        });
+    await prisma.osuDroidScore.deleteMany({
+      where: {
+        id: {
+          in: unverifiedScoresIds,
+        },
       },
     });
   },

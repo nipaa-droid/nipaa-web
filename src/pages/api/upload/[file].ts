@@ -24,7 +24,7 @@ export default async function handler(
     return Responses.FAILED(Responses.INVALID_REQUEST_BODY);
   }
 
-  const { file } = await schema.parseAsync(query);
+  const { file } = validated.data;
 
   const replayID = file.split(".")[0];
 

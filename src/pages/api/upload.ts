@@ -63,7 +63,7 @@ export default async function handler(
     return;
   }
 
-  const { fields, files } = await schema.parseAsync(formData);
+  const { fields, files } = verified.data;
   const replayID = Number(fields.replayID);
   const { uploadedfile: uploadedfile } = files;
 

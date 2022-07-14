@@ -36,7 +36,9 @@ export type TRPCGlobalLeaderboardReturnType = z.infer<typeof output>;
 
 const path = "global-leaderboard";
 
-export const trpcGlobalLeaderboardRouter = createRouter().query(path, {
+export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
+  createRouter()
+).query(path, {
   meta: {
     openapi: {
       enabled: true,
@@ -46,171 +48,162 @@ export const trpcGlobalLeaderboardRouter = createRouter().query(path, {
   },
   input: z.object({ ...shapeWithSecret }),
   output,
-  async resolve({ input, ctx, type }) {
-    return await requiredApplicationSecretMiddleware({
-      input,
-      ctx,
-      type,
-      next: async () => {
-        const data: z.infer<typeof output> = [];
+  async resolve() {
+    const data: z.infer<typeof output> = [];
 
-        const getGradesObject = (
-          scores: MustHave<OsuDroidScoreAccuracyCalculatable, "mods">[]
-        ) => {
-          const grades = scores.map((s) => OsuDroidScoreHelper.getGrade(s));
+    const getGradesObject = (
+      scores: MustHave<OsuDroidScoreAccuracyCalculatable, "mods">[]
+    ) => {
+      const grades = scores.map((s) => OsuDroidScoreHelper.getGrade(s));
 
-          const gradesData: typeof data[number]["grades"] = {
-            SS: 0,
-            S: 0,
-            A: 0,
-          };
+      const gradesData: typeof data[number]["grades"] = {
+        SS: 0,
+        S: 0,
+        A: 0,
+      };
 
-          grades.forEach((g) => {
-            switch (g) {
-              case ScoreGrade.X:
-              case ScoreGrade.XH:
-                gradesData.SS++;
-                break;
-              case ScoreGrade.S:
-              case ScoreGrade.SH:
-                gradesData.S++;
-                break;
-              case ScoreGrade.A:
-                gradesData.A++;
-                break;
-            }
-          });
-
-          return gradesData;
-        };
-
-        switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
-          case GameMetrics.pp:
-            const users = await prisma.osuDroidUser.findMany({
-              select: {
-                name: true,
-                id: true,
-                stats: {
-                  select: {
-                    playCount: true,
-                    mode: true,
-                  },
-                },
-                scores: OsuDroidScoreHelper.toGradeableQuery({
-                  select: {
-                    pp: true,
-                  },
-                }),
-              },
-            });
-
-            users.forEach((u) => {
-              const { scores, stats } = u;
-
-              const statistic = OsuDroidUserHelper.getStatistic(
-                stats,
-                DatabaseSetup.game_mode
-              );
-
-              if (!statistic) {
-                return;
-              }
-
-              const { playCount } = statistic;
-
-              const performance =
-                OsuDroidStatsHelper.getPerformanceFromScores(scores);
-
-              const accuracy = AccuracyUtils.accDroidToAcc100(
-                OsuDroidStatsHelper.getAccuracyFromScores(scores)
-              );
-
-              const grades = getGradesObject(scores);
-
-              data.push({
-                userID: u.id.toString(),
-                username: u.name,
-                accuracy,
-                playCount,
-                metric: performance,
-                grades,
-              });
-            });
-
+      grades.forEach((g) => {
+        switch (g) {
+          case ScoreGrade.X:
+          case ScoreGrade.XH:
+            gradesData.SS++;
             break;
-          case GameMetrics.rankedScore:
-          case GameMetrics.totalScore:
-            const query = OsuDroidStatsHelper.toTotalScoreRankQuery({});
-
-            switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
-              case GameMetrics.rankedScore:
-                query.where = {
-                  ...query.where,
-                  status: {
-                    in: SubmissionStatusUtils.USER_BEST_STATUS,
-                  },
-                };
-            }
-
-            const scoresGroupped = await prisma.osuDroidScore.groupBy(query);
-
-            const usersForGrouppedScores = await prisma.osuDroidUser.findMany({
-              where: {
-                id: {
-                  in: scoresGroupped.map((s) => s.playerId),
-                },
-              },
-              select: {
-                name: true,
-                id: true,
-                stats: {
-                  select: {
-                    playCount: true,
-                    mode: true,
-                  },
-                },
-              },
-            });
-
-            usersForGrouppedScores.forEach((u) => {
-              const statistic = OsuDroidUserHelper.getStatistic(
-                u.stats,
-                DatabaseSetup.game_mode
-              );
-
-              if (!statistic) {
-                return;
-              }
-
-              const userScores = scoresGroupped.filter(
-                (s) => s.playerId === u.id
-              );
-
-              const totalScore = userScores
-                .map((s) => s.score)
-                .reduce((acc, cur) => acc + cur, 0);
-
-              const accuracy = AccuracyUtils.acc100toDroid(
-                OsuDroidStatsHelper.getAccuracyFromScores(userScores)
-              );
-
-              const { playCount } = statistic;
-
-              data.push({
-                username: u.name,
-                userID: u.id.toString(),
-                playCount,
-                accuracy,
-                metric: totalScore,
-                grades: getGradesObject(userScores),
-              });
-            });
-
+          case ScoreGrade.S:
+          case ScoreGrade.SH:
+            gradesData.S++;
+            break;
+          case ScoreGrade.A:
+            gradesData.A++;
             break;
         }
+      });
 
-        return orderBy(data, (o) => o.metric, "desc");
-      },
-    });
+      return gradesData;
+    };
+
+    switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
+      case GameMetrics.pp:
+        const users = await prisma.osuDroidUser.findMany({
+          select: {
+            name: true,
+            id: true,
+            stats: {
+              select: {
+                playCount: true,
+                mode: true,
+              },
+            },
+            scores: OsuDroidScoreHelper.toGradeableQuery({
+              select: {
+                pp: true,
+              },
+            }),
+          },
+        });
+
+        users.forEach((u) => {
+          const { scores, stats } = u;
+
+          const statistic = OsuDroidUserHelper.getStatistic(
+            stats,
+            DatabaseSetup.game_mode
+          );
+
+          if (!statistic) {
+            return;
+          }
+
+          const { playCount } = statistic;
+
+          const performance =
+            OsuDroidStatsHelper.getPerformanceFromScores(scores);
+
+          const accuracy = AccuracyUtils.accDroidToAcc100(
+            OsuDroidStatsHelper.getAccuracyFromScores(scores)
+          );
+
+          const grades = getGradesObject(scores);
+
+          data.push({
+            userID: u.id.toString(),
+            username: u.name,
+            accuracy,
+            playCount,
+            metric: performance,
+            grades,
+          });
+        });
+
+        break;
+      case GameMetrics.rankedScore:
+      case GameMetrics.totalScore:
+        const query = OsuDroidStatsHelper.toTotalScoreRankQuery({});
+
+        switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
+          case GameMetrics.rankedScore:
+            query.where = {
+              ...query.where,
+              status: {
+                in: SubmissionStatusUtils.USER_BEST_STATUS,
+              },
+            };
+        }
+
+        const scoresGroupped = await prisma.osuDroidScore.groupBy(query);
+
+        const usersForGrouppedScores = await prisma.osuDroidUser.findMany({
+          where: {
+            id: {
+              in: scoresGroupped.map((s) => s.playerId),
+            },
+          },
+          select: {
+            name: true,
+            id: true,
+            stats: {
+              select: {
+                playCount: true,
+                mode: true,
+              },
+            },
+          },
+        });
+
+        usersForGrouppedScores.forEach((u) => {
+          const statistic = OsuDroidUserHelper.getStatistic(
+            u.stats,
+            DatabaseSetup.game_mode
+          );
+
+          if (!statistic) {
+            return;
+          }
+
+          const userScores = scoresGroupped.filter((s) => s.playerId === u.id);
+
+          const totalScore = userScores
+            .map((s) => s.score)
+            .reduce((acc, cur) => acc + cur, 0);
+
+          const accuracy = AccuracyUtils.acc100toDroid(
+            OsuDroidStatsHelper.getAccuracyFromScores(userScores)
+          );
+
+          const { playCount } = statistic;
+
+          data.push({
+            username: u.name,
+            userID: u.id.toString(),
+            playCount,
+            accuracy,
+            metric: totalScore,
+            grades: getGradesObject(userScores),
+          });
+        });
+
+        break;
+    }
+
+    return orderBy(data, (o) => o.metric, "desc");
   },
 });
