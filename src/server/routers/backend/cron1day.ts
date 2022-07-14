@@ -9,9 +9,9 @@ import { createRouter, toApiEndpoint } from "../../createRouter";
 import { requiredApplicationSecretMiddleware } from "../../middlewares";
 import { shapeWithSecret } from "../../shapes";
 
-const path = "cron-1-h";
+const path = "cron-1-day";
 
-export const cron1HourRouter = createRouter().mutation(path, {
+export const cron1DayRouter = createRouter().mutation(path, {
   meta: {
     openapi: { enabled: true, method: "PATCH", path: toApiEndpoint(path) },
   },
