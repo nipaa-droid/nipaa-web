@@ -1,12 +1,13 @@
-import { GrayPlaceHolderImage } from "./GrayLazyImage";
+import Image from "next/image";
 
 export const AppLogo = () => {
   return (
-    <GrayPlaceHolderImage
+    <Image
       alt="App logo"
       src="/icon-512x512.webp"
       width={32}
       height={32}
+      priority
     />
   );
 };

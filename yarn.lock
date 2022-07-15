@@ -1144,6 +1144,11 @@
     react-popper "^2.2.5"
     react-textarea-autosize "^8.3.2"
 
+"@mantine/form@^4.2.12":
+  version "4.2.12"
+  resolved "https://registry.yarnpkg.com/@mantine/form/-/form-4.2.12.tgz#c204fa17b0232027d9fb0eeb2a6b214708d9e014"
+  integrity sha512-CnpkzZr7VVekN3gg/4fMG9DYEqDsOg1jJGGxFKZ7GjR4liwEOsL3FvC+Szi3OlI0ytfLFOg8zU8RCoEO758sQA==
+
 "@mantine/hooks@^4.2.12":
   version "4.2.12"
   resolved "https://registry.yarnpkg.com/@mantine/hooks/-/hooks-4.2.12.tgz#8dfbd23763959b721f5c5c784b3c412bb7c9823a"
@@ -2238,6 +2243,11 @@ convert-source-map@^1.7.0:
   integrity sha512-+OQdjP49zViI/6i7nIJpA8rAl4sV/JdPfU9nZs3VqOwGIgizICvuN2ru6fMd+4llL0tar18UYJXfZ/TWtmhUjA==
   dependencies:
     safe-buffer "~5.1.1"
+
+cookie@^0.4.1:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.4.2.tgz#0e41f24de5ecf317947c82fc789e06a884824432"
+  integrity sha512-aSWTXFzaKWkvHO1Ny/s+ePFpvKsPnjc551iI41v3ny/ow6tBG5Vd+FuqGNhh1LxOmVzOlGUriIlOaokOvhaStA==
 
 core-js-compat@^3.21.0, core-js-compat@^3.22.1:
   version "3.23.4"
@@ -3913,6 +3923,11 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
+nest-deep@^1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/nest-deep/-/nest-deep-1.3.2.tgz#c8b99524381515efc826c5a1fdccb3083e392542"
+  integrity sha512-Q+sD/PURr/a2LY8TsGucxUGLM/dCK+fqVaSeeEzYqoF+MzXJpWekGsp89crg2GUpra/wERCjJFERgpDKcKeSqg==
+
 next-pwa@^5.5.4:
   version "5.5.4"
   resolved "https://registry.yarnpkg.com/next-pwa/-/next-pwa-5.5.4.tgz#5a96bb4762c649ed875e5d98a1183132c0199f49"
@@ -3964,6 +3979,14 @@ node-releases@^2.0.5:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.5.tgz#280ed5bc3eba0d96ce44897d8aee478bfb3d9666"
   integrity sha512-U9h1NLROZTq9uE1SNffn6WuPDg8icmi3ns4rEl/oTfIle4iLjTliCzgTsbaIFMq/Xn078/lfY/BL0GWZ+psK4Q==
+
+nookies@^2.5.2:
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/nookies/-/nookies-2.5.2.tgz#cc55547efa982d013a21475bd0db0c02c1b35b27"
+  integrity sha512-x0TRSaosAEonNKyCrShoUaJ5rrT5KHRNZ5DwPCuizjgrnkpE5DRf3VL7AyyQin4htict92X1EQ7ejDbaHDVdYA==
+  dependencies:
+    cookie "^0.4.1"
+    set-cookie-parser "^2.4.6"
 
 nopt@^5.0.0:
   version "5.0.0"
@@ -4665,6 +4688,11 @@ set-blocking@^2.0.0:
   resolved "https://registry.yarnpkg.com/set-blocking/-/set-blocking-2.0.0.tgz#045f9782d011ae9a6803ddd382b24392b3d890f7"
   integrity sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==
 
+set-cookie-parser@^2.4.6:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/set-cookie-parser/-/set-cookie-parser-2.5.0.tgz#96b59525e1362c94335c3c761100bb6e8f2da4b0"
+  integrity sha512-cHMAtSXilfyBePduZEBVPTCftTQWz6ehWJD5YNUg4mqvRosrrjKbo4WS8JkB0/RxonMoohHm7cOGH60mDkRQ9w==
+
 setimmediate@~1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/setimmediate/-/setimmediate-1.0.5.tgz#290cbb232e306942d7d7ea9b83732ab7856f8285"
@@ -5192,6 +5220,13 @@ use-composed-ref@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/use-composed-ref/-/use-composed-ref-1.3.0.tgz#3d8104db34b7b264030a9d916c5e94fbe280dbda"
   integrity sha512-GLMG0Jc/jiKov/3Ulid1wbv3r54K9HlMW29IWcDFPEqFkSO2nS0MuefWgMJpeHQ9YJeXDL3ZUF+P3jdXlZX/cQ==
+
+use-form@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/use-form/-/use-form-2.0.3.tgz#e448127f5a0bc7bdadb48ae9285874f9c4c82746"
+  integrity sha512-nNO5F3Ejs3B+7f0D/P50eBDwuoZQ7ZpNIgBEKsdzB/tN1Bt2oUrDYt4oEkRMRUYPOKq97CNjdMny7kmIVwZYsw==
+  dependencies:
+    nest-deep "^1.3.2"
 
 use-isomorphic-layout-effect@^1.1.1:
   version "1.1.2"

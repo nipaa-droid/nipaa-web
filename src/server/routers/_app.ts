@@ -5,8 +5,10 @@ import { clientGetLoginRouter } from "./client/login";
 import { clientGetPlayRouter } from "./client/play";
 import { clientGetRegisterRouter } from "./client/register";
 import { clientGetSubmitRouter } from "./client/submit";
-import { cron1DayRouter } from "./backend/cron1day";
 import { trpcGlobalLeaderboardRouter } from "./backend/global_leaderboard";
+import { cron1DayRouter } from "./backend/cron1day";
+import { trpcLoginRouter } from "./backend/login";
+import { trpcGetUserInformationFromSession } from "./backend/get_user_from_session";
 
 export const appRouter = createRouter()
   .merge(clientGetRankRouter)
@@ -16,6 +18,8 @@ export const appRouter = createRouter()
   .merge(clientGetSubmitRouter)
   .merge(clientGetPlayRouter)
   .merge(trpcGlobalLeaderboardRouter)
-  .merge(cron1DayRouter);
+  .merge(cron1DayRouter)
+  .merge(trpcLoginRouter)
+  .merge(trpcGetUserInformationFromSession);
 
 export type AppRouter = typeof appRouter;

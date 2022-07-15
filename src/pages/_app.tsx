@@ -12,14 +12,33 @@ import { ServerConstants } from "../constants";
 import { Locales } from "../i18n/i18n-types";
 import TypesafeI18n from "../i18n/i18n-react";
 import { mediaBreakPoints } from "../utils/breakpoints";
+import { UserContext } from "../contexts/user";
+import { trpc } from "../utils/trpc";
+import { clientGetSessionCookie } from "../utils/auth";
+import { ClientUserFromSession } from "../server/routers/backend/get_user_from_session";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   const [locale, setLocale] = useState<Locales | undefined>(undefined);
+  const [user, setUser] = useState<ClientUserFromSession | undefined>();
+
+  const userQuery = trpc.useQuery([
+    "get-user-for-session",
+    {
+      ssid: clientGetSessionCookie(),
+    },
+  ]);
 
   useEffect(() => {
-    const l = detectLocale(router.locale ?? baseLocale, locales) as Locales;
-    loadLocaleAsync(l).then(() => {
-      setLocale(l);
+    setUser(userQuery.data);
+  }, [userQuery.data]);
+
+  useEffect(() => {
+    const locale = detectLocale(
+      router.locale ?? baseLocale,
+      locales
+    ) as Locales;
+    loadLocaleAsync(locale).then(() => {
+      setLocale(locale);
     });
   }, []);
 
@@ -34,9 +53,11 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     >
       {locale && (
         <TypesafeI18n locale={locale}>
-          <ClientShell>
-            <Component {...pageProps} />
-          </ClientShell>
+          <UserContext.Provider value={user}>
+            <ClientShell>
+              <Component {...pageProps} />
+            </ClientShell>
+          </UserContext.Provider>
         </TypesafeI18n>
       )}
     </MantineProvider>
@@ -49,10 +70,7 @@ export default withTRPC<AppRouter>({
      * If you want to use SSR, you need to use the server's full URL
      * @link https://trpc.io/docs/ssr
      */
-    const url =
-      process.env.NODE_ENV === "production"
-        ? `https://${ServerConstants.PRODUCTION_URL}/api/trpc`
-        : "http://localhost:3000/api/trpc";
+    const url = `${ServerConstants.SERVER_URL}/api/trpc`;
 
     return {
       url,

@@ -2,6 +2,7 @@ import Head from "next/head";
 import {
   AppShell,
   Burger,
+  Card,
   Center,
   createStyles,
   Drawer,
@@ -22,7 +23,10 @@ import { LinkButton, LinkButtonProps } from "./LinkButton";
 import { AppLogo } from "./images/AppLogo";
 import { useMediaQuery } from "@mantine/hooks";
 import { translateMediaQuery } from "../utils/mediaquery";
-import { getHome, getLeaderboardPage } from "../utils/router";
+import { getHomePage, getLeaderboardPage, getLoginPage } from "../utils/router";
+import { useUser } from "../contexts/user";
+import { UserAvatar } from "./images/UserAvatar";
+import { DatabaseSetup } from "../database/DatabaseSetup";
 
 const useStyles = createStyles((theme) => ({
   button: {
@@ -38,6 +42,7 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
   const { classes } = useStyles();
   const [opened, setOpened] = useState(false);
   const { LL } = useI18nContext();
+  const user = useUser();
 
   function ShellButton<C>({
     children,
@@ -68,10 +73,38 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
   const NavigationContent = () => {
     return (
       <Stack>
-        <ShellButton linkProps={{ href: getHome() }}>{LL.home()}</ShellButton>
+        <ShellButton linkProps={{ href: getHomePage() }}>
+          {LL.home()}
+        </ShellButton>
         <ShellButton linkProps={{ href: getLeaderboardPage(1) }}>
           {LL.leaderboard()}
         </ShellButton>
+        <div style={{ marginTop: "125%" }}>
+          {user ? (
+            <Card style={{ display: "flex", flexDirection: "row" }}>
+              <UserAvatar userAvatar={user.image} />
+              <div>
+                <Text weight={500} ml="lg">
+                  {user.name}
+                </Text>
+                <Text weight={300} ml="lg">
+                  {Math.round(user.metric)}{" "}
+                  {DatabaseSetup.global_leaderboard_metric}
+                </Text>
+              </div>
+            </Card>
+          ) : (
+            <ShellButton
+              buttonProps={{
+                component: "a",
+                fullWidth: true,
+              }}
+              linkProps={{ href: getLoginPage() }}
+            >
+              Login
+            </ShellButton>
+          )}
+        </div>
       </Stack>
     );
   };

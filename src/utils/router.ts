@@ -1,3 +1,5 @@
 export const getLeaderboardPage = (page: number) => `/leaderboard/page/${page}`;
 
-export const getHome = () => `/`;
+export const getHomePage = () => `/`;
+
+export const getLoginPage = () => `/login`;
