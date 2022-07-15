@@ -22,6 +22,7 @@ import { LATEST_REPLAY_VERSION } from "../../osu/droid/enum/ReplayVersions";
 import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
 import { DroidStarRating } from "@rian8337/osu-difficulty-calculator";
 import { mean } from "lodash";
+import { ServerConstants } from "../../constants";
 
 const schema = z.object({
   fields: z.object({
@@ -475,15 +476,22 @@ export default async function handler(
 
   if (!validateNot3Fingered) return;
 
+  const scoreRank = await OsuDroidScoreHelper.getPlacement(score);
+
+  let data: Prisma.OsuDroidScoreUpdateArgs["data"] = {
+    pp: score.pp,
+    replayOnceVerified: true,
+  };
+
+  if (scoreRank <= ServerConstants.AMOUNT_SCORES_ON_SCORE_LEADERBOARD) {
+    data.replay = rawReplay;
+  }
+
   await prisma.osuDroidScore.update({
     where: {
       id: score.id,
     },
-    data: {
-      replay: rawReplay,
-      pp: score.pp,
-      replayOnceVerified: true,
-    },
+    data,
   });
 }
 
