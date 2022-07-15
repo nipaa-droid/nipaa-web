@@ -14,7 +14,7 @@ const path = "gettop";
 
 export const clientGetTopRouter = protectedWithSessionMiddleware(
   createRouter(),
-  { password: true }
+  { id: true }
 ).mutation(toApiClientTrpc(path), {
   meta: {
     openapi: {

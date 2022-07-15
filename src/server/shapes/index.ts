@@ -8,8 +8,8 @@ export const shapeWithHash = {
   hash: z.string().length(32),
 };
 
-export const shapeWithToken = {
-  token: z.string(),
+export const shapeWithSSID = {
+  ssid: z.string().length(36),
 };
 
 export const shapeWithSecret = {

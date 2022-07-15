@@ -7,7 +7,7 @@ import {
   toApiClientTrpc,
 } from "../../createRouter";
 import { protectedWithSessionMiddleware } from "../../middlewares";
-import { shapeWithHash, shapeWithToken } from "../../shapes";
+import { shapeWithHash, shapeWithSSID } from "../../shapes";
 
 const path = "play";
 
@@ -15,7 +15,6 @@ export const clientGetPlayRouter = protectedWithSessionMiddleware(
   createRouter(),
   {
     id: true,
-    password: true,
     playing: true,
   }
 ).mutation(toApiClientTrpc(path), {
@@ -27,7 +26,7 @@ export const clientGetPlayRouter = protectedWithSessionMiddleware(
     },
   },
   input: z.object({
-    ...shapeWithToken,
+    ...shapeWithSSID,
     ...shapeWithHash,
   }),
   output: z.string(),
