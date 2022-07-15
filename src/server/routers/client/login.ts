@@ -89,7 +89,7 @@ export const clientGetLoginRouter = createRouter().mutation(
 
       return Responses.SUCCESS(
         user.id.toString(),
-        session.toString(),
+        session.id.toString(),
         rank.toString(),
         Math.round(metric).toString(),
         Math.round(accuracy).toString(),
