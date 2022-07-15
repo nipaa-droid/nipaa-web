@@ -9,6 +9,7 @@ import { prisma } from "../../../lib/prisma";
 import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
 import { AtLeast } from "../../utils/types";
 import { OsuDroidScoreWithoutGenerated } from "./OsuDroidScoreHelper";
+import { v4 } from "uuid";
 
 export type UserWithStats = OsuDroidUser & {
   stats: OsuDroidStats[];
@@ -27,6 +28,29 @@ export class OsuDroidUserHelper {
 
   static getImage(url: string | null) {
     return url ?? "https://f4.bcbits.com/img/a1360862909_10.jpg";
+  }
+
+  /**
+   *
+   * @param session an existing session or not
+   * @returns the existing session otherwise a new session
+   */
+  static async createSession(session: string | null, id: number) {
+    if (!session) {
+      session = v4();
+    }
+
+    await prisma.osuDroidUser.update({
+      where: {
+        id,
+      },
+      data: {
+        session,
+        lastSeen: new Date(),
+      },
+    });
+
+    return session;
   }
 
   /**

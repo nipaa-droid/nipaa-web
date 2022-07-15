@@ -12,7 +12,6 @@ import {
 } from "../../../database/helpers/OsuDroidStatsHelper";
 import { DatabaseSetup } from "../../../database/DatabaseSetup";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
-import { v4 } from "uuid";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import { shapeWithUsernameWithPassword } from "../../shapes";
@@ -45,6 +44,7 @@ export const clientGetLoginRouter = createRouter().mutation(
           name: true,
           image: true,
           password: true,
+          session: true,
           stats: {
             where: {
               mode: DatabaseSetup.game_mode,
@@ -63,15 +63,10 @@ export const clientGetLoginRouter = createRouter().mutation(
         return Responses.FAILED("Wrong password");
       }
 
-      const session = v4();
-
-      await prisma.osuDroidUser.update({
-        where: userWhere,
-        data: {
-          lastSeen: new Date(),
-          session,
-        },
-      });
+      const session = await OsuDroidUserHelper.createSession(
+        user.session,
+        user.id
+      );
 
       const statistic = OsuDroidUserHelper.getStatistic(
         user.stats,
