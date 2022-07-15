@@ -12,14 +12,13 @@ import { ServerConstants } from "../constants";
 import { Locales } from "../i18n/i18n-types";
 import TypesafeI18n from "../i18n/i18n-react";
 import { mediaBreakPoints } from "../utils/breakpoints";
-import { UserContext } from "../contexts/user";
+import { AuthProvider, useAuth } from "../providers/auth";
 import { trpc } from "../utils/trpc";
 import { clientGetSessionCookie } from "../utils/auth";
-import { ClientUserFromSession } from "../server/routers/backend/get_user_from_session";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   const [locale, setLocale] = useState<Locales | undefined>(undefined);
-  const [user, setUser] = useState<ClientUserFromSession | undefined>();
+  const { setUser } = useAuth();
 
   const userQuery = trpc.useQuery([
     "get-user-for-session",
@@ -30,7 +29,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 
   useEffect(() => {
     setUser(userQuery.data);
-  }, [userQuery.data]);
+  }, [userQuery.data, setUser]);
 
   useEffect(() => {
     const locale = detectLocale(
@@ -53,11 +52,11 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     >
       {locale && (
         <TypesafeI18n locale={locale}>
-          <UserContext.Provider value={user}>
+          <AuthProvider>
             <ClientShell>
               <Component {...pageProps} />
             </ClientShell>
-          </UserContext.Provider>
+          </AuthProvider>
         </TypesafeI18n>
       )}
     </MantineProvider>

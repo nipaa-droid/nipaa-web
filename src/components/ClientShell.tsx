@@ -24,7 +24,7 @@ import { AppLogo } from "./images/AppLogo";
 import { useMediaQuery } from "@mantine/hooks";
 import { translateMediaQuery } from "../utils/mediaquery";
 import { getHomePage, getLeaderboardPage, getLoginPage } from "../utils/router";
-import { useUser } from "../contexts/user";
+import { useAuth } from "../providers/auth";
 import { UserAvatar } from "./images/UserAvatar";
 import { DatabaseSetup } from "../database/DatabaseSetup";
 
@@ -42,7 +42,7 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
   const { classes } = useStyles();
   const [opened, setOpened] = useState(false);
   const { LL } = useI18nContext();
-  const user = useUser();
+  const { user } = useAuth();
 
   function ShellButton<C>({
     children,
