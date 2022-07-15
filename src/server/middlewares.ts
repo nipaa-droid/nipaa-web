@@ -1,10 +1,12 @@
-import { Prisma } from "@prisma/client";
+import { OsuDroidUser, Prisma } from "@prisma/client";
 import { AnyRouter } from "@trpc/server";
 import assert from "assert";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
+import { verifyToken } from "../components/auth/token";
+import { MustHave } from "../utils/types";
 import { TRPC_ERRORS } from "./errors";
-import { shapeWithSecret, shapeWithSSID } from "./shapes";
+import { shapeWithSecret, shapeWithToken, shapeWithUserID } from "./shapes";
 
 export const requiredApplicationSecretMiddleware = <C>(
   router: AnyRouter<C>
@@ -30,19 +32,21 @@ export const requiredApplicationSecretMiddleware = <C>(
   });
 };
 
+type RequiredForAuthenticationKeys = keyof Pick<OsuDroidUser, "password">;
+
 export const protectedWithSessionMiddleware = <
   C,
-  T extends Prisma.OsuDroidUserSelect
+  T extends MustHave<Prisma.OsuDroidUserSelect, RequiredForAuthenticationKeys>
 >(
   router: AnyRouter<C>,
   select: T
 ) => {
   if (!select) {
-    select = { id: true } as T;
+    select = { password: true } as T;
   }
 
   return router.middleware(async ({ next, rawInput, ctx }) => {
-    const sessionIDSchema = z.object({ ...shapeWithSSID });
+    const sessionIDSchema = z.object({ ...shapeWithToken, ...shapeWithUserID });
 
     assert(select);
 
@@ -52,16 +56,27 @@ export const protectedWithSessionMiddleware = <
       throw TRPC_ERRORS.UNAUTHORIZED;
     }
 
-    const { ssid } = validate.data;
+    const { token, userID } = validate.data;
 
     const user = await prisma.osuDroidUser.findUnique({
       where: {
-        session: ssid,
+        id: Number(userID),
       },
       select,
     });
 
     if (!user) {
+      throw TRPC_ERRORS.UNAUTHORIZED;
+    }
+
+    const typedUser = user as Pick<OsuDroidUser, RequiredForAuthenticationKeys>;
+
+    const verified = await verifyToken(token, {
+      id: userID,
+      hashedPassword: typedUser.password,
+    });
+
+    if (!verified) {
       throw TRPC_ERRORS.UNAUTHORIZED;
     }
 

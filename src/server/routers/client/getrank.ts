@@ -20,7 +20,7 @@ const path = "getrank";
 
 export const clientGetRankRouter = protectedWithSessionMiddleware(
   createRouter(),
-  { id: true }
+  { password: true }
 ).mutation(toApiClientTrpc(path), {
   meta: {
     openapi: {

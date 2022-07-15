@@ -17,7 +17,7 @@ import {
   toApiClientTrpc,
 } from "../../createRouter";
 import { z } from "zod";
-import { shapeWithSSID, shapeWithUserID } from "../../shapes";
+import { shapeWithToken, shapeWithUserID } from "../../shapes";
 import { AtLeast } from "../../../utils/types";
 import { prisma } from "../../../../lib/prisma";
 import { protectedWithSessionMiddleware } from "../../middlewares";
@@ -28,6 +28,7 @@ export const clientGetSubmitRouter = protectedWithSessionMiddleware(
   createRouter(),
   {
     id: true,
+    password: true,
     name: true,
     playing: true,
     stats: {
@@ -50,7 +51,7 @@ export const clientGetSubmitRouter = protectedWithSessionMiddleware(
   },
   input: z.object({
     data: z.string(),
-    ...shapeWithSSID,
+    ...shapeWithToken,
     ...shapeWithUserID,
   }),
   output: z.string(),

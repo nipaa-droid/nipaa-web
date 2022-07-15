@@ -12,10 +12,10 @@ import {
 } from "../../../database/helpers/OsuDroidStatsHelper";
 import { DatabaseSetup } from "../../../database/DatabaseSetup";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
-import { v4 } from "uuid";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import { shapeWithUsernameWithPassword } from "../../shapes";
+import { generateToken } from "../../../components/auth/token";
 
 const path = "login";
 
@@ -63,13 +63,10 @@ export const clientGetLoginRouter = createRouter().mutation(
         return Responses.FAILED("Wrong password");
       }
 
-      const session = v4();
-
       await prisma.osuDroidUser.update({
         where: userWhere,
         data: {
           lastSeen: new Date(),
-          session,
         },
       });
 
@@ -92,9 +89,14 @@ export const clientGetLoginRouter = createRouter().mutation(
 
       const rank = await OsuDroidStatsHelper.getGlobalRank(user.id, metric);
 
+      const token = await generateToken({
+        id: user.id.toString(),
+        hashedPassword: user.password,
+      });
+
       return Responses.SUCCESS(
         user.id.toString(),
-        session.toString(),
+        token,
         rank.toString(),
         Math.round(metric).toString(),
         Math.round(accuracy).toString(),
