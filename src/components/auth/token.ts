@@ -7,6 +7,7 @@ import { AuthConstants } from "../../server/auth";
 type TokenData = {
   id: string;
   hashedPassword: string;
+  generatedDate: Date;
 };
 
 /**
