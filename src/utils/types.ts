@@ -5,8 +5,12 @@ export type NonNullableRequired<T> = {
   [P in keyof T]-?: NonNullable<T[P]>;
 };
 
-export type NullableKeys<T, K extends keyof T> = Omit<T, K> &
+export type UndefinableKeys<T, K extends keyof T> = Omit<T, K> &
   Partial<Pick<T, K>>;
+
+export type NullableKeys<T, K extends keyof T> = Omit<T, K> & {
+  [P in K]: T[P] | null;
+};
 
 export type Tuple<
   T,

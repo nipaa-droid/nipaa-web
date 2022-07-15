@@ -1,12 +1,10 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { prisma } from "../../../../lib/prisma";
-import { Responses } from "../../../api/Responses";
-import { DatabaseSetup } from "../../../database/DatabaseSetup";
+import { GameRules } from "../../../database/GameRules";
 import { OsuDroidStatsHelper } from "../../../database/helpers/OsuDroidStatsHelper";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 import { createRouter } from "../../createRouter";
 import { TRPC_ERRORS } from "../../errors";
+import { protectedWithSessionMiddleware } from "../../middlewares";
 import { shapeWithSSID } from "../../shapes";
 
 const output = z.object({
@@ -18,56 +16,47 @@ const output = z.object({
 
 export type ClientUserFromSession = z.infer<typeof output>;
 
-export const trpcGetUserInformationFromSession = createRouter().query(
-  "get-user-for-session",
+export const webGetUserInformationFromSession = protectedWithSessionMiddleware(
+  createRouter(),
   {
-    input: z.object({
-      ...shapeWithSSID,
-    }),
-    output,
-    async resolve({ input }) {
-      const { ssid } = input;
-
-      const user = await prisma.osuDroidUser.findUnique({
-        where: {
-          session: ssid,
-        },
-        select: {
-          id: true,
-          name: true,
-          image: true,
-          stats: {
-            where: {
-              mode: DatabaseSetup.game_mode,
-            },
+    user: {
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        stats: {
+          where: {
+            mode: GameRules.game_mode,
           },
         },
-      });
-
-      if (!user) {
-        throw new TRPCError({
-          message: Responses.USER_NOT_FOUND,
-          code: "BAD_REQUEST",
-        });
-      }
-
-      const statistic = OsuDroidUserHelper.getStatistic(
-        user.stats,
-        DatabaseSetup.game_mode
-      );
-
-      if (!statistic) {
-        throw TRPC_ERRORS.UNAUTHORIZED;
-      }
-
-      const metric = await OsuDroidStatsHelper.getMetric(statistic);
-
-      return {
-        id: user.id.toString(),
-        name: user.name,
-        image: user.image,
-        metric,
-      };
+      },
     },
   }
-);
+).query("get-user-for-session", {
+  input: z.object({
+    ...shapeWithSSID,
+  }),
+  output,
+  async resolve({ ctx }) {
+    const { session } = ctx;
+    const { user } = session;
+
+    const statistic = OsuDroidUserHelper.getStatistic(
+      user.stats,
+      GameRules.game_mode
+    );
+
+    if (!statistic) {
+      throw TRPC_ERRORS.UNAUTHORIZED;
+    }
+
+    const metric = await OsuDroidStatsHelper.getMetric(statistic);
+
+    return {
+      id: user.id.toString(),
+      name: user.name,
+      image: user.image,
+      metric,
+    };
+  },
+});

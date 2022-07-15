@@ -12,25 +12,11 @@ import { ServerConstants } from "../constants";
 import { Locales } from "../i18n/i18n-types";
 import TypesafeI18n from "../i18n/i18n-react";
 import { mediaBreakPoints } from "../utils/breakpoints";
-import { AuthProvider, useAuth } from "../providers/auth";
-import { trpc } from "../utils/trpc";
-import { clientGetSessionCookie } from "../utils/auth";
+import { AuthProvider } from "../providers/auth";
 import Head from "next/head";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   const [locale, setLocale] = useState<Locales | undefined>(undefined);
-  const { setUser } = useAuth();
-
-  const userQuery = trpc.useQuery([
-    "get-user-for-session",
-    {
-      ssid: clientGetSessionCookie(),
-    },
-  ]);
-
-  useEffect(() => {
-    setUser(userQuery.data);
-  }, [userQuery.data, setUser]);
 
   useEffect(() => {
     const locale = detectLocale(

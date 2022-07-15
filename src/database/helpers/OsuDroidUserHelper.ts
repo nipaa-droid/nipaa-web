@@ -4,13 +4,15 @@ import {
   OsuDroidUser,
   Prisma,
   SubmissionStatus,
+  UserSession,
 } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
 import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
 import { AtLeast } from "../../utils/types";
 import { OsuDroidScoreWithoutGenerated } from "./OsuDroidScoreHelper";
-import { v4 } from "uuid";
 import { ServerConstants } from "../../constants";
+import { addHours } from "date-fns";
+import orderBy from "lodash.orderby";
 
 export type UserWithStats = OsuDroidUser & {
   stats: OsuDroidStats[];
@@ -33,25 +35,32 @@ export class OsuDroidUserHelper {
 
   /**
    *
-   * @param session an existing session or not
+   * @param sessions existing sessions
    * @returns the existing session otherwise a new session
    */
-  static async createSession(session: string | null, id: number) {
-    if (!session) {
-      session = v4();
+  static async createSession(userId: number, sessions: UserSession[]) {
+    const SESSION_DURATION = addHours(new Date(), 1);
+
+    /**
+     * Limits to 10 concurrent sessions
+     */
+    if (sessions.length >= 10) {
+      const sessionsOrdered = orderBy(sessions, (o) => o.creation);
+      const firstSession = sessionsOrdered[0];
+
+      await prisma.userSession.delete({
+        where: {
+          id: firstSession.id,
+        },
+      });
     }
 
-    await prisma.osuDroidUser.update({
-      where: {
-        id,
-      },
+    return await prisma.userSession.create({
       data: {
-        session,
-        lastSeen: new Date(),
+        userId,
+        expires: SESSION_DURATION,
       },
     });
-
-    return session;
   }
 
   /**

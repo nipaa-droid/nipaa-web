@@ -16,8 +16,6 @@ model OsuDroidUser {
 
     password String
 
-    session String? @unique
-
     email String? @unique @db.Char(36)
     image String?
 
@@ -26,8 +24,17 @@ model OsuDroidUser {
 
     playing String? @db.Char(32)
 
-    scores OsuDroidScore[]
-    stats  OsuDroidStats[]
+    scores   OsuDroidScore[]
+    stats    OsuDroidStats[]
+    sessions UserSession[]
+}
+
+model UserSession {
+    id       String       @id @default(uuid())
+    creation DateTime     @default(now())
+    expires  DateTime
+    userId   Int
+    user     OsuDroidUser @relation(fields: [userId], references: [id])
 }
 
 model OsuDroidStats {

@@ -32,7 +32,7 @@ export const requiredApplicationSecretMiddleware = <C>(
 
 export const protectedWithSessionMiddleware = <
   C,
-  T extends Prisma.OsuDroidUserSelect
+  T extends Prisma.UserSessionSelect
 >(
   router: AnyRouter<C>,
   select: T
@@ -54,21 +54,21 @@ export const protectedWithSessionMiddleware = <
 
     const { ssid } = validate.data;
 
-    const user = await prisma.osuDroidUser.findUnique({
+    const session = await prisma.userSession.findUnique({
       where: {
-        session: ssid,
+        id: ssid,
       },
       select,
     });
 
-    if (!user) {
+    if (!session) {
       throw TRPC_ERRORS.UNAUTHORIZED;
     }
 
     return next({
       ctx: {
         ...ctx,
-        user: user,
+        session,
       },
     });
   });

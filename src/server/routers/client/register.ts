@@ -8,7 +8,7 @@ import { TRPC_ERRORS } from "../../errors";
 import bcrypt from "bcrypt";
 import { AuthConstants } from "../../auth";
 import { Responses } from "../../../api/Responses";
-import { DatabaseSetup } from "../../../database/DatabaseSetup";
+import { GameRules } from "../../../database/GameRules";
 import { z } from "zod";
 import { shapeWithAuthentication } from "../../shapes";
 
@@ -60,12 +60,12 @@ export const clientGetRegisterRouter = createRouter().mutation(
 
       await prisma.osuDroidUser.create({
         data: {
-          name: username,
+          name: username.trim(),
           password: hashedPassword,
           stats: {
             create: [
               {
-                mode: DatabaseSetup.game_mode,
+                mode: GameRules.game_mode,
                 playCount: 0,
               },
             ],

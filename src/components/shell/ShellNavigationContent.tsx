@@ -14,15 +14,13 @@ export const ShellNavigationContent = ({
 
   return (
     <Stack>
+      {user ? (
+        <ShellSessionUserInformation />
+      ) : (
+        <ShellLoginButton setOpened={setOpened} isSmall={isSmall} />
+      )}
       <HomePageButton setOpened={setOpened} isSmall={isSmall} />
       <LeaderboardButton setOpened={setOpened} isSmall={isSmall} />
-      <div style={{ marginTop: "125%" }}>
-        {user ? (
-          <ShellSessionUserInformation />
-        ) : (
-          <ShellLoginButton setOpened={setOpened} isSmall={isSmall} />
-        )}
-      </div>
     </Stack>
   );
 };

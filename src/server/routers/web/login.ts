@@ -8,7 +8,7 @@ import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper
 import assert from "assert";
 import { isCommonRequest } from "../../context";
 
-export const trpcLoginRouter = createRouter().mutation("login", {
+export const webLoginRouter = createRouter().mutation("web-login", {
   input: z.object({
     ...shapeWithUsernameWithPassword,
   }),
@@ -23,7 +23,7 @@ export const trpcLoginRouter = createRouter().mutation("login", {
       },
       select: {
         id: true,
-        session: true,
+        sessions: true,
         password: true,
       },
     });
@@ -39,12 +39,12 @@ export const trpcLoginRouter = createRouter().mutation("login", {
     }
 
     const session = await OsuDroidUserHelper.createSession(
-      user.session,
-      user.id
+      user.id,
+      user.sessions
     );
 
     return {
-      session,
+      session: session.id,
     };
   },
 });

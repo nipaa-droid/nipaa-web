@@ -2,8 +2,8 @@ import { OsuDroidScore, OsuDroidStats, Prisma } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
 import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
-import { AtLeast, MustHave, NullableKeys } from "../../utils/types";
-import { DatabaseSetup } from "../DatabaseSetup";
+import { AtLeast, MustHave, UndefinableKeys } from "../../utils/types";
+import { GameRules } from "../GameRules";
 import { GameMetrics } from "../GameMetrics";
 import {
   OsuDroidScoreAccuracyCalculatable,
@@ -171,7 +171,7 @@ export class OsuDroidStatsHelper {
   }
 
   static toTotalScoreRankQuery(
-    query: NullableKeys<Prisma.OsuDroidScoreGroupByArgs, "by">
+    query: UndefinableKeys<Prisma.OsuDroidScoreGroupByArgs, "by">
   ): MustHave<Prisma.OsuDroidScoreGroupByArgs, "orderBy"> {
     return {
       by: ["playerId", ...(query.by ?? [])],
@@ -196,7 +196,7 @@ export class OsuDroidStatsHelper {
 
     let amountBetter: number;
 
-    switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
+    switch (GameRules.global_leaderboard_metric as GameMetrics) {
       case GameMetrics.pp:
         const betterUsersByPP = await prisma.osuDroidUser.findMany({
           where: userWhere,
@@ -238,7 +238,7 @@ export class OsuDroidStatsHelper {
           },
         });
 
-        switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
+        switch (GameRules.global_leaderboard_metric as GameMetrics) {
           case GameMetrics.rankedScore:
             rankByTotalScoreQuery.where = {
               ...rankByTotalScoreQuery.where,
@@ -259,7 +259,7 @@ export class OsuDroidStatsHelper {
   }
 
   static async getMetric(stats: OsuDroidStatsToCalculateScores) {
-    switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
+    switch (GameRules.global_leaderboard_metric as GameMetrics) {
       case GameMetrics.pp:
         return await this.getPerformance(stats);
       case GameMetrics.rankedScore:
@@ -283,7 +283,7 @@ export class OsuDroidStatsHelper {
           );
           break;
         case OsuDroidStatsBatchCalculate.METRIC:
-          switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
+          switch (GameRules.global_leaderboard_metric as GameMetrics) {
             case GameMetrics.pp:
               this.#toPerformanceQuery(query);
               break;
@@ -305,7 +305,7 @@ export class OsuDroidStatsHelper {
           response.accuracy = this.getAccuracyFromScores(scores);
           break;
         case OsuDroidStatsBatchCalculate.METRIC:
-          switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
+          switch (GameRules.global_leaderboard_metric as GameMetrics) {
             case GameMetrics.pp:
               response.metric = this.getPerformanceFromScores(scores);
               break;

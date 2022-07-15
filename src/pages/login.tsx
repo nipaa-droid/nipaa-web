@@ -43,7 +43,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 export default function Login() {
   const router = useRouter();
 
-  const loginMutation = trpc.useMutation(["login"]);
+  const loginMutation = trpc.useMutation(["web-login"]);
 
   const form = useForm({
     initialValues: {

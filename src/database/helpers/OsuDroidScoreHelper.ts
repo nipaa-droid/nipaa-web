@@ -25,9 +25,9 @@ import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
 import {
   ActiveGlobalLeaderboardMetric,
   ActiveScoreLeaderboardMetric,
-  DatabaseSetup,
+  GameRules,
   OsuDroidScoreMetric,
-} from "../DatabaseSetup";
+} from "../GameRules";
 import { ScoreGrade } from "../../osu/ScoreGrade";
 import { BeatmapManager } from "../managers/BeatmapManager";
 import { GameMetrics } from "../GameMetrics";
@@ -46,11 +46,11 @@ const getActiveScoreMetricKeyFor = (
 };
 
 const GLOBAL_LEADERBOARD_SCORE_METRIC_KEY = getActiveScoreMetricKeyFor(
-  DatabaseSetup.global_leaderboard_metric
+  GameRules.global_leaderboard_metric
 ) as ScoreKeyForMetric<ActiveGlobalLeaderboardMetric>;
 
 const SCORE_LEADERBOARD_SCORE_METRIC_KEY = getActiveScoreMetricKeyFor(
-  DatabaseSetup.score_leaderboard_metric
+  GameRules.score_leaderboard_metric
 ) as ScoreKeyForMetric<ActiveScoreLeaderboardMetric>;
 
 export type ScoreKeyForMetric<
@@ -214,7 +214,7 @@ export class OsuDroidScoreHelper {
       };
     }
 
-    toBuildScore.mode = DatabaseSetup.game_mode;
+    toBuildScore.mode = GameRules.game_mode;
 
     toBuildScore.mods = modsDroidString;
 
@@ -391,7 +391,7 @@ export class OsuDroidScoreHelper {
     const previousScore = await OsuDroidUserHelper.getBestScoreOnBeatmap(
       playerId,
       toBuildScore.mapHash,
-      DatabaseSetup.game_mode,
+      GameRules.game_mode,
       {
         select: {
           id: true,
@@ -492,7 +492,7 @@ export class OsuDroidScoreHelper {
         await OsuDroidUserHelper.getBestScoreOnBeatmap(
           userId,
           newScore.mapHash,
-          DatabaseSetup.game_mode,
+          GameRules.game_mode,
           {
             select: {
               id: true,

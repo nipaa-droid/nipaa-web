@@ -10,7 +10,7 @@ export enum OsuDroidScoreMetric {
 
 export type ActiveScoreLeaderboardMetric = OsuDroidScoreMetric.pp;
 
-export class DatabaseSetup {
+export class GameRules {
   static game_mode = GameMode.std;
   static global_leaderboard_metric: ActiveGlobalLeaderboardMetric =
     GameMetrics.pp;

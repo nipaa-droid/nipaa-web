@@ -10,7 +10,7 @@ import {
   OsuDroidStatsBatchCalculate,
   OsuDroidStatsHelper,
 } from "../../../database/helpers/OsuDroidStatsHelper";
-import { DatabaseSetup } from "../../../database/DatabaseSetup";
+import { GameRules } from "../../../database/GameRules";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 import bcrypt from "bcrypt";
 import { z } from "zod";
@@ -44,10 +44,10 @@ export const clientGetLoginRouter = createRouter().mutation(
           name: true,
           image: true,
           password: true,
-          session: true,
+          sessions: true,
           stats: {
             where: {
-              mode: DatabaseSetup.game_mode,
+              mode: GameRules.game_mode,
             },
           },
         },
@@ -64,13 +64,13 @@ export const clientGetLoginRouter = createRouter().mutation(
       }
 
       const session = await OsuDroidUserHelper.createSession(
-        user.session,
-        user.id
+        user.id,
+        user.sessions
       );
 
       const statistic = OsuDroidUserHelper.getStatistic(
         user.stats,
-        DatabaseSetup.game_mode
+        GameRules.game_mode
       );
 
       if (!statistic) {

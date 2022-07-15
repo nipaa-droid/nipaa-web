@@ -91,19 +91,12 @@ export const cron1DayRouter = requiredApplicationSecretMiddleware(
       },
     });
 
-    // invalidate sessions
-    await prisma.osuDroidUser.updateMany({
+    // invalidate sessions (needs another cron implementation)
+    await prisma.userSession.deleteMany({
       where: {
-        lastSeen: {
+        expires: {
           lt: endOfYesterday(),
         },
-        session: {
-          not: null,
-        },
-      },
-      data: {
-        playing: null,
-        session: null,
       },
     });
   },

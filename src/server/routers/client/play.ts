@@ -14,8 +14,12 @@ const path = "play";
 export const clientGetPlayRouter = protectedWithSessionMiddleware(
   createRouter(),
   {
-    id: true,
-    playing: true,
+    user: {
+      select: {
+        id: true,
+        playing: true,
+      },
+    },
   }
 ).mutation(toApiClientTrpc(path), {
   meta: {
@@ -31,7 +35,8 @@ export const clientGetPlayRouter = protectedWithSessionMiddleware(
   }),
   output: z.string(),
   async resolve({ input, ctx }) {
-    const { user } = ctx;
+    const { session } = ctx;
+    const { user } = session;
     const { hash } = input;
 
     if (user.playing !== hash) {

@@ -21,7 +21,7 @@ export const shapeWithUserID = {
 };
 
 export const shapeWithUsername = {
-  username: z.string().min(4).max(16),
+  username: z.string().min(4).max(16).trim(),
 };
 
 export const shapeWithPassword = {

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createRouter } from "../../createRouter";
 import { prisma } from "../../../../lib/prisma";
 import { OsuDroidStatsHelper } from "../../../database/helpers/OsuDroidStatsHelper";
-import { DatabaseSetup } from "../../../database/DatabaseSetup";
+import { GameRules } from "../../../database/GameRules";
 import { shapeWithSecret, shapeWithUsername } from "../../shapes";
 import { GameMetrics } from "../../../database/GameMetrics";
 import { SubmissionStatusUtils } from "../../../osu/droid/enum/SubmissionStatus";
@@ -74,7 +74,7 @@ export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
       return gradesData;
     };
 
-    switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
+    switch (GameRules.global_leaderboard_metric as GameMetrics) {
       case GameMetrics.pp:
         const users = await prisma.osuDroidUser.findMany({
           select: {
@@ -104,7 +104,7 @@ export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
 
           const statistic = OsuDroidUserHelper.getStatistic(
             stats,
-            DatabaseSetup.game_mode
+            GameRules.game_mode
           );
 
           if (!statistic) {
@@ -137,7 +137,7 @@ export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
       case GameMetrics.totalScore:
         const query = OsuDroidStatsHelper.toTotalScoreRankQuery({});
 
-        switch (DatabaseSetup.global_leaderboard_metric as GameMetrics) {
+        switch (GameRules.global_leaderboard_metric as GameMetrics) {
           case GameMetrics.rankedScore:
             query.where = {
               ...query.where,
@@ -170,7 +170,7 @@ export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
         usersForGrouppedScores.forEach((u) => {
           const statistic = OsuDroidUserHelper.getStatistic(
             u.stats,
-            DatabaseSetup.game_mode
+            GameRules.game_mode
           );
 
           if (!statistic) {

@@ -1,6 +1,6 @@
 import { OsuDroidScore, OsuDroidStats } from "@prisma/client";
 import { Responses } from "../../../api/Responses";
-import { DatabaseSetup } from "../../../database/DatabaseSetup";
+import { GameRules } from "../../../database/GameRules";
 import {
   OsuDroidScoreHelper,
   isSubmissionScoreReturnError,
@@ -27,16 +27,20 @@ const path = "submit";
 export const clientGetSubmitRouter = protectedWithSessionMiddleware(
   createRouter(),
   {
-    id: true,
-    name: true,
-    playing: true,
-    stats: {
-      where: {
-        mode: DatabaseSetup.game_mode,
-      },
+    user: {
       select: {
         id: true,
-        playCount: true,
+        name: true,
+        playing: true,
+        stats: {
+          where: {
+            mode: GameRules.game_mode,
+          },
+          select: {
+            id: true,
+            playCount: true,
+          },
+        },
       },
     },
   }
@@ -55,7 +59,8 @@ export const clientGetSubmitRouter = protectedWithSessionMiddleware(
   }),
   output: z.string(),
   async resolve({ input, ctx }) {
-    const { user } = ctx;
+    const { session } = ctx;
+    const { user } = session;
     const { data } = input;
 
     const fail = (reason: string) =>
@@ -74,7 +79,7 @@ export const clientGetSubmitRouter = protectedWithSessionMiddleware(
         id: Number(s.id),
         userId: Number(user.id),
         playCount: s.playCount,
-        mode: DatabaseSetup.game_mode,
+        mode: GameRules.game_mode,
       };
     });
 

@@ -1,9 +1,8 @@
 import Image, { ImageProps } from "next/image";
 import { ServerConstants } from "../../constants";
+import { NullableKeys } from "../../utils/types";
 
-export const UserAvatar = (
-  props: Omit<ImageProps, "src"> & { userAvatar: string | null }
-) => {
+export const UserAvatar = (props: NullableKeys<ImageProps, "src">) => {
   const size = 32;
 
   const width = props.width ?? size;
@@ -19,11 +18,11 @@ export const UserAvatar = (
       }}
     >
       <Image
-        src={props.userAvatar ?? ServerConstants.DEFAULT_AVATAR_PATH}
         alt="User avatar"
         width={width}
         height={height}
         {...props}
+        src={props.src ?? ServerConstants.DEFAULT_AVATAR_PATH}
       />
     </div>
   );
