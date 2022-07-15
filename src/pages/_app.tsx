@@ -2,7 +2,7 @@ import { withTRPC } from "@trpc/next";
 import { AppType } from "next/dist/shared/lib/utils";
 import { AppRouter } from "../server/routers/_app";
 import { MantineProvider } from "@mantine/core";
-import { ClientShell } from "../components/ClientShell";
+import { ClientShell } from "../components/shell/ClientShell";
 import router from "next/router";
 import { useState, useEffect } from "react";
 import { detectLocale } from "typesafe-i18n/detectors";
@@ -15,6 +15,7 @@ import { mediaBreakPoints } from "../utils/breakpoints";
 import { AuthProvider, useAuth } from "../providers/auth";
 import { trpc } from "../utils/trpc";
 import { clientGetSessionCookie } from "../utils/auth";
+import Head from "next/head";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   const [locale, setLocale] = useState<Locales | undefined>(undefined);
@@ -54,6 +55,13 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         <TypesafeI18n locale={locale}>
           <AuthProvider>
             <ClientShell>
+              <Head>
+                <title>{ServerConstants.SERVER_NAME}</title>
+                <meta
+                  name="viewport"
+                  content="minimum-scale=1, initial-scale=1, width=device-width"
+                />
+              </Head>
               <Component {...pageProps} />
             </ClientShell>
           </AuthProvider>
