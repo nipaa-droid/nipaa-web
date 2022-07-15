@@ -15,6 +15,7 @@ export const cron1hourRouter = requiredApplicationSecretMiddleware(
   input: z.object({
     ...shapeWithSecret,
   }),
+  output: z.any(),
   async resolve() {
     // Deletes expired sessions
     await prisma.userSession.deleteMany({
