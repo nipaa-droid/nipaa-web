@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createRouter, toApiEndpoint } from "../../createRouter";
+import { createRouter } from "../../createRouter";
 import { prisma } from "../../../../lib/prisma";
 import { OsuDroidStatsHelper } from "../../../database/helpers/OsuDroidStatsHelper";
 import { DatabaseSetup } from "../../../database/DatabaseSetup";
@@ -39,13 +39,6 @@ const path = "global-leaderboard";
 export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
   createRouter()
 ).query(path, {
-  meta: {
-    openapi: {
-      enabled: true,
-      method: "GET",
-      path: toApiEndpoint(path),
-    },
-  },
   input: z.object({ ...shapeWithSecret }),
   output,
   async resolve() {

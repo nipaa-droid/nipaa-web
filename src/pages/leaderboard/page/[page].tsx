@@ -19,7 +19,7 @@ import { PropsWithChildren, useState, useEffect } from "react";
 import { prisma } from "../../../../lib/prisma";
 import { CenteredTableHead } from "../../../components/CenteredTableHead";
 import { useI18nContext } from "../../../i18n/i18n-react";
-import { TRPCGlobalLeaderboardReturnType } from "../../../server/routers/backend/globalLeaderboard";
+import { TRPCGlobalLeaderboardReturnType } from "../../../server/routers/backend/global_leaderboard";
 import { getSSGHelper } from "../../../utils/backend";
 import { NumberUtils } from "../../../utils/number";
 import { getLeaderboardPage } from "../../../utils/router";
