@@ -6,7 +6,7 @@ import { UserAvatar } from "../images/UserAvatar";
 import { DoorOff } from "tabler-icons-react";
 
 export const ShellSessionUserInformation = () => {
-  const { user } = useAuth();
+  const { logout, user } = useAuth();
 
   assert(user);
 
@@ -19,9 +19,7 @@ export const ShellSessionUserInformation = () => {
           m="lg"
           radius="lg"
           color="white"
-          onClick={async () => {
-            await user.logout();
-          }}
+          onClick={logout}
         >
           <DoorOff size={16} />
         </ActionIcon>

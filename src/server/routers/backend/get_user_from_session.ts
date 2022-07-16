@@ -4,8 +4,7 @@ import { OsuDroidStatsHelper } from "../../../database/helpers/OsuDroidStatsHelp
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 import { createRouter } from "../../createRouter";
 import { TRPC_ERRORS } from "../../errors";
-import { protectedWithSessionMiddleware } from "../../middlewares";
-import { shapeWithSSID } from "../../shapes";
+import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 
 const output = z.object({
   id: z.string(),
@@ -16,9 +15,8 @@ const output = z.object({
 
 export type ClientUserFromSession = z.infer<typeof output>;
 
-export const webGetUserInformationFromSession = protectedWithSessionMiddleware(
-  createRouter(),
-  {
+export const webGetUserInformationFromSession =
+  protectedWithCookieBasedSessionMiddleware(createRouter(), {
     user: {
       select: {
         id: true,
@@ -31,32 +29,29 @@ export const webGetUserInformationFromSession = protectedWithSessionMiddleware(
         },
       },
     },
-  }
-).query("get-user-for-session", {
-  input: z.object({
-    ...shapeWithSSID,
-  }),
-  output,
-  async resolve({ ctx }) {
-    const { session } = ctx;
-    const { user } = session;
+  }).query("get-user-for-session", {
+    input: z.any(),
+    output,
+    async resolve({ ctx }) {
+      const { session } = ctx;
+      const { user } = session;
 
-    const statistic = OsuDroidUserHelper.getStatistic(
-      user.stats,
-      GameRules.game_mode
-    );
+      const statistic = OsuDroidUserHelper.getStatistic(
+        user.stats,
+        GameRules.game_mode
+      );
 
-    if (!statistic) {
-      throw TRPC_ERRORS.UNAUTHORIZED;
-    }
+      if (!statistic) {
+        throw TRPC_ERRORS.UNAUTHORIZED;
+      }
 
-    const metric = await OsuDroidStatsHelper.getMetric(statistic);
+      const metric = await OsuDroidStatsHelper.getMetric(statistic);
 
-    return {
-      id: user.id.toString(),
-      name: user.name,
-      image: user.image,
-      metric,
-    };
-  },
-});
+      return {
+        id: user.id.toString(),
+        name: user.name,
+        image: user.image,
+        metric,
+      };
+    },
+  });

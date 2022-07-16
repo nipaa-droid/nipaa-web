@@ -14,11 +14,11 @@ import {
 import { z } from "zod";
 import { shapeWithHash } from "../../shapes";
 import { ServerConstants } from "../../../constants";
-import { protectedWithSessionMiddleware } from "../../middlewares";
+import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 
 const path = "getrank";
 
-export const clientGetRankRouter = protectedWithSessionMiddleware(
+export const clientGetRankRouter = protectedWithCookieBasedSessionMiddleware(
   createRouter(),
   { id: true }
 ).mutation(toApiClientTrpc(path), {

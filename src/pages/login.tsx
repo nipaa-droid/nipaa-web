@@ -12,21 +12,20 @@ import {
 import { z } from "zod";
 import { shapeWithUsernameWithPassword } from "../server/shapes";
 import { useForm, zodResolver } from "@mantine/form";
-import { trpc } from "../utils/trpc";
-import { setCookie } from "nookies";
 import { CookieNames } from "../utils/cookies";
 import nookies from "nookies";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { getHomePage } from "../utils/router";
 import { useEffect, useState } from "react";
+import { useAuth } from "../providers/auth";
 
 const schema = z.object({
   ...shapeWithUsernameWithPassword,
 });
-
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const cookies = nookies.get(ctx);
+
   if (cookies[CookieNames.SESSION_ID]) {
     return {
       props: {},
@@ -35,6 +34,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
     };
   }
+
   return {
     props: {},
   };
@@ -43,7 +43,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 export default function Login() {
   const router = useRouter();
 
-  const loginMutation = trpc.useMutation(["web-login"]);
+  const { login, authError, authLoading } = useAuth();
 
   const form = useForm({
     initialValues: {
@@ -65,43 +65,43 @@ export default function Login() {
         <Transition mounted={mounted} transition="slide-up" duration={500}>
           {(styles) => {
             return (
-              <Box sx={{ maxWidth: "600" }} style={styles} mx="auto" my="lg">
-                <form
-                  onSubmit={form.onSubmit(async ({ username, password }) => {
-                    try {
-                      const res = await loginMutation.mutateAsync({
+              <div>
+                <Box sx={{ maxWidth: 300 }} style={styles} mx="auto" my="lg">
+                  <form
+                    onSubmit={form.onSubmit(async ({ username, password }) => {
+                      const logged = await login({
                         username,
                         password,
                       });
-
-                      setCookie(null, CookieNames.SESSION_ID, res.session);
-
-                      router.push(getHomePage());
-                    } catch {}
-                  })}
-                >
-                  <TextInput
-                    label="Username"
-                    placeholder="Username"
-                    {...form.getInputProps("username")}
-                  />
-                  <PasswordInput
-                    label="Password"
-                    placeholder="Password"
-                    {...form.getInputProps("password")}
-                  />
-                  <Group position="center" mt="md">
-                    <Button disabled={loginMutation.isLoading} type="submit">
-                      Login
-                    </Button>
-                  </Group>
-                </form>
-                {loginMutation.error && (
+                      if (logged) {
+                        router.push(getHomePage());
+                      }
+                    })}
+                  >
+                    <TextInput
+                      label="Username"
+                      placeholder="Username"
+                      {...form.getInputProps("username")}
+                    />
+                    <PasswordInput
+                      label="Password"
+                      variant="filled"
+                      placeholder="Password"
+                      {...form.getInputProps("password")}
+                    />
+                    <Group position="center" mt="md">
+                      <Button disabled={authLoading} type="submit">
+                        Login
+                      </Button>
+                    </Group>
+                  </form>
+                </Box>
+                {authError && (
                   <Text color="red" mt="lg" align="center">
-                    {loginMutation.error.message}
+                    {authError}
                   </Text>
                 )}
-              </Box>
+              </div>
             );
           }}
         </Transition>

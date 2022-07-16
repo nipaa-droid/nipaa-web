@@ -5,6 +5,9 @@ import { z } from "zod";
 import { prisma } from "../../lib/prisma";
 import { TRPC_ERRORS } from "./errors";
 import { shapeWithSecret, shapeWithSSID } from "./shapes";
+import nookies from "nookies";
+import { isCommonRequest } from "./context";
+import { CookieNames } from "../utils/cookies";
 
 export const requiredApplicationSecretMiddleware = <C>(
   router: AnyRouter<C>
@@ -37,10 +40,6 @@ export const protectedWithSessionMiddleware = <
   router: AnyRouter<C>,
   select: T
 ) => {
-  if (!select) {
-    select = { id: true } as T;
-  }
-
   return router.middleware(async ({ next, rawInput, ctx }) => {
     const sessionIDSchema = z.object({ ...shapeWithSSID });
 
@@ -69,6 +68,44 @@ export const protectedWithSessionMiddleware = <
       ctx: {
         ...ctx,
         session,
+      },
+    });
+  });
+};
+
+export const protectedWithCookieBasedSessionMiddleware = <
+  C,
+  T extends Prisma.UserSessionSelect
+>(
+  router: AnyRouter<C>,
+  select: T
+) => {
+  return router.middleware(async ({ next, ctx }) => {
+    assert(isCommonRequest(ctx));
+
+    const cookies = nookies.get(ctx);
+
+    const session = cookies[CookieNames.SESSION_ID];
+
+    if (!session) {
+      throw TRPC_ERRORS.UNAUTHORIZED;
+    }
+
+    const foundSession = await prisma.userSession.findUnique({
+      where: {
+        id: session,
+      },
+      select,
+    });
+
+    if (!foundSession) {
+      throw TRPC_ERRORS.UNAUTHORIZED;
+    }
+
+    return next({
+      ctx: {
+        ...ctx,
+        session: foundSession,
       },
     });
   });

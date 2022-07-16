@@ -7,6 +7,8 @@ import { TRPC_ERRORS } from "../../errors";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 import assert from "assert";
 import { isCommonRequest } from "../../context";
+import { setCookie } from "nookies";
+import { CookieNames } from "../../../utils/cookies";
 
 export const webLoginRouter = createRouter().mutation("web-login", {
   input: z.object({
@@ -32,7 +34,7 @@ export const webLoginRouter = createRouter().mutation("web-login", {
       throw TRPC_ERRORS.UNAUTHORIZED;
     }
 
-    const authorized = bcrypt.compare(password, user.password);
+    const authorized = await bcrypt.compare(password, user.password);
 
     if (!authorized) {
       throw TRPC_ERRORS.UNAUTHORIZED;
@@ -43,8 +45,10 @@ export const webLoginRouter = createRouter().mutation("web-login", {
       user.sessions
     );
 
-    return {
-      session: session.id,
-    };
+    /**
+     * We must rewrite cookie path so it is loaded by the client properly
+     * by properly meaning when the user enters any page without any delay
+     */
+    setCookie(ctx, CookieNames.SESSION_ID, session.id, { path: "/" });
   },
 });
