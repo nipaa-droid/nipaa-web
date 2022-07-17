@@ -31,10 +31,6 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
     setOpened(!isSmall);
   }, [isSmall]);
 
-  const BuiltShellNavigationContent = () => (
-    <ShellNavigationContent isSmall={isSmall} setOpened={setOpened} />
-  );
-
   return (
     <AppShell
       navbarOffsetBreakpoint="sm"
@@ -49,7 +45,7 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
             overlayBlur={4}
             size="sm"
           >
-            <BuiltShellNavigationContent />
+            <ShellNavigationContent isSmall={isSmall} setOpened={setOpened} />
           </Drawer>
         ) : (
           <Transition mounted={opened} transition="slide-right" duration={500}>
@@ -61,7 +57,10 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
                 p="md"
                 hiddenBreakpoint="sm"
               >
-                <BuiltShellNavigationContent />
+                <ShellNavigationContent
+                  isSmall={isSmall}
+                  setOpened={setOpened}
+                />
               </Navbar>
             )}
           </Transition>

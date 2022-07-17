@@ -4,6 +4,8 @@ import { AppRouter } from "../server/routers/_app";
 
 export const trpc = createReactQueryHooks<AppRouter>();
 
-export type AnyMutation = UseMutationResult<any, { message: string }, any, any>;
+type AnyError = { message: string };
 
-export type AnyQuery = UseQueryResult<any, any>;
+export type AnyMutation = UseMutationResult<any, AnyError, any, any>;
+
+export type AnyQuery = UseQueryResult<any, AnyError>;

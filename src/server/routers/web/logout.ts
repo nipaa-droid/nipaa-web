@@ -19,7 +19,7 @@ export const webLogoutRouter = protectedWithCookieBasedSessionMiddleware(
     // we want to destroy the main session cookie so path = "/"
     destroyCookie(ctx, CookieNames.SESSION_ID, { path: "/" });
 
-    // handles racing conditions (can happen when a user per example spam logout button)
+    // handles racing conditions (can happen when a user per example spam logout button) or other edge cases
     try {
       await prisma.userSession.delete({
         where: {
