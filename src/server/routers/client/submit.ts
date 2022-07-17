@@ -20,11 +20,11 @@ import { z } from "zod";
 import { shapeWithSSID, shapeWithUserID } from "../../shapes";
 import { AtLeast } from "../../../utils/types";
 import { prisma } from "../../../../lib/prisma";
-import { protectedWithSessionMiddleware } from "../../middlewares";
+import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 
 const path = "submit";
 
-export const clientGetSubmitRouter = protectedWithSessionMiddleware(
+export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
   createRouter(),
   {
     id: true,

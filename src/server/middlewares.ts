@@ -99,6 +99,13 @@ const getSessionFromCookie = async <T extends Prisma.UserSessionSelect>(
   return foundSession;
 };
 
+export const commonRequestMiddleware = <C>(router: AnyRouter<C>) => {
+  return router.middleware(async ({ next, ctx }) => {
+    assert(isCommonRequest(ctx));
+    return next({ ctx });
+  });
+};
+
 export const protectedWithCookieBasedSessionMiddleware = <
   C,
   T extends Prisma.UserSessionSelect
@@ -106,9 +113,7 @@ export const protectedWithCookieBasedSessionMiddleware = <
   router: AnyRouter<C>,
   select: T
 ) => {
-  return router.middleware(async ({ next, ctx }) => {
-    assert(isCommonRequest(ctx));
-
+  return commonRequestMiddleware(router).middleware(async ({ next, ctx }) => {
     const session = await getSessionFromCookie(ctx, select);
 
     if (!session) {
@@ -131,9 +136,7 @@ export const protectedWithCookieBasedSessionMiddleware = <
 export const endpointWithSessionRefreshmentMiddleware = <C>(
   router: AnyRouter<C>
 ) => {
-  return router.middleware(async ({ next, ctx }) => {
-    assert(isCommonRequest(ctx));
-
+  return commonRequestMiddleware(router).middleware(async ({ next, ctx }) => {
     const session = await getSessionFromCookie(ctx, {
       id: true,
       expires: true,

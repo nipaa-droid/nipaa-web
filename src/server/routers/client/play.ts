@@ -7,12 +7,12 @@ import {
   toApiEndpoint,
   toApiClientTrpc,
 } from "../../createRouter";
-import { protectedWithSessionMiddleware } from "../../middlewares";
+import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 import { shapeWithHash, shapeWithSSID } from "../../shapes";
 
 const path = "play";
 
-export const clientGetPlayRouter = protectedWithSessionMiddleware(
+export const clientGetPlayRouter = protectedWithCookieBasedSessionMiddleware(
   createRouter(),
   {
     id: true,

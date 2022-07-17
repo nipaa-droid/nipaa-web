@@ -8,12 +8,12 @@ import { Responses } from "../../../api/Responses";
 import { OsuDroidScoreHelper } from "../../../database/helpers/OsuDroidScoreHelper";
 import { prisma } from "../../../../lib/prisma";
 import { BeatmapManager } from "../../../database/managers/BeatmapManager";
-import { protectedWithSessionMiddleware } from "../../middlewares";
+import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 
 const path = "gettop";
 
-export const clientGetTopRouter = protectedWithSessionMiddleware(
+export const clientGetTopRouter = protectedWithCookieBasedSessionMiddleware(
   createRouter(),
   { id: true, expires: true }
 ).mutation(toApiClientTrpc(path), {
