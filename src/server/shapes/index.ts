@@ -8,10 +8,6 @@ export const shapeWithHash = {
   hash: z.string().length(32),
 };
 
-export const shapeWithSSID = {
-  ssid: z.string().length(36),
-};
-
 export const shapeWithSecret = {
   secret: z.string(),
 };

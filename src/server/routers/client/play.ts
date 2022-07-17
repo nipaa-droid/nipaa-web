@@ -8,7 +8,7 @@ import {
   toApiClientTrpc,
 } from "../../createRouter";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
-import { shapeWithHash, shapeWithSSID } from "../../shapes";
+import { shapeWithHash } from "../../shapes";
 
 const path = "play";
 
@@ -33,7 +33,6 @@ export const clientGetPlayRouter = protectedWithCookieBasedSessionMiddleware(
     },
   },
   input: z.object({
-    ...shapeWithSSID,
     ...shapeWithHash,
   }),
   output: z.string(),

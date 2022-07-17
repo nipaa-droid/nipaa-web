@@ -4,7 +4,7 @@ import assert from "assert";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
 import { TRPC_ERRORS } from "./errors";
-import { shapeWithSecret, shapeWithSSID } from "./shapes";
+import { shapeWithSecret } from "./shapes";
 import nookies from "nookies";
 import { CommonRequest, isCommonRequest } from "./context";
 import { CookieNames } from "../utils/cookies";
@@ -31,46 +31,6 @@ export const requiredApplicationSecretMiddleware = <C>(
     // we don't swap context because this middleware expects input
     // to have the secret, it only exists for validation
     return next();
-  });
-};
-
-export const protectedWithSessionMiddleware = <
-  C,
-  T extends Prisma.UserSessionSelect
->(
-  router: AnyRouter<C>,
-  select: T
-) => {
-  return router.middleware(async ({ next, rawInput, ctx }) => {
-    const sessionIDSchema = z.object({ ...shapeWithSSID });
-
-    assert(select);
-
-    const validate = await sessionIDSchema.safeParseAsync(rawInput);
-
-    if (!validate.success) {
-      throw TRPC_ERRORS.UNAUTHORIZED;
-    }
-
-    const { ssid } = validate.data;
-
-    const session = await prisma.userSession.findUnique({
-      where: {
-        id: ssid,
-      },
-      select,
-    });
-
-    if (!session) {
-      throw TRPC_ERRORS.UNAUTHORIZED;
-    }
-
-    return next({
-      ctx: {
-        ...ctx,
-        session,
-      },
-    });
   });
 };
 
