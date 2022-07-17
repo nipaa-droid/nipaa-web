@@ -8,8 +8,9 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { InvalidateQueryFilters } from "react-query";
 import { z, ZodObject } from "zod";
-import { ClientUserFromSession } from "../server/routers/web/get_user_from_session";
+import { ClientUserFromSession } from "../server/routers/web/session_user";
 import { shapeWithUsernameWithPassword } from "../server/shapes";
 import { AnyMutation, trpc } from "../utils/trpc";
 
@@ -44,15 +45,18 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }: PropsWithChildren<{}>) => {
   const utils = trpc.useContext();
 
-  trpc.useQuery(["get-user-for-session"], {
+  trpc.useQuery(["web-session-user"], {
     onSuccess: (data) => {
       setUser(data);
     },
     retry: false,
   });
 
-  const invalidateUserQuery = () => {
-    utils.invalidateQueries(["get-user-for-session"]);
+  const invalidateUserQuery = (filters?: InvalidateQueryFilters) => {
+    utils.invalidateQueries(["web-session-user"], {
+      exact: true,
+      ...filters,
+    });
   };
 
   const loginMutation = trpc.useMutation(["web-login"], {
@@ -66,7 +70,14 @@ export const AuthProvider = ({ children }: PropsWithChildren<{}>) => {
      * Only invalidate after we actually logout
      */
     onSuccess: () => {
-      invalidateUserQuery();
+      invalidateUserQuery({
+        /**
+         * Although we want to invalidate the query we don't want to do extra work
+         * since this is a logout action.
+         */
+        refetchInactive: false,
+        refetchActive: false,
+      });
     },
     /**
      * To provide a better UX we set user on mutate

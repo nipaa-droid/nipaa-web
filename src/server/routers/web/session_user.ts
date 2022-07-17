@@ -31,7 +31,7 @@ export const webGetUserInformationFromSession =
         },
       },
     },
-  }).query("get-user-for-session", {
+  }).query("web-session-user", {
     input: z.any(),
     output,
     async resolve({ ctx }) {
