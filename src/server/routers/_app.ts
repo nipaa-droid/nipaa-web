@@ -5,7 +5,7 @@ import { clientGetLoginRouter } from "./client/login";
 import { clientGetPlayRouter } from "./client/play";
 import { clientGetRegisterRouter } from "./client/register";
 import { clientGetSubmitRouter } from "./client/submit";
-import { trpcGlobalLeaderboardRouter } from "./backend/global_leaderboard";
+import { trpcGlobalLeaderboardRouter } from "./web/global_leaderboard";
 import { cron1DayRouter } from "./backend/cron1day";
 import { webLoginRouter } from "./web/login";
 import { webGetUserInformationFromSession } from "./web/session_user";

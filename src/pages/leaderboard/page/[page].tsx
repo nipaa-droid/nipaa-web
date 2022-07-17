@@ -19,7 +19,7 @@ import { PropsWithChildren, useState, useEffect } from "react";
 import { prisma } from "../../../../lib/prisma";
 import { CenteredTableHead } from "../../../components/CenteredTableHead";
 import { useI18nContext } from "../../../i18n/i18n-react";
-import { TRPCGlobalLeaderboardReturnType } from "../../../server/routers/backend/global_leaderboard";
+import { TRPCGlobalLeaderboardReturnType } from "../../../server/routers/web/global_leaderboard";
 import { getSSGHelper } from "../../../utils/backend";
 import { NumberUtils } from "../../../utils/number";
 import { getLeaderboardPage } from "../../../utils/router";
@@ -79,7 +79,7 @@ export async function getStaticProps(context: GetStaticPropsContext<Params>) {
 
   const ssg = getSSGHelper({});
 
-  const fullData = await ssg.fetchQuery("global-leaderboard", {
+  const fullData = await ssg.fetchQuery("web-global-leaderboard", {
     secret: process.env.APP_SECRET,
   });
 

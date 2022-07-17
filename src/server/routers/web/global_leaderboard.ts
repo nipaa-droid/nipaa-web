@@ -34,7 +34,7 @@ const output = z.array(
 
 export type TRPCGlobalLeaderboardReturnType = z.infer<typeof output>;
 
-const path = "global-leaderboard";
+const path = "web-global-leaderboard";
 
 export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
   createRouter()
