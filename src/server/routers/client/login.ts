@@ -94,7 +94,7 @@ export const clientGetLoginRouter = createRouter().mutation(
         Math.round(metric).toString(),
         Math.round(accuracy).toString(),
         user.name,
-        OsuDroidUserHelper.getImage(user.image)
+        OsuDroidUserHelper.getAvatarForClient(user.image)
       );
     },
   }

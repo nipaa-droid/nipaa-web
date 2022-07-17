@@ -10,7 +10,5 @@ export class ServerConstants {
       ? `https://${ServerConstants.PRODUCTION_URL}`
       : "http://localhost:3000";
 
-  static DEFAULT_AVATAR_PATH = `${
-    process.env.NODE_ENV === "production" ? this.SERVER_URL : ""
-  }/avatar-guest.png`;
+  static DEFAULT_AVATAR_PATH = `/avatar-guest.png`;
 }

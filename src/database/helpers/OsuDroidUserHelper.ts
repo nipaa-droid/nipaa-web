@@ -29,8 +29,11 @@ export class OsuDroidUserHelper {
     return statistics.find((s) => s.mode === mode);
   }
 
-  static getImage(url: string | null) {
-    return url ?? ServerConstants.DEFAULT_AVATAR_PATH;
+  static getAvatarForClient(url: string | null) {
+    return (
+      url ??
+      `${ServerConstants.SERVER_URL}${ServerConstants.DEFAULT_AVATAR_PATH}`
+    );
   }
 
   static async deleteSession(sessionId: string) {

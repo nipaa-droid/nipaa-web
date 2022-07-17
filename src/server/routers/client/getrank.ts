@@ -94,7 +94,7 @@ export const clientGetRankRouter = protectedWithSessionMiddleware(
           OsuDroidScoreHelper.getGrade(s, { accuracy: accPercent }),
           s.mods,
           accDroid.toString(),
-          OsuDroidUserHelper.getImage(s.player.image)
+          OsuDroidUserHelper.getAvatarForClient(s.player.image)
         )
       );
     });
