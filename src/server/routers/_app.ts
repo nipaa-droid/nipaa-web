@@ -8,9 +8,10 @@ import { clientGetSubmitRouter } from "./client/submit";
 import { trpcGlobalLeaderboardRouter } from "./backend/global_leaderboard";
 import { cron1DayRouter } from "./backend/cron1day";
 import { webLoginRouter } from "./web/login";
-import { webGetUserInformationFromSession } from "./backend/get_user_from_session";
+import { webGetUserInformationFromSession } from "./web/get_user_from_session";
 import { webLogoutRouter } from "./web/logout";
 import { cron1hourRouter } from "./backend/cron1hour";
+import { webRefreshmentEndpoint } from "./web/refresh";
 
 export const appRouter = createRouter()
   .merge(clientGetRankRouter)
@@ -24,6 +25,7 @@ export const appRouter = createRouter()
   .merge(webLoginRouter)
   .merge(webGetUserInformationFromSession)
   .merge(webLogoutRouter)
-  .merge(cron1hourRouter);
+  .merge(cron1hourRouter)
+  .merge(webRefreshmentEndpoint);
 
 export type AppRouter = typeof appRouter;

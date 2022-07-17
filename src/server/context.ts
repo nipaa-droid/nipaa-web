@@ -8,9 +8,12 @@ const commonRequestSchema = z.object({
   res: z.any(),
 });
 
-export function isCommonRequest(
-  input: unknown
-): input is { req: NextApiRequest; res: NextApiResponse<any> } {
+export type CommonRequest = {
+  req: NextApiRequest;
+  res: NextApiResponse<any>;
+};
+
+export function isCommonRequest(input: unknown): input is CommonRequest {
   return commonRequestSchema.safeParse(input).success;
 }
 

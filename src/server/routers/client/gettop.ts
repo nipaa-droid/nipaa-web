@@ -8,13 +8,14 @@ import { Responses } from "../../../api/Responses";
 import { OsuDroidScoreHelper } from "../../../database/helpers/OsuDroidScoreHelper";
 import { prisma } from "../../../../lib/prisma";
 import { BeatmapManager } from "../../../database/managers/BeatmapManager";
-import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
+import { protectedWithSessionMiddleware } from "../../middlewares";
+import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 
 const path = "gettop";
 
-export const clientGetTopRouter = protectedWithCookieBasedSessionMiddleware(
+export const clientGetTopRouter = protectedWithSessionMiddleware(
   createRouter(),
-  { id: true }
+  { id: true, expires: true }
 ).mutation(toApiClientTrpc(path), {
   meta: {
     openapi: {
@@ -27,8 +28,11 @@ export const clientGetTopRouter = protectedWithCookieBasedSessionMiddleware(
     playID: z.string(),
   }),
   output: z.string(),
-  async resolve({ input }) {
+  async resolve({ input, ctx }) {
+    const { session } = ctx;
     const { playID } = input;
+
+    await OsuDroidUserHelper.refreshSession(session);
 
     const score = await prisma.osuDroidScore.findUnique({
       where: {

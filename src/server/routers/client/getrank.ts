@@ -14,13 +14,13 @@ import {
 import { z } from "zod";
 import { shapeWithHash } from "../../shapes";
 import { ServerConstants } from "../../../constants";
-import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
+import { protectedWithSessionMiddleware } from "../../middlewares";
 
 const path = "getrank";
 
-export const clientGetRankRouter = protectedWithCookieBasedSessionMiddleware(
+export const clientGetRankRouter = protectedWithSessionMiddleware(
   createRouter(),
-  { id: true }
+  { id: true, expires: true }
 ).mutation(toApiClientTrpc(path), {
   meta: {
     openapi: {
@@ -31,10 +31,13 @@ export const clientGetRankRouter = protectedWithCookieBasedSessionMiddleware(
   },
   input: z.object({ ...shapeWithHash }),
   output: z.string(),
-  async resolve({ input }) {
+  async resolve({ input, ctx }) {
+    const { session } = ctx;
     const { hash } = input;
 
     const responseScores: string[] = [];
+
+    await OsuDroidUserHelper.refreshSession(session);
 
     const end = () => {
       return Responses.SUCCESS(responseScores.join("\n"));

@@ -49,6 +49,12 @@ export const webLoginRouter = createRouter().mutation("web-login", {
      * We must rewrite cookie path so it is loaded by the client properly
      * by properly meaning when the user enters any page without any delay
      */
-    setCookie(ctx, CookieNames.SESSION_ID, session.id, { path: "/" });
+    setCookie(ctx, CookieNames.SESSION_ID, session.id, {
+      path: "/",
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      expires: session.expires,
+    });
   },
 });

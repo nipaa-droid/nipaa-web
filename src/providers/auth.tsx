@@ -1,4 +1,5 @@
-import {
+import { minutesToMilliseconds } from "date-fns";
+import React, {
   createContext,
   PropsWithChildren,
   useCallback,
@@ -8,9 +9,9 @@ import {
   useState,
 } from "react";
 import { z, ZodObject } from "zod";
-import { ClientUserFromSession } from "../server/routers/backend/get_user_from_session";
+import { ClientUserFromSession } from "../server/routers/web/get_user_from_session";
 import { shapeWithUsernameWithPassword } from "../server/shapes";
-import { trpc } from "../utils/trpc";
+import { AnyMutation, trpc } from "../utils/trpc";
 
 type AuthContextUser = ClientUserFromSession & {};
 
@@ -18,22 +19,22 @@ type AuthContextUserUndefinable = AuthContextUser | undefined;
 
 type AuthLoginParams = z.infer<ZodObject<typeof shapeWithUsernameWithPassword>>;
 
-type AuthLoginFunction = (params: AuthLoginParams) => Promise<boolean>;
+type AuthLoginFunction = (params: AuthLoginParams) => void;
 
 type AuthContextReturn = {
   user: AuthContextUserUndefinable;
   login: AuthLoginFunction;
-  logout: () => Promise<void>;
-  authLoading: boolean;
-  authError: string;
+  logout: () => void;
+  loginMutation: AnyMutation;
+  logoutMutation: AnyMutation;
 };
 
 const INITIAL_RETURN: AuthContextReturn = {
   user: undefined,
-  login: async () => false,
-  logout: async () => {},
-  authLoading: true,
-  authError: "",
+  login: () => {},
+  logout: () => {},
+  loginMutation: {} as any,
+  logoutMutation: {} as any,
 };
 
 export const AuthContext = createContext<AuthContextReturn>(INITIAL_RETURN);
@@ -43,115 +44,70 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }: PropsWithChildren<{}>) => {
   const utils = trpc.useContext();
 
-  const userQuery = trpc.useQuery(["get-user-for-session"]);
-
-  // works like a mutex.
-  let isDoingAuthenticationRequest = useRef(false);
-
-  const executeAuthRequest = useCallback(
-    async <T,>(execute: () => Promise<T>, defaultReturn: T) => {
-      if (!isDoingAuthenticationRequest.current) {
-        isDoingAuthenticationRequest.current = true;
-        const result = await execute();
-        isDoingAuthenticationRequest.current = false;
-        return result;
-      } else {
-        console.log("Waiting auth request...");
-      }
-      return defaultReturn;
+  trpc.useQuery(["get-user-for-session"], {
+    onSuccess: (data) => {
+      setUser(data);
     },
-    []
-  );
+    retry: false,
+  });
 
-  // makes user query be refetched
-  const invalidateUserSessionQuery = useCallback(() => {
-    // only if we didn't fetch
-    if (!userQuery.data) {
-      utils.invalidateQueries(["get-user-for-session"]);
-    }
-  }, [userQuery.data, utils]);
+  const invalidateUserQuery = () => {
+    utils.invalidateQueries(["get-user-for-session"]);
+  };
 
   const loginMutation = trpc.useMutation(["web-login"], {
-    onSuccess: async () => {
-      // we invalidate and refetch because the invalidation works
-      // too for subsequent request
-      invalidateUserSessionQuery();
-      const result = await userQuery.refetch();
-      setUser(result.data);
+    onSuccess: () => {
+      invalidateUserQuery();
     },
   });
 
   const logoutMutation = trpc.useMutation(["web-logout"], {
+    /**
+     * Only invalidate after we actually logout
+     */
+    onSuccess: () => {
+      invalidateUserQuery();
+    },
+    /**
+     * To provide a better UX we set user on mutate
+     */
     onMutate: () => {
       setUser(undefined);
-      invalidateUserSessionQuery();
     },
   });
+
+  const refreshAuthMutation = trpc.useMutation(["web-refresh"]);
 
   const [user, setUser] = useState<AuthContextUserUndefinable>(
     INITIAL_RETURN.user
   );
 
-  const [error, setError] = useState(INITIAL_RETURN.authError);
-
-  const [loading, setLoading] = useState(INITIAL_RETURN.authLoading);
+  const interval = useRef<ReturnType<typeof setInterval>>();
 
   useEffect(() => {
-    setLoading(loginMutation.isLoading || logoutMutation.isLoading);
-  }, [loginMutation.isLoading, logoutMutation.isLoading]);
-
-  useEffect(() => {
-    setUser(userQuery.data);
-  }, [userQuery.data]);
-
-  useEffect(() => {
-    let gotError = false;
-
-    const resetError = () => {
-      setError("");
-    };
-
-    [loginMutation.error, logoutMutation.error].forEach((error) => {
-      if (error && !gotError) {
-        gotError = true;
-        setError(error.message);
-        setTimeout(() => {
-          resetError();
-        }, 2500);
-      }
-    });
-
-    if (!gotError) {
-      resetError();
+    if (!interval.current) {
+      const REFRESH_INTERVAL = minutesToMilliseconds(30);
+      interval.current = setInterval(
+        () => refreshAuthMutation.mutate(),
+        REFRESH_INTERVAL
+      );
     }
-  }, [loginMutation.error, logoutMutation.error]);
+  }, [refreshAuthMutation]);
 
   const login = useCallback(
-    async ({ username, password }: AuthLoginParams) => {
-      if (!user) {
-        return await executeAuthRequest(async () => {
-          try {
-            await loginMutation.mutateAsync({ username, password });
-            return true;
-          } catch (e) {
-            return false;
-          }
-        }, false);
+    ({ username, password }: AuthLoginParams) => {
+      if (!user && !loginMutation.isLoading) {
+        loginMutation.mutate({ username, password });
       }
-      return false;
     },
-    [loginMutation, user, executeAuthRequest]
+    [loginMutation, user]
   );
 
-  const logout = useCallback(async () => {
-    if (user) {
-      return await executeAuthRequest(async () => {
-        try {
-          await logoutMutation.mutateAsync();
-        } catch (e) {}
-      }, undefined);
+  const logout = useCallback(() => {
+    if (user && !logoutMutation.isLoading) {
+      logoutMutation.mutate();
     }
-  }, [logoutMutation, user, executeAuthRequest]);
+  }, [logoutMutation, user]);
 
   return (
     <AuthContext.Provider
@@ -159,8 +115,8 @@ export const AuthProvider = ({ children }: PropsWithChildren<{}>) => {
         user,
         login,
         logout,
-        authLoading: loading,
-        authError: error,
+        loginMutation,
+        logoutMutation,
       }}
     >
       {children}

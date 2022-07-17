@@ -6,8 +6,9 @@ import { prisma } from "../../lib/prisma";
 import { TRPC_ERRORS } from "./errors";
 import { shapeWithSecret, shapeWithSSID } from "./shapes";
 import nookies from "nookies";
-import { isCommonRequest } from "./context";
+import { CommonRequest, isCommonRequest } from "./context";
 import { CookieNames } from "../utils/cookies";
+import { OsuDroidUserHelper } from "../database/helpers/OsuDroidUserHelper";
 
 export const requiredApplicationSecretMiddleware = <C>(
   router: AnyRouter<C>
@@ -73,6 +74,31 @@ export const protectedWithSessionMiddleware = <
   });
 };
 
+const getSessionFromCookie = async <T extends Prisma.UserSessionSelect>(
+  ctx: CommonRequest,
+  select: T
+) => {
+  const cookies = nookies.get(ctx);
+  const session = cookies[CookieNames.SESSION_ID];
+
+  if (!session) {
+    return undefined;
+  }
+
+  const foundSession = await prisma.userSession.findUnique({
+    where: {
+      id: session,
+    },
+    select,
+  });
+
+  if (!foundSession) {
+    return undefined;
+  }
+
+  return foundSession;
+};
+
 export const protectedWithCookieBasedSessionMiddleware = <
   C,
   T extends Prisma.UserSessionSelect
@@ -83,30 +109,46 @@ export const protectedWithCookieBasedSessionMiddleware = <
   return router.middleware(async ({ next, ctx }) => {
     assert(isCommonRequest(ctx));
 
-    const cookies = nookies.get(ctx);
-
-    const session = cookies[CookieNames.SESSION_ID];
+    const session = await getSessionFromCookie(ctx, select);
 
     if (!session) {
-      throw TRPC_ERRORS.UNAUTHORIZED;
-    }
-
-    const foundSession = await prisma.userSession.findUnique({
-      where: {
-        id: session,
-      },
-      select,
-    });
-
-    if (!foundSession) {
       throw TRPC_ERRORS.UNAUTHORIZED;
     }
 
     return next({
       ctx: {
         ...ctx,
-        session: foundSession,
+        session: session,
       },
     });
+  });
+};
+
+/**
+ * This middleware shall be used in endpoints which don't need authentication
+ * but still says that an user isn't idle
+ */
+export const endpointWithSessionRefreshmentMiddleware = <C>(
+  router: AnyRouter<C>
+) => {
+  return router.middleware(async ({ next, ctx }) => {
+    assert(isCommonRequest(ctx));
+
+    const session = await getSessionFromCookie(ctx, {
+      id: true,
+      expires: true,
+    });
+
+    /**
+     * since this is an endpoint that may or may not refresh the session we ignore
+     * if the session isn't present
+     */
+    if (!session) {
+      return next();
+    }
+
+    await OsuDroidUserHelper.refreshSession(session);
+
+    return next();
   });
 };

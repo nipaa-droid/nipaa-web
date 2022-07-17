@@ -1,19 +1,22 @@
 import { z } from "zod";
 import { prisma } from "../../../../lib/prisma";
 import { Responses } from "../../../api/Responses";
+import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 import {
   createRouter,
   toApiEndpoint,
   toApiClientTrpc,
 } from "../../createRouter";
-import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
+import { protectedWithSessionMiddleware } from "../../middlewares";
 import { shapeWithHash, shapeWithSSID } from "../../shapes";
 
 const path = "play";
 
-export const clientGetPlayRouter = protectedWithCookieBasedSessionMiddleware(
+export const clientGetPlayRouter = protectedWithSessionMiddleware(
   createRouter(),
   {
+    id: true,
+    expires: true,
     user: {
       select: {
         id: true,
@@ -46,6 +49,12 @@ export const clientGetPlayRouter = protectedWithCookieBasedSessionMiddleware(
         },
         data: {
           playing: hash,
+          /**
+           * Refreshes user session
+           */
+          sessions: {
+            update: OsuDroidUserHelper.toRefreshSessionQuery(session),
+          },
         },
       });
     }

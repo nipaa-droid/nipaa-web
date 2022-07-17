@@ -43,7 +43,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 export default function Login() {
   const router = useRouter();
 
-  const { login, authError, authLoading } = useAuth();
+  const { user, login, loginMutation } = useAuth();
 
   const form = useForm({
     initialValues: {
@@ -59,6 +59,16 @@ export default function Login() {
     setMounted(true);
   }, []);
 
+  /**
+   * Changes route when login form
+   * is submitted
+   */
+  useEffect(() => {
+    if (user) {
+      router.push(getHomePage());
+    }
+  }, [user, router]);
+
   return (
     <Container>
       <Center>
@@ -68,14 +78,11 @@ export default function Login() {
               <div>
                 <Box sx={{ maxWidth: 300 }} style={styles} mx="auto" my="lg">
                   <form
-                    onSubmit={form.onSubmit(async ({ username, password }) => {
-                      const logged = await login({
+                    onSubmit={form.onSubmit(({ username, password }) => {
+                      login({
                         username,
                         password,
                       });
-                      if (logged) {
-                        router.push(getHomePage());
-                      }
                     })}
                   >
                     <TextInput
@@ -90,15 +97,15 @@ export default function Login() {
                       {...form.getInputProps("password")}
                     />
                     <Group position="center" mt="md">
-                      <Button disabled={authLoading} type="submit">
+                      <Button disabled={loginMutation.isLoading} type="submit">
                         Login
                       </Button>
                     </Group>
                   </form>
                 </Box>
-                {authError && (
+                {loginMutation.isError && (
                   <Text color="red" mt="lg" align="center">
-                    {authError}
+                    {loginMutation.error.message}
                   </Text>
                 )}
               </div>

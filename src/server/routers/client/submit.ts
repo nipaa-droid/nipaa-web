@@ -20,13 +20,15 @@ import { z } from "zod";
 import { shapeWithSSID, shapeWithUserID } from "../../shapes";
 import { AtLeast } from "../../../utils/types";
 import { prisma } from "../../../../lib/prisma";
-import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
+import { protectedWithSessionMiddleware } from "../../middlewares";
 
 const path = "submit";
 
-export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
+export const clientGetSubmitRouter = protectedWithSessionMiddleware(
   createRouter(),
   {
+    id: true,
+    expires: true,
     user: {
       select: {
         id: true,
@@ -167,6 +169,9 @@ export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
         },
         data: {
           playing: null,
+          sessions: {
+            update: OsuDroidUserHelper.toRefreshSessionQuery(session),
+          },
           stats: {
             update: {
               where: {

@@ -17,6 +17,8 @@ export type ClientUserFromSession = z.infer<typeof output>;
 
 export const webGetUserInformationFromSession =
   protectedWithCookieBasedSessionMiddleware(createRouter(), {
+    id: true,
+    expires: true,
     user: {
       select: {
         id: true,
@@ -35,6 +37,8 @@ export const webGetUserInformationFromSession =
     async resolve({ ctx }) {
       const { session } = ctx;
       const { user } = session;
+
+      await OsuDroidUserHelper.refreshSession(session);
 
       const statistic = OsuDroidUserHelper.getStatistic(
         user.stats,

@@ -11,7 +11,7 @@ import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
 import { AtLeast } from "../../utils/types";
 import { OsuDroidScoreWithoutGenerated } from "./OsuDroidScoreHelper";
 import { ServerConstants } from "../../constants";
-import { addHours } from "date-fns";
+import { addHours, addMinutes } from "date-fns";
 import orderBy from "lodash.orderby";
 
 export type UserWithStats = OsuDroidUser & {
@@ -39,13 +39,18 @@ export class OsuDroidUserHelper {
    * @returns the existing session otherwise a new session
    */
   static async createSession(userId: number, sessions: UserSession[]) {
-    const SESSION_DURATION = addHours(new Date(), 1);
+    const SESSION_LIMIT = 3;
+
+    /**
+     * Base session duration that is increased overtime with subsequent requests.
+     */
+    const SESSION_DURATION = addHours(new Date(), 12);
 
     /**
      * Limits to 10 concurrent sessions
      */
-    if (sessions.length >= 10) {
-      const sessionsOrdered = orderBy(sessions, (o) => o.creation);
+    if (sessions.length >= SESSION_LIMIT) {
+      const sessionsOrdered = orderBy(sessions, (o) => o.expires);
       const firstSession = sessionsOrdered[0];
 
       await prisma.userSession.delete({
@@ -61,6 +66,37 @@ export class OsuDroidUserHelper {
         expires: SESSION_DURATION,
       },
     });
+  }
+
+  static toRefreshSessionQuery(
+    session: AtLeast<UserSession, "expires" | "id">,
+    query: Partial<Prisma.UserSessionUpdateArgs> = {}
+  ): Prisma.UserSessionUpdateArgs {
+    const SESSION_DURATION = addMinutes(session.expires, 30);
+    return {
+      where: {
+        ...query.where,
+        id: session.id,
+      },
+      data: {
+        ...query.data,
+        expires: SESSION_DURATION,
+      },
+    };
+  }
+
+  static async refreshSession(session: AtLeast<UserSession, "expires" | "id">) {
+    console.log(`Refreshing session: ${session.id}`);
+    /**
+     *  Try catch to handle when users logout which may produce a race condition
+     */
+    try {
+      await prisma.userSession.update(
+        OsuDroidUserHelper.toRefreshSessionQuery(session)
+      );
+    } catch (e) {
+      console.error(`Failed to refresh session: ${session.id}`);
+    }
   }
 
   /**
