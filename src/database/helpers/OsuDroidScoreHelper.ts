@@ -33,7 +33,6 @@ import { BeatmapManager } from "../managers/BeatmapManager";
 import { GameMetrics } from "../GameMetrics";
 import { OsuDroidUserHelper } from "./OsuDroidUserHelper";
 import { prisma } from "../../../lib/prisma";
-import { EnumUtils } from "../../utils/enum";
 import { NumberUtils } from "../../utils/number";
 import { AtLeast, Tuple, MustHave } from "../../utils/types";
 
@@ -326,16 +325,6 @@ export class OsuDroidScoreHelper {
 
     toBuildScore.score = typedFirstIntegerData[0];
     toBuildScore.maxCombo = typedFirstIntegerData[1];
-
-    // TODO WE SHOULD PROBABLY INFER THE GRADE FROM THE DATA THAT WE ALREADY HAVE
-    // TRUSTING THE CLIENT FOR THAT FEELS KINDA DUMB IDK?
-    const grade = EnumUtils.getValueByKeyUntyped(ScoreGrade, dataTuple[3]);
-
-    if (!grade) {
-      return {
-        error: "Invalid grade for scoring passed to server",
-      };
-    }
 
     const secondIntegerData = sliceDataToInteger(4, 10);
 
