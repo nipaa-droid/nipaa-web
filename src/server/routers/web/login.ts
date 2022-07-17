@@ -56,5 +56,15 @@ export const webLoginRouter = createRouter().mutation("web-login", {
       sameSite: "strict",
       expires: session.expires,
     });
+
+    /**
+     * This cookie indicates that there is the http only session cookie for the client
+     */
+    setCookie(ctx, CookieNames.HAS_SESSION_COOKIE, Number(true).toString(), {
+      path: "/",
+      secure: true,
+      sameSite: "strict",
+      expires: session.expires,
+    });
   },
 });

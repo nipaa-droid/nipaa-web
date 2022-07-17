@@ -13,6 +13,8 @@ import { z, ZodObject } from "zod";
 import { ClientUserFromSession } from "../server/routers/web/session_user";
 import { shapeWithUsernameWithPassword } from "../server/shapes";
 import { AnyMutation, AnyQuery, trpc } from "../utils/trpc";
+import { parseCookies } from "nookies";
+import { CookieNames } from "../utils/cookies";
 
 type AuthContextUser = ClientUserFromSession & {};
 
@@ -29,7 +31,6 @@ type AuthContextReturn = {
   userQuery: AnyQuery;
   loginMutation: AnyMutation;
   logoutMutation: AnyMutation;
-  justLoggedOut: boolean;
 };
 
 const INITIAL_RETURN: AuthContextReturn = {
@@ -39,7 +40,6 @@ const INITIAL_RETURN: AuthContextReturn = {
   userQuery: {} as any,
   loginMutation: {} as any,
   logoutMutation: {} as any,
-  justLoggedOut: false,
 };
 
 export const AuthContext = createContext<AuthContextReturn>(INITIAL_RETURN);
@@ -49,48 +49,73 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }: PropsWithChildren<{}>) => {
   const utils = trpc.useContext();
 
+  const hasSessionCookie = useRef(false);
+
   const userQuery = trpc.useQuery(["web-session-user"], {
     onSuccess: (data) => {
       setUser(data);
     },
+    enabled: hasSessionCookie.current,
     retry: false,
   });
 
-  const invalidateUserQuery = (filters?: InvalidateQueryFilters) => {
-    utils.invalidateQueries(["web-session-user"], {
-      exact: true,
-      ...filters,
-    });
-  };
-
-  const loginMutation = trpc.useMutation(["web-login"], {
-    onSuccess: () => {
-      /**
-       * we invalidate so the user is refetched
-       */
-      invalidateUserQuery();
+  const invalidateUserQuery = useCallback(
+    (filters?: InvalidateQueryFilters) => {
+      utils.invalidateQueries(["web-session-user"], {
+        exact: true,
+        ...filters,
+      });
     },
-  });
-
-  const [justLoggedOut, setJustLoggedOut] = useState(false);
-
-  const logoutMutation = trpc.useMutation(["web-logout"], {
-    /**
-     * To provide a better UX we set user on mutate
-     * we don't invalidate the query here because the query user now shouldn't matter
-     */
-    onMutate: () => {
-      setUser(undefined);
-      setJustLoggedOut(true);
-      setTimeout(() => setJustLoggedOut(false), 1000);
-    },
-  });
-
-  const refreshAuthMutation = trpc.useMutation(["web-refresh"]);
+    [utils]
+  );
 
   const [user, setUser] = useState<AuthContextUserUndefinable>(
     INITIAL_RETURN.user
   );
+
+  const isStartupLogin = useRef(true);
+
+  useEffect(() => {
+    /**
+     * Only login at startup if we have the cookie
+     */
+    if (isStartupLogin.current) {
+      isStartupLogin.current = false;
+      const hasSession = parseCookies()[CookieNames.HAS_SESSION_COOKIE];
+      hasSessionCookie.current = Boolean(hasSession);
+      if (hasSessionCookie.current) {
+        /**
+         * We refetch rather than invalidating on first run
+         */
+        userQuery.refetch();
+      }
+    }
+  }, [userQuery]);
+
+  const loginMutation = trpc.useMutation(["web-login"], {
+    onSuccess: () => {
+      /**
+       * The server creates the cookie
+       */
+      hasSessionCookie.current = true;
+      invalidateUserQuery();
+    },
+  });
+
+  const logoutMutation = trpc.useMutation(["web-logout"], {
+    onSuccess: () => {
+      /**
+       * The server destroys the cookie
+       */
+      hasSessionCookie.current = false;
+      /**
+       * We don't invalidate because on logout the query shouldn't matter
+       */
+      setUser(undefined);
+    },
+  });
+
+  const refreshAuthMutation = trpc.useMutation(["web-refresh"]);
 
   const interval = useRef<ReturnType<typeof setInterval>>();
 
@@ -128,7 +153,6 @@ export const AuthProvider = ({ children }: PropsWithChildren<{}>) => {
         userQuery,
         loginMutation,
         logoutMutation,
-        justLoggedOut,
       }}
     >
       {children}

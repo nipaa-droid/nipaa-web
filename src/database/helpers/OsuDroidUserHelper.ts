@@ -33,6 +33,21 @@ export class OsuDroidUserHelper {
     return url ?? ServerConstants.DEFAULT_AVATAR_PATH;
   }
 
+  static async deleteSession(sessionId: string) {
+    /**
+     * Some user actions may cause this to fail like spamming requests per example
+     */
+    try {
+      await prisma.userSession.delete({
+        where: {
+          id: sessionId,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   /**
    *
    * @param sessions existing sessions
@@ -52,12 +67,7 @@ export class OsuDroidUserHelper {
     if (sessions.length >= SESSION_LIMIT) {
       const sessionsOrdered = orderBy(sessions, (o) => o.expires);
       const firstSession = sessionsOrdered[0];
-
-      await prisma.userSession.delete({
-        where: {
-          id: firstSession.id,
-        },
-      });
+      await OsuDroidUserHelper.deleteSession(firstSession.id);
     }
 
     return await prisma.userSession.create({

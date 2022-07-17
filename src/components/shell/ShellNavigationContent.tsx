@@ -11,18 +11,18 @@ export const ShellNavigationContent = ({
   isSmall,
   setOpened,
 }: ShellButtonDependencyProps) => {
-  const { userQuery, user, justLoggedOut } = useAuth();
+  const { userQuery, user, logoutMutation } = useAuth();
 
   const animation: MotionProps = {
-    initial: { scale: 0, opacity: 0 },
-    animate: { scale: 1, opacity: 1 },
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
     exit: { opacity: 0 },
   };
 
   return (
     <>
       <AnimatePresence exitBeforeEnter>
-        {userQuery.isFetching || justLoggedOut ? (
+        {userQuery.isFetching || logoutMutation.isLoading ? (
           <motion.div key="skeleton" {...animation}>
             <Stack>
               <Skeleton height={50} radius="xl" />
