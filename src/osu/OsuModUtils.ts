@@ -6,7 +6,7 @@ import {
   ModScoreV2,
   ModUtil,
 } from "@rian8337/osu-base";
-import { NumberUtils } from "../utils/number";
+import { isNumber } from "../utils/number";
 
 type DroidStats = {
   mods: Mod[];
@@ -56,7 +56,7 @@ export class OsuModUtils extends ModUtil {
         const customSpeed = parseFloat(
           omitSeparatorFromData(this.#CUSTOM_SPEED_SEP)
         );
-        if (NumberUtils.isNumber(customSpeed)) {
+        if (isNumber(customSpeed)) {
           response.customSpeed = customSpeed;
         }
       }

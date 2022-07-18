@@ -21,14 +21,14 @@ import { CenteredTableHead } from "../../../components/CenteredTableHead";
 import { useI18nContext } from "../../../i18n/i18n-react";
 import { TRPCGlobalLeaderboardReturnType } from "../../../server/routers/web/global_leaderboard";
 import { getSSGHelper } from "../../../utils/backend";
-import { NumberUtils } from "../../../utils/number";
+import { maxPagesFor } from "../../../utils/number";
 import { getLeaderboardPage } from "../../../utils/router";
 
 const AMOUNT_PER_PAGE = 50;
 
 const getMaxPages = async () => {
   const users = await prisma.osuDroidUser.count();
-  return NumberUtils.maxPagesFor(users, AMOUNT_PER_PAGE);
+  return maxPagesFor(users, AMOUNT_PER_PAGE);
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
