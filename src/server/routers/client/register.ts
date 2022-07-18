@@ -62,6 +62,7 @@ export const clientGetRegisterRouter = createRouter().mutation(
         data: {
           name: username.trim(),
           password: hashedPassword,
+          email,
           stats: {
             create: [
               {

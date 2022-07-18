@@ -16,7 +16,7 @@ model OsuDroidUser {
 
     password String
 
-    email String? @unique @db.Char(36)
+    email String  @unique @db.Char(36)
     image String?
 
     createdAt DateTime @default(now())

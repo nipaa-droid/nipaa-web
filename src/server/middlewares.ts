@@ -5,7 +5,7 @@ import { z } from "zod";
 import { prisma } from "../../lib/prisma";
 import { TRPC_ERRORS } from "./errors";
 import { shapeWithSecret } from "./shapes";
-import nookies from "nookies";
+import nookies, { destroyCookie } from "nookies";
 import { CommonRequest, isCommonRequest } from "./context";
 import { CookieNames } from "../utils/cookies";
 import { OsuDroidUserHelper } from "../database/helpers/OsuDroidUserHelper";
@@ -34,26 +34,31 @@ export const requiredApplicationSecretMiddleware = <C>(
   });
 };
 
+enum GET_SESSION_FROM_COOKIE_RESPONSE {
+  NO_SESSION_COOKIE,
+  SESSION_NOT_FOUND,
+}
+
 const getSessionFromCookie = async <T extends Prisma.UserSessionSelect>(
   ctx: CommonRequest,
   select: T
 ) => {
   const cookies = nookies.get(ctx);
-  const session = cookies[CookieNames.SESSION_ID];
+  const sessionCookie = cookies[CookieNames.SESSION_ID];
 
-  if (!session) {
-    return undefined;
+  if (!sessionCookie) {
+    return GET_SESSION_FROM_COOKIE_RESPONSE.NO_SESSION_COOKIE;
   }
 
   const foundSession = await prisma.userSession.findUnique({
     where: {
-      id: session,
+      id: sessionCookie,
     },
     select,
   });
 
   if (!foundSession) {
-    return undefined;
+    return GET_SESSION_FROM_COOKIE_RESPONSE.SESSION_NOT_FOUND;
   }
 
   return foundSession;
@@ -74,16 +79,23 @@ export const protectedWithCookieBasedSessionMiddleware = <
   select: T
 ) => {
   return commonRequestMiddleware(router).middleware(async ({ next, ctx }) => {
-    const session = await getSessionFromCookie(ctx, select);
+    const sessionResponse = await getSessionFromCookie(ctx, select);
 
-    if (!session) {
-      throw TRPC_ERRORS.UNAUTHORIZED;
+    switch (sessionResponse) {
+      case GET_SESSION_FROM_COOKIE_RESPONSE.SESSION_NOT_FOUND:
+        /**
+         * User has an expired cookie session
+         */
+        destroyCookie(ctx, CookieNames.SESSION_ID);
+        throw TRPC_ERRORS.UNAUTHORIZED;
+      case GET_SESSION_FROM_COOKIE_RESPONSE.NO_SESSION_COOKIE:
+        throw TRPC_ERRORS.UNAUTHORIZED;
     }
 
     return next({
       ctx: {
         ...ctx,
-        session: session,
+        session: sessionResponse,
       },
     });
   });
@@ -97,20 +109,22 @@ export const endpointWithSessionRefreshmentMiddleware = <C>(
   router: AnyRouter<C>
 ) => {
   return commonRequestMiddleware(router).middleware(async ({ next, ctx }) => {
-    const session = await getSessionFromCookie(ctx, {
+    const sessionResponse = await getSessionFromCookie(ctx, {
       id: true,
       expires: true,
     });
 
-    /**
-     * since this is an endpoint that may or may not refresh the session we ignore
-     * if the session isn't present
-     */
-    if (!session) {
-      return next();
+    switch (sessionResponse) {
+      /**
+       * since this is an endpoint that may or may not refresh the session we ignore
+       * if the session isn't present
+       */
+      case GET_SESSION_FROM_COOKIE_RESPONSE.NO_SESSION_COOKIE:
+      case GET_SESSION_FROM_COOKIE_RESPONSE.SESSION_NOT_FOUND:
+        return next();
     }
 
-    await OsuDroidUserHelper.refreshSession(session);
+    await OsuDroidUserHelper.refreshSession(sessionResponse);
 
     return next();
   });

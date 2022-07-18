@@ -11,6 +11,7 @@ const output = z.object({
   name: z.string(),
   image: z.string().or(z.null()),
   metric: z.number(),
+  email: z.string().email(),
 });
 
 export type ClientUserFromSession = z.infer<typeof output>;
@@ -24,6 +25,7 @@ export const webGetUserInformationFromSession =
         id: true,
         name: true,
         image: true,
+        email: true,
         stats: {
           where: {
             mode: GameRules.game_mode,
@@ -55,6 +57,7 @@ export const webGetUserInformationFromSession =
         id: user.id.toString(),
         name: user.name,
         image: user.image,
+        email: user.email,
         metric,
       };
     },

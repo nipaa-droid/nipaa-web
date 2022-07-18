@@ -12,33 +12,28 @@ import {
 import { z } from "zod";
 import { shapeWithUsernameWithPassword } from "../server/shapes";
 import { useForm, zodResolver } from "@mantine/form";
-import { CookieNames } from "../utils/cookies";
-import nookies from "nookies";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { getHomePage } from "../utils/router";
 import { useEffect, useState } from "react";
 import { useAuth } from "../providers/auth";
+import { redirectWhenHasSession } from "../utils/auth";
 
-const schema = z.object({
-  ...shapeWithUsernameWithPassword,
-});
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const cookies = nookies.get(ctx);
+  const redirect = redirectWhenHasSession(ctx, {});
 
-  if (cookies[CookieNames.SESSION_ID]) {
-    return {
-      props: {},
-      redirect: {
-        destination: getHomePage(),
-      },
-    };
+  if (redirect) {
+    return redirect;
   }
 
   return {
     props: {},
   };
 };
+
+const schema = z.object({
+  ...shapeWithUsernameWithPassword,
+});
 
 export default function Login() {
   const router = useRouter();
