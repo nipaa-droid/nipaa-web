@@ -45,6 +45,18 @@ type RootTranslation = {
 	 * Home
 	 */
 	home: string
+	/**
+	 * Email
+	 */
+	email: string
+	/**
+	 * Password
+	 */
+	password: string
+	/**
+	 * Username
+	 */
+	username: string
 }
 
 export type TranslationFunctions = {
@@ -80,6 +92,18 @@ export type TranslationFunctions = {
 	 * Home
 	 */
 	home: () => LocalizedString
+	/**
+	 * Email
+	 */
+	email: () => LocalizedString
+	/**
+	 * Password
+	 */
+	password: () => LocalizedString
+	/**
+	 * Username
+	 */
+	username: () => LocalizedString
 }
 
 export type Formatters = {}

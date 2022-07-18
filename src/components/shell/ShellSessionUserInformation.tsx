@@ -1,11 +1,18 @@
-import { ActionIcon, Card, Center, Text } from "@mantine/core";
+import { ActionIcon, Card, Center, Menu, Text } from "@mantine/core";
 import assert from "assert";
 import { GameRules } from "../../database/GameRules";
 import { useAuth } from "../../providers/auth";
 import { UserAvatar } from "../images/UserAvatar";
-import { DoorOff } from "tabler-icons-react";
+import { DoorOff, Settings } from "tabler-icons-react";
+import { useRouter } from "next/router";
+import { getAccountEditPage } from "../../utils/router";
+import { ShellButtonDependencyProps } from "./ShellButton";
 
-export const ShellSessionUserInformation = () => {
+export const ShellSessionUserInformation = ({
+  setOpened,
+}: ShellButtonDependencyProps) => {
+  const router = useRouter();
+
   const { logout, user } = useAuth();
 
   assert(user);
@@ -23,6 +30,19 @@ export const ShellSessionUserInformation = () => {
         >
           <DoorOff size={16} />
         </ActionIcon>
+      </Center>
+      <Center>
+        <Menu trigger="hover" delay={500}>
+          <Menu.Item
+            icon={<Settings size={16} />}
+            onClick={() => {
+              setOpened(false);
+              router.push(getAccountEditPage());
+            }}
+          >
+            Settings
+          </Menu.Item>
+        </Menu>
       </Center>
       <Card style={{ display: "flex", flexDirection: "row" }}>
         <Center>

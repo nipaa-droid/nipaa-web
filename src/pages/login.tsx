@@ -18,6 +18,7 @@ import { getHomePage } from "../utils/router";
 import { useEffect, useState } from "react";
 import { useAuth } from "../providers/auth";
 import { redirectWhenHasSession } from "../utils/auth";
+import { useI18nContext } from "../i18n/i18n-react";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const redirect = redirectWhenHasSession(ctx, {});
@@ -37,6 +38,8 @@ const schema = z.object({
 
 export default function Login() {
   const router = useRouter();
+
+  const { LL } = useI18nContext();
 
   const { user, login, loginMutation } = useAuth();
 
@@ -81,14 +84,13 @@ export default function Login() {
                     })}
                   >
                     <TextInput
-                      label="Username"
-                      placeholder="Username"
+                      label={LL.username()}
+                      placeholder={LL.username()}
                       {...form.getInputProps("username")}
                     />
                     <PasswordInput
-                      label="Password"
-                      variant="filled"
-                      placeholder="Password"
+                      label={LL.password()}
+                      placeholder={LL.password()}
                       {...form.getInputProps("password")}
                     />
                     <Group position="center" mt="md">

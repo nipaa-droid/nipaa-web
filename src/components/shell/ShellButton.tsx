@@ -13,7 +13,6 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export type ShellButtonDependencyProps = {
-  isSmall: boolean;
   setOpened: Dispatch<SetStateAction<boolean>>;
 };
 
@@ -27,7 +26,6 @@ export function ShellButton<C>({
   children,
   buttonProps,
   linkProps,
-  isSmall,
   setOpened,
 }: ShellButtonProps) {
   const { classes } = useStyles();
@@ -38,9 +36,7 @@ export function ShellButton<C>({
         component: "a",
         className: classes.button,
         onClick: () => {
-          if (isSmall) {
-            setOpened(false);
-          }
+          setOpened(false);
         },
         ...(buttonProps as any),
       }}

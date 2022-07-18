@@ -8,7 +8,6 @@ import { ShellSessionUserInformation } from "./ShellSessionUserInformation";
 import { AnimatePresence, motion, MotionProps } from "framer-motion";
 
 export const ShellNavigationContent = ({
-  isSmall,
   setOpened,
 }: ShellButtonDependencyProps) => {
   const { userQuery, user, logoutMutation } = useAuth();
@@ -37,12 +36,12 @@ export const ShellNavigationContent = ({
           <motion.div key="content" {...animation}>
             <Stack>
               {user ? (
-                <ShellSessionUserInformation />
+                <ShellSessionUserInformation setOpened={setOpened} />
               ) : (
-                <ShellLoginButton setOpened={setOpened} isSmall={isSmall} />
+                <ShellLoginButton setOpened={setOpened} />
               )}
-              <HomePageButton setOpened={setOpened} isSmall={isSmall} />
-              <LeaderboardButton setOpened={setOpened} isSmall={isSmall} />
+              <HomePageButton setOpened={setOpened} />
+              <LeaderboardButton setOpened={setOpened} />
             </Stack>
           </motion.div>
         )}

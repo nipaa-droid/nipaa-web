@@ -14,6 +14,10 @@ const en: BaseTranslation = {
   leaderboardPageSearch: "Page",
 
   home: "Home",
+
+  email: "Email",
+  password: "Password",
+  username: "Username",
 };
 
 export default en;

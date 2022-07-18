@@ -11,7 +11,7 @@ import {
   Title,
   Transition,
 } from "@mantine/core";
-import { useState, PropsWithChildren, useEffect } from "react";
+import { useState, PropsWithChildren, useEffect, useCallback } from "react";
 import { ServerConstants } from "../../constants";
 import { AppLogo } from "../images/AppLogo";
 import { useMediaQuery } from "@mantine/hooks";
@@ -31,6 +31,12 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
     setOpened(!isSmall);
   }, [isSmall]);
 
+  const exposedSetOpen = useCallback(() => {
+    if (isSmall) {
+      setOpened(false);
+    }
+  }, [isSmall]);
+
   return (
     <AppShell
       navbarOffsetBreakpoint="sm"
@@ -45,7 +51,7 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
             overlayBlur={4}
             size="sm"
           >
-            <ShellNavigationContent isSmall={isSmall} setOpened={setOpened} />
+            <ShellNavigationContent setOpened={exposedSetOpen} />
           </Drawer>
         ) : (
           <Transition mounted={opened} transition="slide-right" duration={500}>
@@ -57,10 +63,7 @@ export const ClientShell = ({ children }: PropsWithChildren<{}>) => {
                 p="md"
                 hiddenBreakpoint="sm"
               >
-                <ShellNavigationContent
-                  isSmall={isSmall}
-                  setOpened={setOpened}
-                />
+                <ShellNavigationContent setOpened={exposedSetOpen} />
               </Navbar>
             )}
           </Transition>
