@@ -465,7 +465,7 @@ export default async function handler(
 
   const pp3fingerCheckRatio = 10;
 
-  const pp3fingerCheckResult = score.pp / pp3fingerCheckRatio;
+  const pp3fingerCheckResult = Math.max(10, score.pp / pp3fingerCheckRatio);
 
   const validateNot3Fingered = await validateDifference(
     replay.tapPenalty,
