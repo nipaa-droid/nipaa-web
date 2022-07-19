@@ -1,13 +1,14 @@
+import Link from "next/link";
 import { useI18nContext } from "../../i18n/i18n-react";
 import { getLeaderboardPage } from "../../utils/router";
-import { ShellButton, ShellButtonPropsWithoutLink } from "./ShellButton";
+import { ShellButton, ShellButtonProps } from "./ShellButton";
 
-export const LeaderboardButton = (props: ShellButtonPropsWithoutLink) => {
+export const LeaderboardButton = (props: ShellButtonProps) => {
   const { LL } = useI18nContext();
 
   return (
-    <ShellButton linkProps={{ href: getLeaderboardPage(1) }} {...props}>
-      {LL.leaderboard()}
-    </ShellButton>
+    <Link href={getLeaderboardPage(1)} passHref>
+      <ShellButton {...props}>{LL.leaderboard()}</ShellButton>
+    </Link>
   );
 };

@@ -1,14 +1,11 @@
+import Link from "next/link";
 import { getLoginPage } from "../../utils/router";
-import { ShellButton, ShellButtonPropsWithoutLink } from "./ShellButton";
+import { ShellButton, ShellButtonProps } from "./ShellButton";
 
-export const ShellLoginButton = (props: ShellButtonPropsWithoutLink) => {
+export const ShellLoginButton = (props: ShellButtonProps) => {
   return (
-    <ShellButton
-      linkProps={{ href: getLoginPage() }}
-      buttonProps={{ fullWidth: true }}
-      {...props}
-    >
-      Login
-    </ShellButton>
+    <Link passHref href={getLoginPage()}>
+      <ShellButton {...props}>Login</ShellButton>
+    </Link>
   );
 };

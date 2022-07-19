@@ -1,6 +1,5 @@
-import { createStyles, Text } from "@mantine/core";
+import { Button, createStyles, Text } from "@mantine/core";
 import { Dispatch, PropsWithChildren, SetStateAction } from "react";
-import { LinkButtonProps, LinkButton } from "../LinkButton";
 
 const useStyles = createStyles((theme) => ({
   button: {
@@ -16,35 +15,19 @@ export type ShellButtonDependencyProps = {
   setOpened: Dispatch<SetStateAction<boolean>>;
 };
 
-export type ShellButtonProps = PropsWithChildren<
-  LinkButtonProps<"a"> & ShellButtonDependencyProps
->;
+export type ShellButtonProps = PropsWithChildren<ShellButtonDependencyProps>;
 
-export type ShellButtonPropsWithoutLink = Omit<ShellButtonProps, "linkProps">;
-
-export function ShellButton<C>({
-  children,
-  buttonProps,
-  linkProps,
-  setOpened,
-}: ShellButtonProps) {
+export function ShellButton(props: ShellButtonProps) {
   const { classes } = useStyles();
 
   return (
-    <LinkButton<C>
-      buttonProps={{
-        component: "a",
-        className: classes.button,
-        onClick: () => {
-          setOpened(false);
-        },
-        ...(buttonProps as any),
-      }}
-      linkProps={{
-        ...linkProps,
-      }}
+    <Button
+      component="a"
+      className={classes.button}
+      onClick={() => props.setOpened(false)}
+      {...props}
     >
-      <Text className={classes.text}>{children}</Text>
-    </LinkButton>
+      <Text className={classes.text}>{props.children}</Text>
+    </Button>
   );
 }

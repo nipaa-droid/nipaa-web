@@ -1,5 +1,7 @@
 import Head from "next/head";
 import {
+  Button,
+  Center,
   createStyles,
   CSSObject,
   Grid,
@@ -11,6 +13,7 @@ import { IndexPresentation } from "../components/index/IndexPresentation";
 import { ServerAbout } from "../components/index/ServerAbout";
 import { ServerConstants } from "../constants";
 import { DiscordWidget } from "../components/iframes/DiscordWidget";
+import Link from "next/link";
 
 const useStyles = createStyles(() => ({
   discoWidget: {
@@ -61,6 +64,13 @@ export default function Home() {
                 </Grid.Col>
                 <Grid.Col style={styles.slideLeft}>
                   <ServerAbout textStyle={styles.slideRight} />
+                </Grid.Col>
+                <Grid.Col style={styles.slideUp}>
+                  <Center>
+                    <Link href={"/client.apk"} passHref>
+                      <Button size="lg">Download our client</Button>
+                    </Link>
+                  </Center>
                 </Grid.Col>
               </Grid>
               <Grid className={classes.discoWidget}>
