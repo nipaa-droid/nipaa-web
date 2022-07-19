@@ -2,7 +2,6 @@ import { z } from "zod";
 import { prisma } from "../../../../lib/prisma";
 import { createRouter } from "../../createRouter";
 import { shapeWithUsernameWithPassword } from "../../shapes";
-import bcrypt from "bcrypt";
 import { TRPC_ERRORS } from "../../errors";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 import { setCookie } from "nookies";
@@ -34,7 +33,10 @@ export const webLoginRouter = commonRequestMiddleware(createRouter()).mutation(
         throw TRPC_ERRORS.UNAUTHORIZED;
       }
 
-      const authorized = await bcrypt.compare(password, user.password);
+      const authorized = await OsuDroidUserHelper.validatePassword(
+        password,
+        user.password
+      );
 
       if (!authorized) {
         throw TRPC_ERRORS.UNAUTHORIZED;

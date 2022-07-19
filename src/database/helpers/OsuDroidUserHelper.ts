@@ -13,6 +13,7 @@ import { OsuDroidScoreWithoutGenerated } from "./OsuDroidScoreHelper";
 import { ServerConstants } from "../../constants";
 import { addHours, addMinutes } from "date-fns";
 import orderBy from "lodash.orderby";
+import bcrypt from "bcrypt";
 
 export type UserWithStats = OsuDroidUser & {
   stats: OsuDroidStats[];
@@ -34,6 +35,10 @@ export class OsuDroidUserHelper {
       url ??
       `${ServerConstants.SERVER_URL}${ServerConstants.DEFAULT_AVATAR_PATH}`
     );
+  }
+
+  static async validatePassword(plain: string, encrypted: string) {
+    return await bcrypt.compare(plain, encrypted);
   }
 
   static async deleteSession(sessionId: string) {

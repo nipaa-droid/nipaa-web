@@ -24,6 +24,14 @@ export const shapeWithPassword = {
   password: z.string().min(8).max(32),
 };
 
+export const shapeWithNoHintedPassword = {
+  passowrd: z.string(),
+};
+
+export const shapeWithConfirmationPassword = {
+  confirmationPassword: z.string(),
+};
+
 export const shapeWithEmail = {
   email: z.string().email(),
 };

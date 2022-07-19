@@ -12,7 +12,6 @@ import {
 } from "../../../database/helpers/OsuDroidStatsHelper";
 import { GameRules } from "../../../database/GameRules";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
-import bcrypt from "bcrypt";
 import { z } from "zod";
 import { shapeWithUsernameWithPassword } from "../../shapes";
 import { putSessionCookie } from "../../utils";
@@ -59,7 +58,10 @@ export const clientGetLoginRouter = commonRequestMiddleware(
       return Responses.FAILED(Responses.USER_NOT_FOUND);
     }
 
-    const verify = await bcrypt.compare(password, user.password);
+    const verify = await OsuDroidUserHelper.validatePassword(
+      password,
+      user.password
+    );
 
     if (!verify) {
       return Responses.FAILED("Wrong password");

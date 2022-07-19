@@ -12,6 +12,7 @@ import { webGetUserInformationFromSession } from "./web/session_user";
 import { webLogoutRouter } from "./web/logout";
 import { cron1hourRouter } from "./backend/cron1hour";
 import { webRefreshmentEndpoint } from "./web/refresh";
+import { changeEmailRouter } from "./web/change_email";
 
 export const appRouter = createRouter()
   .merge(clientGetRankRouter)
@@ -26,6 +27,7 @@ export const appRouter = createRouter()
   .merge(webGetUserInformationFromSession)
   .merge(webLogoutRouter)
   .merge(cron1hourRouter)
-  .merge(webRefreshmentEndpoint);
+  .merge(webRefreshmentEndpoint)
+  .merge(changeEmailRouter);
 
 export type AppRouter = typeof appRouter;
