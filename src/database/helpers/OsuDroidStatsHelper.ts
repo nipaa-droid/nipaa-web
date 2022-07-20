@@ -57,6 +57,7 @@ export class OsuDroidStatsHelper {
     return {
       ...query,
       where: {
+        ...query.where,
         status: {
           ...(typeof query.where?.status === "object"
             ? query.where.status
