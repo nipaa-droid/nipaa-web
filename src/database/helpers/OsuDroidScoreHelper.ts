@@ -444,9 +444,7 @@ export class OsuDroidScoreHelper {
     return nextRank + 1;
   }
 
-  static toAccuracySelect<T extends Prisma.OsuDroidScoreSelect>(
-    select: T
-  ): T & MustHave<Prisma.OsuDroidScoreSelect, OsuDroidScoreHitDataKeys> {
+  static toAccuracySelect<T extends Prisma.OsuDroidScoreSelect>(select: T) {
     return {
       ...select,
       ...{
@@ -458,10 +456,7 @@ export class OsuDroidScoreHelper {
     };
   }
 
-  static toGradeableSelect<T extends Prisma.OsuDroidScoreSelect>(
-    select: T
-  ): T &
-    MustHave<Prisma.OsuDroidScoreSelect, OsuDroidScoreHitDataKeys | "mods"> {
+  static toGradeableSelect<T extends Prisma.OsuDroidScoreSelect>(select: T) {
     return this.toAccuracySelect({
       ...select,
       mods: true,
