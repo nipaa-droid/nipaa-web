@@ -290,7 +290,6 @@ export class OsuDroidStatsHelper {
     stats: OsuDroidStatsToCalculateScores,
     calculate: OsuDroidStatsBatchCalculate[]
   ) {
-    const query = this.toMetricToCalculateQueryForStats(stats);
     const query = this.toMetricToCalculateQueryForStats({}, stats);
 
     calculate.forEach((batch) => {
