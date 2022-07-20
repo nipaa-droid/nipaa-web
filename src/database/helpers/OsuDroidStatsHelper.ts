@@ -54,21 +54,18 @@ export class OsuDroidStatsHelper {
   static toMetricToCalculateQuery(
     query: Prisma.OsuDroidScoreFindManyArgs
   ): Prisma.OsuDroidScoreFindManyArgs {
-    query.where = query.where ?? {};
-
-    query.where.status = {
-      ...(typeof query.where.status === "object" ? query.where.status : {}),
-      in: SubmissionStatusUtils.USER_BEST_STATUS,
+    return {
+      ...query,
+      status: {
+        ...(typeof query.where.status === "object" ? query.where.status : {}),
+        in: SubmissionStatusUtils.USER_BEST_STATUS,
+      },
+      take: 100,
+      orderBy: {
+        ...query.orderBy,
+        pp: Prisma.SortOrder.desc,
+      },
     };
-
-    query.take = 100;
-
-    query.orderBy = {
-      ...query.orderBy,
-      pp: Prisma.SortOrder.desc,
-    };
-
-    return query;
   }
 
   static toMetricToCalculateQueryForStats(
@@ -286,7 +283,7 @@ export class OsuDroidStatsHelper {
     stats: OsuDroidStatsToCalculateScores,
     calculate: OsuDroidStatsBatchCalculate[]
   ) {
-    const query = this.toMetricToCalculateQueryForStats({}, stats);
+    let query = this.toMetricToCalculateQueryForStats({}, stats);
 
     calculate.forEach((batch) => {
       switch (batch) {
@@ -298,7 +295,7 @@ export class OsuDroidStatsHelper {
         case OsuDroidStatsBatchCalculate.METRIC:
           switch (GameRules.global_leaderboard_metric as GameMetrics) {
             case GameMetrics.pp:
-              this.toPerformanceQuery(query);
+              query = this.toPerformanceQuery(query);
               break;
           }
           break;
