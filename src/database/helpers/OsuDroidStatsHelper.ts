@@ -218,11 +218,7 @@ export class OsuDroidStatsHelper {
         const betterUsersByPP = await prisma.osuDroidUser.findMany({
           where: userWhere,
           select: {
-            scores: this.toMetricToCalculateQuery({
-              select: {
-                pp: true,
-              },
-            }),
+            scores: this.toPerformanceQuery({}),
           },
         });
 
