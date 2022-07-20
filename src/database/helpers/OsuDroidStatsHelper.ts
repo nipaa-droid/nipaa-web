@@ -130,23 +130,19 @@ export class OsuDroidStatsHelper {
     );
   }
 
-  static #toPerformanceQuery(query: Prisma.OsuDroidScoreFindManyArgs) {
-    query.where = {
-      ...query.where,
-      status: {
-        ...(typeof query.where?.status === "object" ? query.where.status : {}),
-        in: SubmissionStatusUtils.USER_BEST_STATUS,
-      },
-    };
+  static toPerformanceQuery(query: Prisma.OsuDroidScoreFindManyArgs) {
+    this.toMetricToCalculateQuery(query);
+
     query.select = {
       ...query.select,
       pp: true,
     };
+
     return query;
   }
 
   static async getPerformance(stats: OsuDroidStatsToCalculateScores) {
-    const query = this.#toPerformanceQuery(
+    const query = this.toPerformanceQuery(
       this.toMetricToCalculateQueryForStats(stats)
     );
 
@@ -292,7 +288,7 @@ export class OsuDroidStatsHelper {
         case OsuDroidStatsBatchCalculate.METRIC:
           switch (GameRules.global_leaderboard_metric as GameMetrics) {
             case GameMetrics.pp:
-              this.#toPerformanceQuery(query);
+              this.toPerformanceQuery(query);
               break;
           }
           break;
@@ -318,6 +314,7 @@ export class OsuDroidStatsHelper {
               break;
             /**
              * TODO These await are inneficient as hell fix.
+             * u already have the scores bro
              */
             case GameMetrics.rankedScore:
               response.metric = await this.getTotalRankedScore(stats);

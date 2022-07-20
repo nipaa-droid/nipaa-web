@@ -86,16 +86,9 @@ export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
                 mode: true,
               },
             },
-            scores: {
-              where: {
-                status: {
-                  in: SubmissionStatusUtils.USER_BEST_STATUS,
-                },
-              },
-              select: OsuDroidScoreHelper.toGradeableSelect({
-                pp: true,
-              }),
-            },
+            scores: OsuDroidStatsHelper.toPerformanceQuery({
+              select: OsuDroidScoreHelper.toGradeableSelect({}),
+            }),
           },
         });
 
