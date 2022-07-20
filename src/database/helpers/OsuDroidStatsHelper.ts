@@ -56,9 +56,13 @@ export class OsuDroidStatsHelper {
   ): Prisma.OsuDroidScoreFindManyArgs {
     return {
       ...query,
-      status: {
-        ...(typeof query.where.status === "object" ? query.where.status : {}),
-        in: SubmissionStatusUtils.USER_BEST_STATUS,
+      where: {
+        status: {
+          ...(typeof query.where?.status === "object"
+            ? query.where.status
+            : {}),
+          in: SubmissionStatusUtils.USER_BEST_STATUS,
+        },
       },
       take: 100,
       orderBy: {
