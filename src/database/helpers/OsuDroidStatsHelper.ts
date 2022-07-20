@@ -131,6 +131,13 @@ export class OsuDroidStatsHelper {
   }
 
   static #toPerformanceQuery(query: Prisma.OsuDroidScoreFindManyArgs) {
+    query.where = {
+      ...query.where,
+      status: {
+        ...(typeof query.where?.status === "object" ? query.where.status : {}),
+        in: SubmissionStatusUtils.USER_BEST_STATUS,
+      },
+    };
     query.select = {
       ...query.select,
       pp: true,
@@ -309,6 +316,9 @@ export class OsuDroidStatsHelper {
             case GameMetrics.pp:
               response.metric = this.getPerformanceFromScores(scores);
               break;
+            /**
+             * TODO These await are inneficient as hell fix.
+             */
             case GameMetrics.rankedScore:
               response.metric = await this.getTotalRankedScore(stats);
               break;
