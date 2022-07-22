@@ -56,6 +56,7 @@ export class OsuDroidStatsHelper {
   ): Prisma.OsuDroidScoreFindManyArgs {
     return {
       ...query,
+      distinct: "mapHash",
       where: {
         ...query.where,
         status: {
