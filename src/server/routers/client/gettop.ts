@@ -5,7 +5,10 @@ import {
 } from "../../createRouter";
 import { z } from "zod";
 import { Responses } from "../../../api/Responses";
-import { OsuDroidScoreHelper } from "../../../database/helpers/OsuDroidScoreHelper";
+import {
+  OsuDroidScoreHelper,
+  SCORE_LEADERBOARD_SCORE_METRIC_KEY,
+} from "../../../database/helpers/OsuDroidScoreHelper";
 import { prisma } from "../../../../lib/prisma";
 import { BeatmapManager } from "../../../database/managers/BeatmapManager";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
@@ -50,7 +53,7 @@ export const clientGetTopRouter = protectedWithCookieBasedSessionMiddleware(
         date: true,
         hGeki: true,
         hKatu: true,
-        [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]: true,
+        [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: true,
       }),
     });
 

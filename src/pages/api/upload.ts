@@ -9,7 +9,10 @@ import { prisma } from "../../../lib/prisma";
 import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
 import { BeatmapManager } from "../../database/managers/BeatmapManager";
 import fs from "fs/promises";
-import { OsuDroidScoreHelper } from "../../database/helpers/OsuDroidScoreHelper";
+import {
+  OsuDroidScoreHelper,
+  SCORE_GLOBAL_LEADERBOARD_METRIC_KEY,
+} from "../../database/helpers/OsuDroidScoreHelper";
 import { Prisma } from "@prisma/client";
 import { MapInfo, MapStats, Precision } from "@rian8337/osu-base";
 import { ReplayAnalyzer } from "@rian8337/osu-droid-replay-analyzer";
@@ -165,8 +168,7 @@ export default async function handler(
         mapHash: score.mapHash,
       },
       orderBy: {
-        [OsuDroidScoreHelper.getGlobalLeaderboardMetricKey()]:
-          Prisma.SortOrder.desc,
+        [SCORE_GLOBAL_LEADERBOARD_METRIC_KEY]: Prisma.SortOrder.desc,
       },
       select: {
         id: true,
