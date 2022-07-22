@@ -4,7 +4,7 @@ import { groupBy } from "lodash";
 import { z } from "zod";
 import { prisma } from "../../../../lib/prisma";
 import { ServerConstants } from "../../../constants";
-import { SCORE_LEADERBOARD_SCORE_METRIC_KEY } from "../../../database/helpers/OsuDroidScoreHelper";
+import { OsuDroidScoreHelper } from "../../../database/helpers/OsuDroidScoreHelper";
 import { SubmissionStatusUtils } from "../../../osu/droid/enum/SubmissionStatus";
 import { createRouter, toApiEndpoint } from "../../createRouter";
 import { requiredApplicationSecretMiddleware } from "../../middlewares";
@@ -38,10 +38,11 @@ export const cron1DayRouter = requiredApplicationSecretMiddleware(
         replay: true,
         replayOnceVerified: true,
         date: true,
-        [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: true,
+        [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]: true,
       },
       orderBy: {
-        [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: Prisma.SortOrder.desc,
+        [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]:
+          Prisma.SortOrder.desc,
       },
     });
 

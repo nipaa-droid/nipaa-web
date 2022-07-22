@@ -1,10 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../../../lib/prisma";
 import { Responses } from "../../../api/Responses";
-import {
-  OsuDroidScoreHelper,
-  SCORE_LEADERBOARD_SCORE_METRIC_KEY,
-} from "../../../database/helpers/OsuDroidScoreHelper";
+import { OsuDroidScoreHelper } from "../../../database/helpers/OsuDroidScoreHelper";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 import { BeatmapManager } from "../../../database/managers/BeatmapManager";
 import { AccuracyUtils } from "../../../osu/droid/AccuracyUtils";
@@ -62,11 +59,12 @@ export const clientGetRankRouter = protectedWithCookieBasedSessionMiddleware(
         },
       },
       orderBy: {
-        [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: Prisma.SortOrder.desc,
+        [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]:
+          Prisma.SortOrder.desc,
       },
       take: ServerConstants.AMOUNT_SCORES_ON_SCORE_LEADERBOARD,
       select: {
-        [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: true,
+        [OsuDroidScoreHelper.getScoreLeaderboardMetricKey()]: true,
         id: true,
         maxCombo: true,
         h300: true,

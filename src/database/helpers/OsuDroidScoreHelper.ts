@@ -44,11 +44,11 @@ const getActiveScoreMetricKeyFor = (
   return metric === "pp" ? "pp" : "score";
 };
 
-export const SCORE_GLOBAL_LEADERBOARD_METRIC_KEY = getActiveScoreMetricKeyFor(
+const GLOBAL_LEADERBOARD_SCORE_METRIC_KEY = getActiveScoreMetricKeyFor(
   GameRules.global_leaderboard_metric
 ) as ScoreKeyForMetric<ActiveGlobalLeaderboardMetric>;
 
-export const SCORE_LEADERBOARD_SCORE_METRIC_KEY = getActiveScoreMetricKeyFor(
+const SCORE_LEADERBOARD_SCORE_METRIC_KEY = getActiveScoreMetricKeyFor(
   GameRules.score_leaderboard_metric
 ) as ScoreKeyForMetric<ActiveScoreLeaderboardMetric>;
 
@@ -129,13 +129,21 @@ export class OsuDroidScoreHelper {
     return OsuModUtils.droidStringToMods(score.mods);
   }
 
+  static getGlobalLeaderboardMetricKey() {
+    return GLOBAL_LEADERBOARD_SCORE_METRIC_KEY;
+  }
+
+  static getScoreLeaderboardMetricKey() {
+    return SCORE_LEADERBOARD_SCORE_METRIC_KEY;
+  }
+
   static getGlobalLeaderboardMetric(
     score: AtLeast<
       OsuDroidScore,
       ScoreKeyForMetric<ActiveGlobalLeaderboardMetric>
     >
   ) {
-    return score[SCORE_GLOBAL_LEADERBOARD_METRIC_KEY];
+    return score[GLOBAL_LEADERBOARD_SCORE_METRIC_KEY];
   }
 
   static getScoreLeaderboardMetric(
@@ -377,7 +385,7 @@ export class OsuDroidScoreHelper {
         select: {
           id: true,
           status: true,
-          [SCORE_GLOBAL_LEADERBOARD_METRIC_KEY]: true,
+          [GLOBAL_LEADERBOARD_SCORE_METRIC_KEY]: true,
         },
       }
     );
@@ -473,7 +481,7 @@ export class OsuDroidScoreHelper {
             select: {
               id: true,
               status: true,
-              [SCORE_GLOBAL_LEADERBOARD_METRIC_KEY]: true,
+              [GLOBAL_LEADERBOARD_SCORE_METRIC_KEY]: true,
             },
           }
         );
