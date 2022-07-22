@@ -43,7 +43,7 @@ export class OsuDroidStatsHelper {
         ...{
           status: {
             ...(typeof query.status === "object" ? query.status : {}),
-            in: SubmissionStatusUtils.USER_BEST_STATUS,
+            in: SubmissionStatusUtils.GLOBAL_RANKED_STATUS,
           },
         },
       },
@@ -63,7 +63,7 @@ export class OsuDroidStatsHelper {
           ...(typeof query.where?.status === "object"
             ? query.where.status
             : {}),
-          in: SubmissionStatusUtils.USER_BEST_STATUS,
+          in: SubmissionStatusUtils.GLOBAL_RANKED_STATUS,
         },
       },
       take: 100,
@@ -259,7 +259,7 @@ export class OsuDroidStatsHelper {
             rankByTotalScoreQuery.where = {
               ...rankByTotalScoreQuery.where,
               status: {
-                in: SubmissionStatusUtils.USER_BEST_STATUS,
+                in: SubmissionStatusUtils.GLOBAL_RANKED_STATUS,
               },
             };
         }

@@ -133,6 +133,9 @@ export class OsuDroidUserHelper {
           playerId,
           mapHash,
           mode,
+          /**
+           * Only the best score for said map
+           */
           status: { in: SubmissionStatusUtils.USER_BEST_STATUS },
         },
       },

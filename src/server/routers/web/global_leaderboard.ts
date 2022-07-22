@@ -135,7 +135,7 @@ export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
             query.where = {
               ...query.where,
               status: {
-                in: SubmissionStatusUtils.USER_BEST_STATUS,
+                in: SubmissionStatusUtils.GLOBAL_RANKED_STATUS,
               },
             };
         }
