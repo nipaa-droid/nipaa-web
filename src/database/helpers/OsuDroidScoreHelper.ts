@@ -413,8 +413,9 @@ export class OsuDroidScoreHelper {
       | AtLeast<OsuDroidScore, "mapHash">
       | AtLeast<OsuDroidScore, "mapHash" | "id">
   ) {
-    const query: MustHave<Prisma.OsuDroidScoreCountArgs, "where"> = {
-      distinct: "playerId",
+    // no count query since count does not support distinct
+    const query: MustHave<Prisma.OsuDroidScoreFindManyArgs, "where"> = {
+      distinct: ["playerId"],
       where: {
         mapHash: score.mapHash,
         [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: {
@@ -427,6 +428,9 @@ export class OsuDroidScoreHelper {
       orderBy: {
         [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: Prisma.SortOrder.desc,
       },
+      select: {
+        id: true,
+      },
     };
 
     if (score.id) {
@@ -435,9 +439,9 @@ export class OsuDroidScoreHelper {
       };
     }
 
-    const nextRank = await prisma.osuDroidScore.count(query);
+    const betterScores = await prisma.osuDroidScore.findMany(query);
 
-    return nextRank + 1;
+    return betterScores.length + 1;
   }
 
   static toAccuracySelect<T extends Prisma.OsuDroidScoreSelect>(select: T) {
