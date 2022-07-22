@@ -423,6 +423,7 @@ export class OsuDroidScoreHelper {
       WHERE ${SCORE_LEADERBOARD_SCORE_METRIC_KEY} >= ${
       score[SCORE_LEADERBOARD_SCORE_METRIC_KEY]
     }
+      AND mapHash = ${score.mapHash}
       AND status IN (${Prisma.join(SubmissionStatusUtils.USER_BEST_STATUS)})
     `;
 
