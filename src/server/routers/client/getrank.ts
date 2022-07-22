@@ -50,6 +50,8 @@ export const clientGetRankRouter = protectedWithCookieBasedSessionMiddleware(
     }
 
     const scores = await prisma.osuDroidScore.findMany({
+      // BANDAID
+      distinct: ["playerId"],
       where: {
         mapHash: hash,
         status: {
