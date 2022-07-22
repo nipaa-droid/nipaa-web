@@ -124,7 +124,8 @@ export const endpointWithSessionRefreshmentMiddleware = <C>(
         return next();
     }
 
-    await OsuDroidUserHelper.refreshSession(sessionResponse);
+    // this is secondary we don't wait for that to finish
+    OsuDroidUserHelper.refreshSession(sessionResponse).then();
 
     return next();
   });

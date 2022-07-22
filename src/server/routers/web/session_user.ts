@@ -40,7 +40,7 @@ export const webGetUserInformationFromSession =
       const { session } = ctx;
       const { user } = session;
 
-      await OsuDroidUserHelper.refreshSession(session);
+      OsuDroidUserHelper.refreshSession(session).then();
 
       const statistic = OsuDroidUserHelper.getStatistic(
         user.stats,

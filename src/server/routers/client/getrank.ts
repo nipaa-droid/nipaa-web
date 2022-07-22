@@ -40,7 +40,7 @@ export const clientGetRankRouter = protectedWithCookieBasedSessionMiddleware(
 
     const responseScores: string[] = [];
 
-    await OsuDroidUserHelper.refreshSession(session);
+    OsuDroidUserHelper.refreshSession(session).then();
 
     const end = () => {
       return Responses.SUCCESS(responseScores.join("\n"));
@@ -53,7 +53,6 @@ export const clientGetRankRouter = protectedWithCookieBasedSessionMiddleware(
     }
 
     const scores = await prisma.osuDroidScore.findMany({
-      // BANDAID
       distinct: ["playerId"],
       where: {
         mapHash: hash,

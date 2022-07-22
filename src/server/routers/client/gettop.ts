@@ -35,7 +35,7 @@ export const clientGetTopRouter = protectedWithCookieBasedSessionMiddleware(
     const { session } = ctx;
     const { playID } = input;
 
-    await OsuDroidUserHelper.refreshSession(session);
+    OsuDroidUserHelper.refreshSession(session).then();
 
     const score = await prisma.osuDroidScore.findUnique({
       where: {
