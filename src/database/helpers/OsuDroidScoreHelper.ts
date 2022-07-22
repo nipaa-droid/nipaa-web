@@ -414,7 +414,6 @@ export class OsuDroidScoreHelper {
       | AtLeast<OsuDroidScore, "mapHash" | "id">
   ) {
     const query: MustHave<Prisma.OsuDroidScoreCountArgs, "where"> = {
-      distinct: "playerId",
       where: {
         mapHash: score.mapHash,
         [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: {
@@ -423,9 +422,6 @@ export class OsuDroidScoreHelper {
         status: {
           in: SubmissionStatusUtils.USER_BEST_STATUS,
         },
-      },
-      orderBy: {
-        [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: Prisma.SortOrder.desc,
       },
     };
 
@@ -468,16 +464,6 @@ export class OsuDroidScoreHelper {
     const approveSubmission = () => this.changeStatusToApproved(newScore, map);
 
     if (!previousBestScore) {
-      const approveWithNoPrevious = () => {
-        console.log("Previous best not found...");
-        approveSubmission();
-      };
-
-      // if the score was provided but not found
-      if (previousBestScore === null) {
-        approveWithNoPrevious();
-      }
-
       const gotPreviousBestScore =
         await OsuDroidUserHelper.getBestScoreOnBeatmap(
           userId,
@@ -493,7 +479,8 @@ export class OsuDroidScoreHelper {
         );
 
       if (!gotPreviousBestScore) {
-        approveWithNoPrevious();
+        console.log("Previous best not found...");
+        approveSubmission();
         return;
       }
 
@@ -514,18 +501,15 @@ export class OsuDroidScoreHelper {
 
       previousBestScore.status = SubmissionStatus.SUBMITTED;
 
-      // .then for background
-      prisma.osuDroidScore
-        .update({
-          where: {
-            id: previousBestScore.id,
-          },
-          data: {
-            status: previousBestScore.status,
-            replay: null,
-          },
-        })
-        .then();
+      await prisma.osuDroidScore.update({
+        where: {
+          id: previousBestScore.id,
+        },
+        data: {
+          status: previousBestScore.status,
+          replay: null,
+        },
+      });
 
       return;
     }
