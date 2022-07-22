@@ -410,38 +410,37 @@ export class OsuDroidScoreHelper {
 
   static async getPlacement(
     score:
-      | AtLeast<OsuDroidScore, "mapHash">
-      | AtLeast<OsuDroidScore, "mapHash" | "id">
+      | AtLeast<
+          OsuDroidScore,
+          "mapHash" | typeof SCORE_LEADERBOARD_SCORE_METRIC_KEY
+        >
+      | AtLeast<
+          OsuDroidScore,
+          "mapHash" | "id" | typeof SCORE_LEADERBOARD_SCORE_METRIC_KEY
+        >
   ) {
-    // no count query since count does not support distinct
-    const query: MustHave<Prisma.OsuDroidScoreFindManyArgs, "where"> = {
-      distinct: ["playerId"],
-      where: {
-        mapHash: score.mapHash,
-        [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: {
-          gte: score[SCORE_LEADERBOARD_SCORE_METRIC_KEY],
-        },
-        status: {
-          in: SubmissionStatusUtils.USER_BEST_STATUS,
-        },
-      },
-      orderBy: {
-        [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: Prisma.SortOrder.desc,
-      },
-      select: {
-        id: true,
-      },
-    };
+    let where = Prisma.sql`
+      WHERE ${SCORE_LEADERBOARD_SCORE_METRIC_KEY} >= ${
+      score[SCORE_LEADERBOARD_SCORE_METRIC_KEY]
+    }
+      AND status IN (${Prisma.join(SubmissionStatusUtils.USER_BEST_STATUS)})
+    `;
 
     if (score.id) {
-      query.where.id = {
-        not: score.id,
-      };
+      where = Prisma.sql`${where} AND id != ${score.id}`;
     }
 
-    const betterScores = await prisma.osuDroidScore.findMany(query);
+    const query = Prisma.sql`
+      SELECT COUNT(DISTINCT playerId) as "count"
+      FROM OsuDroidScore 
+      ${where}
+      ORDER BY ${SCORE_LEADERBOARD_SCORE_METRIC_KEY} desc
+    `;
 
-    return betterScores.length + 1;
+    const betterScores = await prisma.$queryRaw<[{ count: number }]>`${query}`;
+
+    // Count returns a bigint
+    return Number(betterScores[0].count) + 1;
   }
 
   static toAccuracySelect<T extends Prisma.OsuDroidScoreSelect>(select: T) {

@@ -4,6 +4,7 @@ import { GameRules } from "../../../database/GameRules";
 import {
   OsuDroidScoreHelper,
   isSubmissionScoreReturnError,
+  SCORE_LEADERBOARD_SCORE_METRIC_KEY,
 } from "../../../database/helpers/OsuDroidScoreHelper";
 import {
   OsuDroidStatsBatchCalculate,
@@ -102,7 +103,12 @@ export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
       return fail("User statistics not found.");
     }
 
-    const sendData = async (submitScore: AtLeast<OsuDroidScore, "mapHash">) => {
+    const sendData = async (
+      submitScore: AtLeast<
+        OsuDroidScore,
+        "mapHash" | typeof SCORE_LEADERBOARD_SCORE_METRIC_KEY
+      >
+    ) => {
       const scoreRank = await OsuDroidScoreHelper.getPlacement(submitScore);
 
       const { metric, accuracy } = await OsuDroidStatsHelper.batchCalculate(
@@ -155,6 +161,7 @@ export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
         select: {
           id: true,
           mapHash: true,
+          [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: true,
         },
       });
 
