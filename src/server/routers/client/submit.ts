@@ -144,19 +144,6 @@ export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
     const canSubmit = SubmissionStatusUtils.isUserBest(score.status);
 
     if (canSubmit) {
-      const dbBeatmap = await prisma.osuBeatmap.upsert({
-        where: {
-          hash: map.hash,
-        },
-        create: {
-          hash: map.hash,
-        },
-        update: {},
-        select: {
-          databaseId: true,
-        },
-      });
-
       const sentScore = await prisma.osuDroidScore.create({
         data: {
           mode: score.mode,
@@ -171,8 +158,21 @@ export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
           maxCombo: score.maxCombo,
           mods: score.mods,
           status: score.status,
-          playerId: score.playerId,
-          beatmapDatabaseId: dbBeatmap.databaseId,
+          player: {
+            connect: {
+              id: score.playerId,
+            },
+          },
+          beatmap: {
+            connectOrCreate: {
+              where: {
+                hash: map.hash,
+              },
+              create: {
+                hash: map.hash,
+              },
+            },
+          },
         },
         select: {
           id: true,
