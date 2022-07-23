@@ -2,7 +2,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import { createPrismaRedisCache } from "prisma-redis-middleware";
 import Redis from "ioredis";
 
-const redis = new Redis(process.env.REDIS_URL);
+const redis = new Redis();
 
 const prisma = new PrismaClient();
 
