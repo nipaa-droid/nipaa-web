@@ -239,6 +239,8 @@ export default function Leaderboard({
                     </thead>
                     <tbody>
                       {data.map((data, i) => {
+                        i += AMOUNT_PER_PAGE * (currentPage - 1);
+
                         const {
                           username,
                           metric,
