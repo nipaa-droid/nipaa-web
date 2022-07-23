@@ -55,7 +55,9 @@ export const clientGetRankRouter = protectedWithCookieBasedSessionMiddleware(
     const scores = await prisma.osuDroidScore.findMany({
       distinct: ["playerId"],
       where: {
-        mapHash: hash,
+        beatmap: {
+          hash,
+        },
         status: {
           in: SubmissionStatusUtils.USER_BEST_STATUS,
         },

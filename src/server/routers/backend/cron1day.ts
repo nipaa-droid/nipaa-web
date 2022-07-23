@@ -34,18 +34,22 @@ export const cron1DayRouter = requiredApplicationSecretMiddleware(
       },
       select: {
         id: true,
-        mapHash: true,
         replay: true,
         replayOnceVerified: true,
         date: true,
         [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: true,
+        beatmap: {
+          select: {
+            hash: true,
+          },
+        },
       },
       orderBy: {
         [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: Prisma.SortOrder.desc,
       },
     });
 
-    const groupedByMap = groupBy(scores, (o) => o.mapHash);
+    const groupedByMap = groupBy(scores, (o) => o.beatmap!.hash);
 
     const toDeleteReplayIDS: number[] = [];
 

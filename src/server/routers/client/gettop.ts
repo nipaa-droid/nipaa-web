@@ -47,13 +47,17 @@ export const clientGetTopRouter = protectedWithCookieBasedSessionMiddleware(
             name: true,
           },
         },
-        mapHash: true,
         score: true,
         maxCombo: true,
         date: true,
         hGeki: true,
         hKatu: true,
         [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: true,
+        beatmap: {
+          select: {
+            hash: true,
+          },
+        },
       }),
     });
 
@@ -61,7 +65,7 @@ export const clientGetTopRouter = protectedWithCookieBasedSessionMiddleware(
       return Responses.FAILED("Score not found.");
     }
 
-    const map = await BeatmapManager.fetchBeatmap(score.mapHash);
+    const map = await BeatmapManager.fetchBeatmap(score.beatmap!.hash);
 
     if (!map) {
       return Responses.FAILED("Couldn't retrieve beatmap for the score");

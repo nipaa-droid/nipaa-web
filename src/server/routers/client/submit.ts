@@ -106,10 +106,13 @@ export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
     const sendData = async (
       submitScore: AtLeast<
         OsuDroidScore,
-        "mapHash" | typeof SCORE_LEADERBOARD_SCORE_METRIC_KEY
+        typeof SCORE_LEADERBOARD_SCORE_METRIC_KEY
       >
     ) => {
-      const scoreRank = await OsuDroidScoreHelper.getPlacement(submitScore);
+      const scoreRank = await OsuDroidScoreHelper.getPlacement(
+        submitScore,
+        map.hash
+      );
 
       const { metric, accuracy } = await OsuDroidStatsHelper.batchCalculate(
         statistic,
@@ -141,10 +144,22 @@ export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
     const canSubmit = SubmissionStatusUtils.isUserBest(score.status);
 
     if (canSubmit) {
+      const dbBeatmap = await prisma.osuBeatmap.upsert({
+        where: {
+          hash: map.hash,
+        },
+        create: {
+          hash: map.hash,
+        },
+        update: {},
+        select: {
+          databaseId: true,
+        },
+      });
+
       const sentScore = await prisma.osuDroidScore.create({
         data: {
           mode: score.mode,
-          mapHash: score.mapHash,
           pp: score.pp,
           score: score.score,
           h300: score.h300,
@@ -157,10 +172,10 @@ export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
           mods: score.mods,
           status: score.status,
           playerId: score.playerId,
+          beatmapDatabaseId: dbBeatmap.databaseId,
         },
         select: {
           id: true,
-          mapHash: true,
           [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: true,
         },
       });

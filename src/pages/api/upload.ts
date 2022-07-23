@@ -114,13 +114,17 @@ export default async function handler(
       score: true,
       status: true,
       playerId: true,
-      mapHash: true,
       replay: true,
       date: true,
       hKatu: true,
       maxCombo: true,
       pp: true,
       hGeki: true,
+      beatmap: {
+        select: {
+          hash: true,
+        },
+      },
       player: {
         select: {
           name: true,
@@ -165,7 +169,9 @@ export default async function handler(
     const userBest = await prisma.osuDroidScore.findFirst({
       where: {
         playerId: score.playerId,
-        mapHash: score.mapHash,
+        beatmap: {
+          hash: score.beatmap!.hash,
+        },
       },
       orderBy: {
         [SCORE_GLOBAL_LEADERBOARD_METRIC_KEY]: Prisma.SortOrder.desc,
@@ -204,7 +210,7 @@ export default async function handler(
     return;
   };
 
-  const mapInfo = await BeatmapManager.fetchBeatmap(score.mapHash);
+  const mapInfo = await BeatmapManager.fetchBeatmap(score.beatmap!.hash);
 
   if (!mapInfo || !mapInfo.map) {
     await invalidateReplay();
@@ -478,7 +484,10 @@ export default async function handler(
 
   if (!validateNot3Fingered) return;
 
-  const scoreRank = await OsuDroidScoreHelper.getPlacement(score);
+  const scoreRank = await OsuDroidScoreHelper.getPlacement(
+    score,
+    score.beatmap!.hash
+  );
 
   let data: Prisma.OsuDroidScoreUpdateArgs["data"] = {
     pp: score.pp,

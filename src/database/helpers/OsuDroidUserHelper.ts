@@ -121,25 +121,25 @@ export class OsuDroidUserHelper {
    * return the best score made by this user on the selected {@link mapHash}'s beatmap.
    * @param mapHash The beatmap hash to get the best score from.
    */
-  static async getBestScoreOnBeatmap(
+  static async getBestScoreOnBeatmap<T extends Prisma.OsuDroidScoreSelect>(
     playerId: number,
     mapHash: string,
     mode: GameMode,
-    options?: Prisma.OsuDroidScoreArgs
+    select: T
   ) {
     return await prisma.osuDroidScore.findFirst({
-      ...{
-        where: {
-          playerId,
-          mapHash,
-          mode,
-          /**
-           * Only the best score for said map
-           */
-          status: { in: SubmissionStatusUtils.USER_BEST_STATUS },
+      where: {
+        playerId,
+        mode,
+        beatmap: {
+          hash: mapHash,
         },
+        /**
+         * Only the best score for said map
+         */
+        status: { in: SubmissionStatusUtils.USER_BEST_STATUS },
       },
-      ...options,
+      select,
     });
   }
 

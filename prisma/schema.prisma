@@ -52,8 +52,6 @@ model OsuDroidScore {
 
     mode GameMode
 
-    mapHash String @db.Char(32)
-
     replay             Bytes?
     replayOnceVerified Boolean @default(false)
 
@@ -78,6 +76,15 @@ model OsuDroidScore {
 
     playerId Int
     player   OsuDroidUser @relation(fields: [playerId], references: [id])
+
+    beatmapDatabaseId Int
+    beatmap           OsuBeatmap @relation(fields: [beatmapDatabaseId], references: [databaseId])
+}
+
+model OsuBeatmap {
+    databaseId Int             @id @unique @default(autoincrement())
+    hash       String          @unique @db.Char(32)
+    scores     OsuDroidScore[]
 }
 
 enum SubmissionStatus {

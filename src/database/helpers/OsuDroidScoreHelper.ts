@@ -1,4 +1,5 @@
 import {
+  OsuBeatmap,
   OsuDroidScore,
   OsuDroidUser,
   Prisma,
@@ -36,8 +37,6 @@ import { prisma } from "../../../lib/prisma";
 import { isNumber, percentFrom } from "../../utils/number";
 import { AtLeast, Tuple, MustHave } from "../../utils/types";
 
-type ScoreMetricKey = keyof Pick<OsuDroidScore, "score" | "pp">;
-
 const getActiveScoreMetricKeyFor = (
   metric: OsuDroidScoreMetric | GameMetrics
 ): ScoreKeyForMetric<typeof metric> => {
@@ -67,10 +66,7 @@ type RequiredSubmissionPlayerKeys = keyof Pick<
 
 type SubmissionPlayer = AtLeast<OsuDroidUser, RequiredSubmissionPlayerKeys>;
 
-export type CalculatableScoreKeys = keyof Pick<
-  OsuDroidScore,
-  "mapHash" | "status"
->;
+export type CalculatableScoreKeys = keyof Pick<OsuDroidScore, "status">;
 
 export type OsuDroidScoreWithPlayer = OsuDroidScore & {
   player: SubmissionPlayer;
@@ -78,8 +74,12 @@ export type OsuDroidScoreWithPlayer = OsuDroidScore & {
 
 export type CalculatableScore = AtLeast<
   OsuDroidScore,
-  CalculatableScoreKeys | ScoreMetricKey
+  CalculatableScoreKeys | typeof SCORE_GLOBAL_LEADERBOARD_METRIC_KEY
 >;
+
+export type ScoreWithBeatmap = {
+  beatmap: OsuBeatmap;
+};
 
 export type SuccessSubmissionScoreReturnType = {
   score: OsuDroidScoreWithoutGenerated;
@@ -105,7 +105,7 @@ export function isSubmissionScoreReturnError(
 
 export type OsuDroidScoreWithoutGenerated = Omit<
   OsuDroidScore,
-  "id" | "date" | "replayOnceVerified"
+  "id" | "date" | "replayOnceVerified" | "beatmapDatabaseId"
 >;
 
 export type OsuDroidScoreHitDataKeys = keyof Pick<
@@ -269,9 +269,7 @@ export class OsuDroidScoreHelper {
       };
     }
 
-    toBuildScore.mapHash = user.playing;
-
-    const mapInfo = await BeatmapManager.fetchBeatmap(toBuildScore.mapHash);
+    const mapInfo = await BeatmapManager.fetchBeatmap(user.playing);
 
     if (!mapInfo || !mapInfo.map) {
       return {
@@ -371,20 +369,17 @@ export class OsuDroidScoreHelper {
 
     const previousScore = await OsuDroidUserHelper.getBestScoreOnBeatmap(
       playerId,
-      toBuildScore.mapHash,
+      mapInfo.hash,
       GameRules.game_mode,
       {
-        select: {
-          id: true,
-          status: true,
-          [SCORE_GLOBAL_LEADERBOARD_METRIC_KEY]: true,
-        },
+        id: true,
+        status: true,
+        [SCORE_GLOBAL_LEADERBOARD_METRIC_KEY]: true,
       }
     );
 
     const builtScore: OsuDroidScoreWithoutGenerated = {
       mode: toBuildScore.mode,
-      mapHash: toBuildScore.mapHash,
       pp: toBuildScore.pp,
       score: toBuildScore.score,
       h300: toBuildScore.h300,
@@ -410,22 +405,20 @@ export class OsuDroidScoreHelper {
 
   static async getPlacement(
     score:
+      | AtLeast<OsuDroidScore, typeof SCORE_LEADERBOARD_SCORE_METRIC_KEY>
       | AtLeast<
           OsuDroidScore,
-          "mapHash" | typeof SCORE_LEADERBOARD_SCORE_METRIC_KEY
-        >
-      | AtLeast<
-          OsuDroidScore,
-          "mapHash" | "id" | typeof SCORE_LEADERBOARD_SCORE_METRIC_KEY
-        >
+          typeof SCORE_LEADERBOARD_SCORE_METRIC_KEY | "id"
+        >,
+    mapHash: string
   ) {
     let where = Prisma.sql`
       WHERE ${SCORE_LEADERBOARD_SCORE_METRIC_KEY} >= ${
       score[SCORE_LEADERBOARD_SCORE_METRIC_KEY]
     }
-      AND mapHash = ${score.mapHash}
+      AND b.hash = ${mapHash}
       AND status IN (${Prisma.join(SubmissionStatusUtils.USER_BEST_STATUS)})
-    `;
+      `;
 
     if (score.id) {
       where = Prisma.sql`${where} AND id != ${score.id}`;
@@ -433,7 +426,7 @@ export class OsuDroidScoreHelper {
 
     const query = Prisma.sql`
       SELECT COUNT(DISTINCT playerId) as "count"
-      FROM OsuDroidScore 
+      FROM OsuDroidScore s, OsuBeatmap b
       ${where}
       ORDER BY ${SCORE_LEADERBOARD_SCORE_METRIC_KEY} desc
     `;
@@ -485,14 +478,13 @@ export class OsuDroidScoreHelper {
       const gotPreviousBestScore =
         await OsuDroidUserHelper.getBestScoreOnBeatmap(
           userId,
-          newScore.mapHash,
+          map.hash,
           GameRules.game_mode,
           {
-            select: {
-              id: true,
-              status: true,
-              [SCORE_GLOBAL_LEADERBOARD_METRIC_KEY]: true,
-            },
+            id: true,
+            status: true,
+            beatmap: true,
+            [SCORE_GLOBAL_LEADERBOARD_METRIC_KEY]: true,
           }
         );
 
@@ -501,7 +493,7 @@ export class OsuDroidScoreHelper {
         return;
       }
 
-      previousBestScore = gotPreviousBestScore;
+      previousBestScore = gotPreviousBestScore as CalculatableScore;
     }
 
     console.log("Previous best found...");
