@@ -426,12 +426,14 @@ export class OsuDroidScoreHelper {
 
     const query = Prisma.sql`
       SELECT COUNT(DISTINCT playerId) as "count"
-      FROM OsuDroidScore s, OsuBeatmap b
+      FROM OsuDroidScore s
+      JOIN OsuBeatmap b
+      ON s.beatmapDatabaseId = b.databaseId
       ${where}
       ORDER BY ${SCORE_LEADERBOARD_SCORE_METRIC_KEY} desc
     `;
 
-    const betterScores = await prisma.$queryRaw<[{ count: number }]>`${query}`;
+    const betterScores = await prisma.$queryRaw<[{ count: BigInt }]>`${query}`;
 
     // Count returns a bigint
     return Number(betterScores[0].count) + 1;
