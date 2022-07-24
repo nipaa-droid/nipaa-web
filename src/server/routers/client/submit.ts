@@ -144,70 +144,67 @@ export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
     const canSubmit = SubmissionStatusUtils.isUserBest(score.status);
 
     if (canSubmit) {
-      const sentScore = await prisma.osuDroidScore.create({
-        data: {
-          mode: score.mode,
-          pp: score.pp,
-          score: score.score,
-          h300: score.h300,
-          h100: score.h100,
-          h50: score.h50,
-          h0: score.h0,
-          hGeki: score.hGeki,
-          hKatu: score.hKatu,
-          maxCombo: score.maxCombo,
-          mods: score.mods,
-          status: score.status,
-          player: {
-            connect: {
-              id: score.playerId,
-            },
-          },
-          beatmap: {
-            connectOrCreate: {
-              where: {
-                hash: map.hash,
-              },
-              create: {
-                hash: map.hash,
+      const [sentScore] = await prisma.$transaction([
+        prisma.osuDroidScore.create({
+          data: {
+            mode: score.mode,
+            pp: score.pp,
+            score: score.score,
+            h300: score.h300,
+            h100: score.h100,
+            h50: score.h50,
+            h0: score.h0,
+            hGeki: score.hGeki,
+            hKatu: score.hKatu,
+            maxCombo: score.maxCombo,
+            mods: score.mods,
+            status: score.status,
+            player: {
+              connect: {
+                id: score.playerId,
               },
             },
-          },
-        },
-        select: {
-          id: true,
-          [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: true,
-        },
-      });
-
-      extraResponse.push(sentScore.id.toString());
-
-      OsuDroidUserHelper.submitScore(statistic, score);
-
-      await prisma.osuDroidUser.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          playing: null,
-          sessions: {
-            update: OsuDroidUserHelper.toRefreshSessionQuery(session),
-          },
-          stats: {
-            update: {
-              where: {
-                id: statistic.id,
-              },
-              data: {
-                playCount: statistic.playCount,
+            beatmap: {
+              connectOrCreate: {
+                where: {
+                  hash: map.hash,
+                },
+                create: {
+                  hash: map.hash,
+                },
               },
             },
           },
-        },
-        select: {
-          id: true,
-        },
-      });
+          select: {
+            id: true,
+            [SCORE_LEADERBOARD_SCORE_METRIC_KEY]: true,
+          },
+        }),
+        prisma.osuDroidUser.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            playing: null,
+            sessions: {
+              update: OsuDroidUserHelper.toRefreshSessionQuery(session),
+            },
+            stats: {
+              update: {
+                where: {
+                  id: statistic.id,
+                },
+                data: {
+                  playCount: ++statistic.playCount,
+                },
+              },
+            },
+          },
+          select: {
+            id: true,
+          },
+        }),
+      ]);
 
       return await sendData(sentScore);
     }

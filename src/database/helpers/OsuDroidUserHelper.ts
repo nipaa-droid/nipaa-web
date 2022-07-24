@@ -3,13 +3,11 @@ import {
   OsuDroidStats,
   OsuDroidUser,
   Prisma,
-  SubmissionStatus,
   UserSession,
 } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
 import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
 import { AtLeast } from "../../utils/types";
-import { OsuDroidScoreWithoutGenerated } from "./OsuDroidScoreHelper";
 import { ServerConstants } from "../../constants";
 import { addHours, addMinutes } from "date-fns";
 import orderBy from "lodash.orderby";
@@ -141,16 +139,5 @@ export class OsuDroidUserHelper {
       },
       select,
     });
-  }
-
-  static async submitScore(
-    statistic: AtLeast<OsuDroidStats, "mode" | "playCount">,
-    score: OsuDroidScoreWithoutGenerated
-  ) {
-    if (score.status === SubmissionStatus.FAILED) {
-      throw "Can't submit a score which it's status is failed.";
-    }
-
-    statistic.playCount++;
   }
 }
