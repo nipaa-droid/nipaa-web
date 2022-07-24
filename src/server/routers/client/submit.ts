@@ -204,6 +204,9 @@ export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
             },
           },
         },
+        select: {
+          id: true,
+        },
       });
 
       return await sendData(sentScore);
