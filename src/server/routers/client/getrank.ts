@@ -9,27 +9,21 @@ import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper
 import { BeatmapManager } from "../../../database/managers/BeatmapManager";
 import { AccuracyUtils } from "../../../osu/droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../../osu/droid/enum/SubmissionStatus";
-import {
-  createRouter,
-  toApiEndpoint,
-  toApiClientTrpc,
-} from "../../createRouter";
+import { createRouter } from "../../createRouter";
 import { z } from "zod";
 import { shapeWithHash } from "../../shapes";
 import { ServerConstants } from "../../../constants";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 
-const path = "getrank";
-
 export const clientGetRankRouter = protectedWithCookieBasedSessionMiddleware(
   createRouter(),
   { id: true, expires: true }
-).mutation(toApiClientTrpc(path), {
+).mutation("client-getrank", {
   meta: {
     openapi: {
       enabled: true,
       method: "POST",
-      path: toApiEndpoint(path),
+      path: "getrank",
     },
   },
   input: z.object({ ...shapeWithHash }),

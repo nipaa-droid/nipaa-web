@@ -1,16 +1,14 @@
 import { z } from "zod";
 import { prisma } from "../../../../lib/prisma";
-import { createRouter, toApiEndpoint } from "../../createRouter";
+import { createRouter } from "../../createRouter";
 import { requiredApplicationSecretMiddleware } from "../../middlewares";
 import { shapeWithSecret } from "../../shapes";
 
-const path = "cron-1-hour";
-
 export const cron1hourRouter = requiredApplicationSecretMiddleware(
   createRouter()
-).mutation(path, {
+).mutation("backend-cron-1-hour", {
   meta: {
-    openapi: { enabled: true, method: "PATCH", path: toApiEndpoint(path) },
+    openapi: { enabled: true, method: "PATCH", path: "/cron-1-hour" },
   },
   input: z.object({
     ...shapeWithSecret,

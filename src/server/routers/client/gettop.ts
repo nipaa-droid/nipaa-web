@@ -1,8 +1,4 @@
-import {
-  createRouter,
-  toApiEndpoint,
-  toApiClientTrpc,
-} from "../../createRouter";
+import { createRouter } from "../../createRouter";
 import { z } from "zod";
 import { Responses } from "../../../api/Responses";
 import {
@@ -14,17 +10,15 @@ import { BeatmapManager } from "../../../database/managers/BeatmapManager";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 
-const path = "gettop";
-
 export const clientGetTopRouter = protectedWithCookieBasedSessionMiddleware(
   createRouter(),
   { id: true, expires: true }
-).mutation(toApiClientTrpc(path), {
+).mutation("client-gettop", {
   meta: {
     openapi: {
       enabled: true,
       method: "POST",
-      path: toApiEndpoint(path),
+      path: "/gettop",
     },
   },
   input: z.object({

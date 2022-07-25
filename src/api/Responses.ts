@@ -1,4 +1,4 @@
-enum DroidAPIResponses {
+export enum DroidAPIResponses {
   SUCCESS = "SUCCESS",
   FAIL = "FAIL",
 }
@@ -10,6 +10,16 @@ export class Responses {
 
   static #BUILD(type: DroidAPIResponses, ...args: string[]) {
     return `${type}\n${this.ARRAY(...args)}`;
+  }
+
+  static PARSE_PARTIAL(string: string) {
+    return string.split("\n");
+  }
+
+  static PARSE_FULL(string: string) {
+    const split = this.PARSE_PARTIAL(string);
+    const second = split[1].split(" ");
+    return [split[0], ...second];
   }
 
   static ARRAY(...args: string[]) {
