@@ -6,16 +6,18 @@ import { prisma } from "../../../../lib/prisma";
 import { ServerConstants } from "../../../constants";
 import { SCORE_LEADERBOARD_SCORE_METRIC_KEY } from "../../../database/helpers/OsuDroidScoreHelper";
 import { SubmissionStatusUtils } from "../../../osu/droid/enum/SubmissionStatus";
-import { createRouter } from "../../createRouter";
+import { createRouter, toApiEndpoint } from "../../createRouter";
 import { requiredApplicationSecretMiddleware } from "../../middlewares";
 import { shapeWithSecret } from "../../shapes";
+
+const path = "cron-1-day";
 
 // this should be run by a service such as easy cron
 export const cron1DayRouter = requiredApplicationSecretMiddleware(
   createRouter()
-).mutation("backend-cron-1-day", {
+).mutation(path, {
   meta: {
-    openapi: { enabled: true, method: "PATCH", path: "/cron-1-day" },
+    openapi: { enabled: true, method: "PATCH", path: toApiEndpoint(path) },
   },
   input: z.object({
     ...shapeWithSecret,

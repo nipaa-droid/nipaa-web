@@ -44,7 +44,7 @@ model OsuDroidStats {
     playCount Int
 
     userId Int
-    user   OsuDroidUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user   OsuDroidUser @relation(fields: [userId], references: [id])
 }
 
 model OsuDroidScore {
@@ -75,10 +75,10 @@ model OsuDroidScore {
     status SubmissionStatus
 
     playerId Int
-    player   OsuDroidUser @relation(fields: [playerId], references: [id], onDelete: Cascade)
+    player   OsuDroidUser @relation(fields: [playerId], references: [id])
 
     beatmapDatabaseId Int
-    beatmap           OsuBeatmap @relation(fields: [beatmapDatabaseId], references: [databaseId], onDelete: Cascade)
+    beatmap           OsuBeatmap @relation(fields: [beatmapDatabaseId], references: [databaseId])
 }
 
 model OsuBeatmap {

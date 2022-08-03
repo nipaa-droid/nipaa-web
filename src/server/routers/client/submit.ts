@@ -12,12 +12,18 @@ import {
 } from "../../../database/helpers/OsuDroidStatsHelper";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 import { SubmissionStatusUtils } from "../../../osu/droid/enum/SubmissionStatus";
-import { createRouter } from "../../createRouter";
+import {
+  createRouter,
+  toApiEndpoint,
+  toApiClientTrpc,
+} from "../../createRouter";
 import { z } from "zod";
 import { shapeWithUserID } from "../../shapes";
 import { AtLeast } from "../../../utils/types";
 import { prisma } from "../../../../lib/prisma";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
+
+const path = "submit";
 
 export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
   createRouter(),
@@ -41,12 +47,12 @@ export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
       },
     },
   }
-).mutation("client-submit", {
+).mutation(toApiClientTrpc(path), {
   meta: {
     openapi: {
       enabled: true,
       method: "POST",
-      path: "/submit",
+      path: toApiEndpoint(path),
     },
   },
   input: z.object({

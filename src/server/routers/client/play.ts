@@ -1,12 +1,16 @@
-import { OsuDroidUser, UserSession } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "../../../../lib/prisma";
 import { Responses } from "../../../api/Responses";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
-import { AtLeast, MinimalAtLeast } from "../../../utils/types";
-import { createRouter } from "../../createRouter";
+import {
+  createRouter,
+  toApiEndpoint,
+  toApiClientTrpc,
+} from "../../createRouter";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 import { shapeWithHash } from "../../shapes";
+
+const path = "play";
 
 export const clientGetPlayRouter = protectedWithCookieBasedSessionMiddleware(
   createRouter(),
@@ -20,12 +24,12 @@ export const clientGetPlayRouter = protectedWithCookieBasedSessionMiddleware(
       },
     },
   }
-).mutation("client-play", {
+).mutation(toApiClientTrpc(path), {
   meta: {
     openapi: {
       enabled: true,
       method: "POST",
-      path: "/play",
+      path: toApiEndpoint(path),
     },
   },
   input: z.object({
@@ -34,45 +38,26 @@ export const clientGetPlayRouter = protectedWithCookieBasedSessionMiddleware(
   output: z.string(),
   async resolve({ input, ctx }) {
     const { session } = ctx;
-    const { hash } = input;
     const { user } = session;
-    return await clientPlayResolver({
-      session,
-      user,
-      hash,
-    });
+    const { hash } = input;
+
+    if (user.playing !== hash) {
+      await prisma.osuDroidUser.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          playing: hash,
+          /**
+           * Refreshes user session
+           */
+          sessions: {
+            update: OsuDroidUserHelper.toRefreshSessionQuery(session),
+          },
+        },
+      });
+    }
+
+    return Responses.SUCCESS(String(Number(true)), user.id.toString());
   },
 });
-
-export type ClientPlaySession = AtLeast<UserSession, "id" | "expires">;
-
-export type ClientPlayUser = MinimalAtLeast<OsuDroidUser, "id" | "playing">;
-
-export const clientPlayResolver = async ({
-  session,
-  user,
-  hash,
-}: {
-  session: ClientPlaySession;
-  user: ClientPlayUser;
-  hash: string;
-}) => {
-  if (user.playing !== hash) {
-    await prisma.osuDroidUser.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        playing: hash,
-        /**
-         * Refreshes user session
-         */
-        sessions: {
-          update: OsuDroidUserHelper.toRefreshSessionQuery(session),
-        },
-      },
-    });
-  }
-
-  return Responses.SUCCESS(String(Number(true)), user.id.toString());
-};

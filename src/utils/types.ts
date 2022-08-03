@@ -25,8 +25,6 @@ export type NonEmptyArray<T> = {
 export type AtLeast<T, K extends keyof T> = Partial<T> &
   NonNullableRequired<Pick<T, K>>;
 
-export type MinimalAtLeast<T, K extends keyof T> = Partial<T> & Pick<T, K>;
-
 export type MustHave<T, K extends keyof T> = T &
   NonNullableRequired<Pick<T, K>>;
 
