@@ -12,7 +12,7 @@ import {
   GroupedTransition,
 } from "@mantine/core";
 import assert from "assert";
-import { clamp } from "lodash";
+import { clamp, isEqual } from "lodash";
 import { GetStaticPaths, GetStaticPropsContext } from "next";
 import { useRouter } from "next/router";
 import { PropsWithChildren, useState, useEffect } from "react";
@@ -36,7 +36,7 @@ const getMaxPages = async () => {
 export const getStaticPaths: GetStaticPaths = async () => {
   const maxPages = await getMaxPages();
 
-  const result: { params: Params }[] = [];
+  const result: { params: ParamsQuery }[] = [];
 
   const allowedMods = [
     ...OsuModUtils.rankedMods.map((m) => m.acronym),
@@ -67,12 +67,14 @@ type StaticPropsType = {
   mods: string;
 };
 
-type Params = {
+type ParamsQuery = {
   page: string;
   mods: string;
 };
 
-export async function getStaticProps(context: GetStaticPropsContext<Params>) {
+export async function getStaticProps(
+  context: GetStaticPropsContext<ParamsQuery>
+) {
   const { params } = context;
 
   assert(params);
@@ -132,7 +134,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export default function Leaderboard({
-  data,
+  data: staticData,
   maxPages,
   mods: staticCurrentMods,
   currentPage: staticCurrentPage,
@@ -142,15 +144,17 @@ export default function Leaderboard({
   const { classes } = useStyles();
   const { LL, locale } = useI18nContext();
 
+  const [currentData, setCurrentData] = useState(staticData);
   const [currentPage, setCurrentPage] = useState(staticCurrentPage);
   const [currentMods, setCurrentMods] = useState(staticCurrentMods);
 
   useEffect(() => {
-    const query = router.query as Params;
+    const query = router.query as ParamsQuery;
 
+    setCurrentData(staticData);
     setCurrentPage(Number(query.page));
     setCurrentMods(query.mods);
-  }, [router.query]);
+  }, [router.query, staticData]);
 
   const UnfocusedTableHead = ({ children }: PropsWithChildren<{}>) => (
     <CenteredTableHead>
@@ -173,11 +177,9 @@ export default function Leaderboard({
   );
 
   const [mounted, setMounted] = useState(false);
-  const [firstLoad, setFirstLoad] = useState(true);
 
   useEffect(() => {
     setMounted(true);
-    setFirstLoad(false);
   }, []);
 
   const handlePageChange = (page: number | undefined) => {
@@ -190,30 +192,27 @@ export default function Leaderboard({
 
   useEffect(() => {
     const { pathname } = router;
+
     if (
-      !firstLoad &&
-      currentMods &&
       currentPage &&
-      (currentMods !== staticCurrentMods || currentPage !== staticCurrentPage)
+      currentMods &&
+      currentPage !== staticCurrentPage &&
+      currentMods !== staticCurrentMods
     ) {
-      data.length = 0;
-      router.push({
-        pathname,
-        query: {
-          mods: currentMods,
-          page: currentPage,
-        },
-      });
+      const newQuery: ParamsQuery = {
+        mods: currentMods,
+        page: currentPage.toString(),
+      };
+
+      if (!isEqual(router.query as ParamsQuery, newQuery)) {
+        setCurrentData([]);
+        router.push({
+          pathname,
+          query: newQuery,
+        });
+      }
     }
-  }, [
-    router,
-    currentPage,
-    currentMods,
-    staticCurrentPage,
-    staticCurrentMods,
-    firstLoad,
-    data,
-  ]);
+  }, [router, staticCurrentPage, staticCurrentMods, currentPage, currentMods]);
 
   const duration = 500;
 
@@ -223,7 +222,7 @@ export default function Leaderboard({
     </Center>
   );
 
-  if (router.isFallback || data.length === 0) {
+  if (router.isFallback || currentData.length === 0) {
     return <CenterLoader />;
   }
 
@@ -285,7 +284,7 @@ export default function Leaderboard({
                       </tr>
                     </thead>
                     <tbody>
-                      {data.map((data, i) => {
+                      {currentData.map((data, i) => {
                         i += AMOUNT_PER_PAGE * (currentPage - 1);
 
                         const {
