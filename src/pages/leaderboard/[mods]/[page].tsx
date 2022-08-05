@@ -219,7 +219,7 @@ export default function Leaderboard({
     </Center>
   );
 
-  if (router.isFallback) {
+  if (router.isFallback || data.length === 0) {
     return <CenterLoader />;
   }
 

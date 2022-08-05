@@ -61,8 +61,6 @@ export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
             in: combinations,
           };
 
-    combinations.forEach((c) => console.log(c));
-
     const getGradesObject = (
       scores: MustHave<OsuDroidScoreAccuracyCalculatable, "mods">[]
     ) => {
