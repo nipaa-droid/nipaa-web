@@ -19,10 +19,12 @@ import { PropsWithChildren, useState, useEffect } from "react";
 import { prisma } from "../../../../lib/prisma";
 import { CenteredTableHead } from "../../../components/CenteredTableHead";
 import { useI18nContext } from "../../../i18n/i18n-react";
+import { OsuModUtils } from "../../../osu/OsuModUtils";
 import { TRPCGlobalLeaderboardReturnType } from "../../../server/routers/web/global_leaderboard";
 import { getSSGHelper } from "../../../utils/backend";
 import { maxPagesFor } from "../../../utils/number";
 import { getLeaderboardPage } from "../../../utils/router";
+import { ANY_STRING } from "../../../utils/strings";
 
 const AMOUNT_PER_PAGE = 50;
 
@@ -36,11 +38,19 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   const result: { params: Params }[] = [];
 
+  const allowedMods = [
+    ...OsuModUtils.rankedMods.map((m) => m.acronym),
+    ANY_STRING,
+  ];
+
   for (let i = 1; i < maxPages + 1; i++) {
-    result.push({
-      params: {
-        page: i.toString(),
-      },
+    allowedMods.forEach((m) => {
+      result.push({
+        params: {
+          page: i.toString(),
+          mods: m,
+        },
+      });
     });
   }
 
@@ -54,16 +64,20 @@ type StaticPropsType = {
   data: TRPCGlobalLeaderboardReturnType;
   maxPages: number;
   currentPage: number;
+  mods: string;
 };
 
 type Params = {
   page: string;
+  mods: string;
 };
 
 export async function getStaticProps(context: GetStaticPropsContext<Params>) {
   const { params } = context;
 
   assert(params);
+
+  const { mods } = params;
 
   const maxPages = await getMaxPages();
   const page = parseInt(params.page);
@@ -72,7 +86,7 @@ export async function getStaticProps(context: GetStaticPropsContext<Params>) {
     const redirectPage = clamp(page, 1, maxPages);
     return {
       redirect: {
-        destination: getLeaderboardPage(redirectPage),
+        destination: getLeaderboardPage(redirectPage, mods),
       },
     };
   }
@@ -81,6 +95,7 @@ export async function getStaticProps(context: GetStaticPropsContext<Params>) {
 
   const fullData = await ssg.fetchQuery("web-global-leaderboard", {
     secret: process.env.APP_SECRET,
+    mods: params.mods,
   });
 
   const pageIndex = page - 1;
@@ -119,13 +134,23 @@ const useStyles = createStyles((theme) => ({
 export default function Leaderboard({
   data,
   maxPages,
+  mods: staticCurrentMods,
   currentPage: staticCurrentPage,
 }: StaticPropsType) {
   const router = useRouter();
 
   const { classes } = useStyles();
   const { LL, locale } = useI18nContext();
+
   const [currentPage, setCurrentPage] = useState(staticCurrentPage);
+  const [currentMods, setCurrentMods] = useState(staticCurrentMods);
+
+  useEffect(() => {
+    const query = router.query as Params;
+
+    setCurrentPage(Number(query.page));
+    setCurrentMods(query.mods);
+  }, [router.query]);
 
   const UnfocusedTableHead = ({ children }: PropsWithChildren<{}>) => (
     <CenteredTableHead>
@@ -158,26 +183,44 @@ export default function Leaderboard({
       const newPage = Math.min(page, maxPages);
 
       setCurrentPage(newPage);
-
-      const { pathname } = router;
-
-      router.push({
-        pathname,
-        query: {
-          page: newPage,
-        },
-      });
     }
   };
 
+  useEffect(() => {
+    const { pathname } = router;
+    if (
+      currentMods &&
+      currentPage &&
+      (currentMods !== staticCurrentMods || currentPage !== staticCurrentPage)
+    ) {
+      data.length = 0;
+      router.push({
+        pathname,
+        query: {
+          mods: currentMods,
+          page: currentPage,
+        },
+      });
+    }
+  }, [
+    router,
+    currentPage,
+    currentMods,
+    staticCurrentPage,
+    staticCurrentMods,
+    data,
+  ]);
+
   const duration = 500;
 
+  const CenterLoader = () => (
+    <Center>
+      <Loader style={{ marginTop: "10vh" }}></Loader>
+    </Center>
+  );
+
   if (router.isFallback) {
-    return (
-      <Center>
-        <Loader style={{ marginTop: "10vh" }} />
-      </Center>
-    );
+    return <CenterLoader />;
   }
 
   return (

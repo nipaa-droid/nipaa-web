@@ -37,6 +37,7 @@ yarn-error.log*
 dist
 
 pages/api/test.ts
+pages/api/thing.ts
 
 prisma/migrations/
 

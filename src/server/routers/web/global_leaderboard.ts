@@ -16,6 +16,9 @@ import { MustHave } from "../../../utils/types";
 import { AccuracyUtils } from "../../../osu/droid/AccuracyUtils";
 import { orderBy } from "lodash";
 import { requiredApplicationSecretMiddleware } from "../../middlewares";
+import { OsuModUtils } from "../../../osu/OsuModUtils";
+import { ANY_STRING } from "../../../utils/strings";
+import { Prisma } from "@prisma/client";
 
 const output = z.array(
   z.object({
@@ -39,10 +42,26 @@ const path = "web-global-leaderboard";
 export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
   createRouter()
 ).query(path, {
-  input: z.object({ ...shapeWithSecret }),
+  input: z.object({ ...shapeWithSecret, mods: z.string() }),
   output,
-  async resolve() {
+  async resolve({ input }) {
     const data: z.infer<typeof output> = [];
+
+    const { mods } = input;
+
+    const combinations = OsuModUtils.allPossibleStatsStringsForMods(
+      OsuModUtils.pcStringToMods(mods),
+      { baseMods: OsuModUtils.rankedMods, shallow: true }
+    );
+
+    const modsQuery: Prisma.OsuDroidScoreWhereInput["mods"] =
+      mods === ANY_STRING
+        ? undefined
+        : {
+            in: combinations,
+          };
+
+    combinations.forEach((c) => console.log(c));
 
     const getGradesObject = (
       scores: MustHave<OsuDroidScoreAccuracyCalculatable, "mods">[]
@@ -87,6 +106,9 @@ export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
               },
             },
             scores: OsuDroidStatsHelper.toPerformanceQuery({
+              where: {
+                mods: modsQuery,
+              },
               select: OsuDroidScoreHelper.toGradeableSelect({}),
             }),
           },
@@ -128,7 +150,11 @@ export const trpcGlobalLeaderboardRouter = requiredApplicationSecretMiddleware(
         break;
       case GameMetrics.rankedScore:
       case GameMetrics.totalScore:
-        const query = OsuDroidStatsHelper.toTotalScoreRankQuery({});
+        const query = OsuDroidStatsHelper.toTotalScoreRankQuery({
+          where: {
+            mods: modsQuery,
+          },
+        });
 
         switch (GameRules.global_leaderboard_metric as GameMetrics) {
           case GameMetrics.rankedScore:

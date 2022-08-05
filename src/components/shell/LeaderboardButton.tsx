@@ -7,7 +7,7 @@ export const LeaderboardButton = (props: ShellButtonProps) => {
   const { LL } = useI18nContext();
 
   return (
-    <Link href={getLeaderboardPage(1)} passHref>
+    <Link href={getLeaderboardPage()} passHref>
       <ShellButton {...props}>{LL.leaderboard()}</ShellButton>
     </Link>
   );

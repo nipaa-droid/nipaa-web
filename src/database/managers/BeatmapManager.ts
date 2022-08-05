@@ -10,10 +10,8 @@ export class BeatmapManager {
 
   static async fetchBeatmap(
     beatmapIDOrHash: string,
-    fetchBeatmaps = async (): Promise<MapInfo> => {
-      return await MapInfo.getInformation({
-        hash: beatmapIDOrHash,
-      });
+    fetchBeatmaps = async (): Promise<MapInfo | null> => {
+      return await MapInfo.getInformation(beatmapIDOrHash, true);
     }
   ) {
     let selectedBeatmap: MapInfo | null;
@@ -28,9 +26,6 @@ export class BeatmapManager {
     if (!cacheBeatmap && cacheBeatmap !== null) {
       const newBeatmap = await fetchBeatmaps();
       this.cache.set(beatmapIDOrHash, newBeatmap ?? null);
-      if (!newBeatmap.title) {
-        return undefined;
-      }
       selectedBeatmap = newBeatmap;
     }
 

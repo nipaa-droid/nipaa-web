@@ -14,7 +14,7 @@ import {
   rankedStatus,
 } from "@rian8337/osu-base";
 import {
-  DroidStarRating,
+  DroidDifficultyCalculator,
   DroidPerformanceCalculator,
 } from "@rian8337/osu-difficulty-calculator";
 import assert from "assert";
@@ -271,7 +271,7 @@ export class OsuDroidScoreHelper {
 
     const mapInfo = await BeatmapManager.fetchBeatmap(user.playing);
 
-    if (!mapInfo || !mapInfo.map) {
+    if (!mapInfo || !mapInfo.beatmap) {
       return {
         error: "Score's beatmap not found.",
       };
@@ -343,17 +343,17 @@ export class OsuDroidScoreHelper {
       nmiss: toBuildScore.h0,
     });
 
-    const stars = new DroidStarRating().calculate({
-      map: mapInfo.map,
-      mods,
-      stats: new MapStats({
+    const difficulty = new DroidDifficultyCalculator(mapInfo.beatmap).calculate(
+      {
         mods,
-        speedMultiplier: extraModData.customSpeed,
-      }),
-    });
+        stats: new MapStats({
+          mods,
+          speedMultiplier: extraModData.customSpeed,
+        }),
+      }
+    );
 
-    const performance = new DroidPerformanceCalculator().calculate({
-      stars,
+    const performance = new DroidPerformanceCalculator(difficulty).calculate({
       accPercent: accValue,
       combo: toBuildScore.maxCombo,
     });

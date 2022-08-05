@@ -4,7 +4,7 @@ import { MustHave } from "../../utils/types";
 import { OsuModUtils } from "../OsuModUtils";
 
 export type BeatmapReplayAnalyzerWithData = MustHave<ReplayAnalyzer, "data"> & {
-  map: Beatmap;
+  beatmap: Beatmap;
 };
 
 export class ReplayAnalyzerUtils {
@@ -20,9 +20,9 @@ export class ReplayAnalyzerUtils {
     // Get raw OD, HP, and CS
     const difficultyMultiplier =
       1 +
-      analyzer.map.od / 10 +
-      analyzer.map.hp / 10 +
-      (analyzer.map.cs - 3) / 4;
+      analyzer.beatmap.difficulty.od / 10 +
+      analyzer.beatmap.difficulty.hp / 10 +
+      (analyzer.beatmap.difficulty.cs - 3) / 4;
 
     const mods = analyzer.data.convertedMods;
 
@@ -68,7 +68,7 @@ export class ReplayAnalyzerUtils {
     };
 
     analyzer.data.hitObjectData.forEach((hitData, i) => {
-      const currentObject = analyzer.map.objects[i];
+      const currentObject = analyzer.beatmap.hitObjects.objects[i];
 
       if (currentObject instanceof Slider) {
         for (let j = 1; j < currentObject.nestedHitObjects.length; ++j) {

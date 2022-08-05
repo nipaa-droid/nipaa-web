@@ -23,9 +23,9 @@ import {
 import { OsuModUtils } from "../../osu/OsuModUtils";
 import { LATEST_REPLAY_VERSION } from "../../osu/droid/enum/ReplayVersions";
 import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
-import { DroidStarRating } from "@rian8337/osu-difficulty-calculator";
 import { mean } from "lodash";
 import { ServerConstants } from "../../constants";
+import { DroidDifficultyCalculator } from "@rian8337/osu-difficulty-calculator";
 
 const schema = z.object({
   fields: z.object({
@@ -212,7 +212,7 @@ export default async function handler(
 
   const mapInfo = await BeatmapManager.fetchBeatmap(score.beatmap!.hash);
 
-  if (!mapInfo || !mapInfo.map) {
+  if (!mapInfo || !mapInfo.beatmap) {
     await invalidateReplay();
     return res
       .status(HTTPStatusCode.BAD_REQUEST)
@@ -256,7 +256,7 @@ export default async function handler(
 
   const replay = new ReplayAnalyzer({
     scoreID: score.id,
-    map: mapInfo.map,
+    map: mapInfo.beatmap,
   });
 
   replay.originalODR = rawReplay;
@@ -463,8 +463,9 @@ export default async function handler(
     isForceAR: Boolean(replayData.forcedAR),
   });
 
-  replay.map = new DroidStarRating().calculate({
-    map: mapInfo.map,
+  const difficultyCalculator = new DroidDifficultyCalculator(mapInfo.beatmap);
+
+  replay.beatmap = difficultyCalculator.calculate({
     mods: replayData.convertedMods,
     stats,
   });
