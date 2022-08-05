@@ -173,9 +173,11 @@ export default function Leaderboard({
   );
 
   const [mounted, setMounted] = useState(false);
+  const [firstLoad, setFirstLoad] = useState(true);
 
   useEffect(() => {
     setMounted(true);
+    setFirstLoad(false);
   }, []);
 
   const handlePageChange = (page: number | undefined) => {
@@ -189,6 +191,7 @@ export default function Leaderboard({
   useEffect(() => {
     const { pathname } = router;
     if (
+      !firstLoad &&
       currentMods &&
       currentPage &&
       (currentMods !== staticCurrentMods || currentPage !== staticCurrentPage)
@@ -208,6 +211,7 @@ export default function Leaderboard({
     currentMods,
     staticCurrentPage,
     staticCurrentMods,
+    firstLoad,
     data,
   ]);
 
