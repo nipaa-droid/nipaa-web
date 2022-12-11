@@ -84,7 +84,7 @@ export class OsuDroidStatsHelper {
 		});
 	}
 	
-	static #weightData<K extends keyof OsuDroidScore, T = undefined>(
+	private static weightData<K extends keyof OsuDroidScore, T = undefined>(
 		base: T,
 		scores: AtLeast<OsuDroidScore, K>[],
 		calculate: (
@@ -106,7 +106,7 @@ export class OsuDroidStatsHelper {
 			return AccuracyUtils.acc100toDroid(100);
 		}
 		
-		const weightedData = this.#weightData<
+		const weightedData = this.weightData<
 			OsuDroidScoreHitDataKeys,
 			{ accuracySum: number; weighting: number }
 		>(
@@ -141,7 +141,7 @@ export class OsuDroidStatsHelper {
 	}
 	
 	static getPerformanceFromScores(scores: AtLeast<OsuDroidScore, "pp">[]) {
-		return this.#weightData<"pp", number>(
+		return this.weightData<"pp", number>(
 			0,
 			scores,
 			(score, weighting, acc) => acc + score.pp * weighting

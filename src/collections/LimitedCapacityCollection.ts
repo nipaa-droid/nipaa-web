@@ -58,7 +58,7 @@ export class LimitedCapacityCollection<K, V> extends Map<K, V> {
 	 * Starts an interval to periodically sweep cache data that
 	 * were unused for the specified duration.
 	 */
-	#startInterval(): void {
+	private startInterval(): void {
 		if (this.#interval) {
 			return;
 		}
@@ -101,7 +101,7 @@ export class LimitedCapacityCollection<K, V> extends Map<K, V> {
 		
 		super.set(key, value);
 		
-		this.#startInterval();
+		this.startInterval();
 		
 		this.#addedTime.set(key, Date.now());
 		
