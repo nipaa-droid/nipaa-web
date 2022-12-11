@@ -22,7 +22,7 @@ import { useI18nContext } from "../../../i18n/i18n-react";
 import { OsuModUtils } from "../../../osu/OsuModUtils";
 import { TRPCGlobalLeaderboardReturnType } from "../../../server/routers/web/global_leaderboard";
 import { getSSGHelper } from "../../../utils/backend";
-import { maxPagesFor } from "../../../utils/number";
+import { Numbers } from "../../../utils/number";
 import { getLeaderboardPage } from "../../../utils/router";
 import { ANY_STRING } from "../../../utils/strings";
 
@@ -30,7 +30,7 @@ const AMOUNT_PER_PAGE = 50;
 
 const getMaxPages = async () => {
   const users = await prisma.osuDroidUser.count();
-  return maxPagesFor(users, AMOUNT_PER_PAGE);
+  return Numbers.maxPagesFor(users, AMOUNT_PER_PAGE);
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {

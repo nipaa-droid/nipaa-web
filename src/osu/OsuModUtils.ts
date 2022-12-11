@@ -9,7 +9,7 @@ import {
   ModUtil,
 } from "@rian8337/osu-base";
 import { uniqBy } from "lodash";
-import { isNumber } from "../utils/number";
+import { Numbers } from "../utils/number";
 
 type DroidStats = {
   mods: Mod[];
@@ -201,7 +201,7 @@ export class OsuModUtils extends ModUtil {
         const customSpeed = parseFloat(
           omitSeparatorFromData(this.#CUSTOM_SPEED_SEP)
         );
-        if (isNumber(customSpeed)) {
+        if (Numbers.isNumber(customSpeed)) {
           response.customSpeed = customSpeed;
         }
       }

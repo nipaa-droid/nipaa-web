@@ -1,7 +1,5 @@
-export const percentFrom = (from: number, to: number) =>
-  Math.round((from / to) * 100);
-
-export const isNumber = (number: number) => !isNaN(number);
-
-export const maxPagesFor = (amount: number, itemsPerPage: number) =>
-  Math.max(1, Math.ceil(amount / itemsPerPage));
+export const Numbers = {
+  percentFrom: (from: number, to: number) => Math.round((from / to) * 100),
+  isNumber: (number: number) => !isNaN(number),
+  maxPagesFor: (pages: number, itemsEachPage: number) => Math.max(1, Math.ceil(pages / itemsEachPage))
+};

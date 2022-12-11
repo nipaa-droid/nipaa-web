@@ -18,7 +18,7 @@ import { BeatmapManager } from "../managers/BeatmapManager";
 import { GameMetrics } from "../GameMetrics";
 import { OsuDroidUserHelper } from "./OsuDroidUserHelper";
 import { prisma } from "../../../lib/prisma";
-import { isNumber, percentFrom } from "../../utils/number";
+import { Numbers } from "../../utils/number";
 import { AtLeast, MustHave, Tuple } from "../../utils/types";
 
 const getActiveScoreMetricKeyFor = (
@@ -207,7 +207,7 @@ export class OsuDroidScoreHelper {
      */
     if (
       !(
-        isNumber(extraModData.customSpeed) &&
+        Numbers.isNumber(extraModData.customSpeed) &&
         Math.round(customSpeed * 100) % 5 === 0 &&
         extraModData.customSpeed >= 0.5 &&
         extraModData.customSpeed <= 2
@@ -277,7 +277,7 @@ export class OsuDroidScoreHelper {
     
     const sliceDataToInteger = (from: number, to: number) => {
       const integerData = dataTuple.slice(from, to).map((v) => parseInt(v));
-      if (!integerData.every((v) => isNumber(v))) {
+      if (!integerData.every((v) => Numbers.isNumber(v))) {
         console.log("Invalid data, passed for score.");
         return;
       }
@@ -344,7 +344,7 @@ export class OsuDroidScoreHelper {
     
     toBuildScore.pp = Math.max(performance.total, 0);
     
-    if (!isNumber(toBuildScore.pp)) {
+    if (Number.isNaN(toBuildScore.pp)) {
       /**
        * Prevents NaN values server side until a fix is found.
        */
@@ -556,8 +556,8 @@ export class OsuDroidScoreHelper {
     const totalHitData = score.h300 + score.h100 + score.h50 + score.h0;
     
     const percents = {
-      hit300: percentFrom(score.h300, totalHitData),
-      hit50: percentFrom(score.h50, totalHitData),
+      hit300: Numbers.percentFrom(score.h300, totalHitData),
+      hit50: Numbers.percentFrom(score.h50, totalHitData),
     };
     
     const noMisses = score.h0 === 0;
