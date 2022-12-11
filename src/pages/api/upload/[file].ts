@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
 import { prisma } from "../../../../lib/prisma";
-import { Responses } from "../../../api/Responses";
 import { HTTPMethod } from "../../../http/HTTPMethod";
+import { responses } from "../../../server/responses";
 
 const schema = z.object({
 	file: z.string(),
@@ -21,7 +21,7 @@ export default async function handler(
 	const validated = await schema.safeParseAsync(query);
 	
 	if (!validated.success) {
-		return Responses.FAILED(Responses.INVALID_REQUEST_BODY);
+		return responses.invalidBody;
 	}
 	
 	const { file } = validated.data;
@@ -29,7 +29,7 @@ export default async function handler(
 	const replayID = file.split(".")[0];
 	
 	if (!replayID) {
-		return Responses.FAILED("Invalid replay id provided");
+		return responses.no("Invalid replay id provided");
 	}
 	
 	const score = await prisma.osuDroidScore.findUnique({
@@ -42,7 +42,7 @@ export default async function handler(
 	});
 	
 	if (!score) {
-		return Responses.FAILED(
+		return responses.no(
 			"Couldn't find the score for the replay file you are trying to find"
 		);
 	}
@@ -50,7 +50,7 @@ export default async function handler(
 	const { replay } = score;
 	
 	if (!replay) {
-		return Responses.FAILED(
+		return responses.no(
 			"Couldn't find the replay file for the score you provided"
 		);
 	}

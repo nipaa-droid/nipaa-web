@@ -3,10 +3,10 @@ import { prisma } from "../../../../lib/prisma";
 import { TRPC_ERRORS } from "../../errors";
 import bcrypt from "bcrypt";
 import { AuthConstants } from "../../auth";
-import { Responses } from "../../../api/Responses";
 import { GameRules } from "../../../database/GameRules";
 import { z } from "zod";
 import { shapeWithAuthentication } from "../../shapes";
+import { responses } from "../../responses";
 
 const path = "register";
 
@@ -73,7 +73,7 @@ export const clientGetRegisterRouter = createRouter().mutation(
 				},
 			});
 			
-			return Responses.SUCCESS("Account created.");
+			return responses.ok("Account created.");
 		},
 	}
 );

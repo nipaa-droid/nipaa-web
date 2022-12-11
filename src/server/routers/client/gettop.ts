@@ -1,6 +1,5 @@
 import { createRouter, toApiClientTrpc, toApiEndpoint, } from "../../createRouter";
 import { z } from "zod";
-import { Responses } from "../../../api/Responses";
 import {
 	OsuDroidScoreHelper,
 	SCORE_LEADERBOARD_SCORE_METRIC_KEY,
@@ -9,6 +8,7 @@ import { prisma } from "../../../../lib/prisma";
 import { BeatmapManager } from "../../../database/managers/BeatmapManager";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
+import { responses } from "../../responses";
 
 const path = "gettop";
 
@@ -58,18 +58,18 @@ export const clientGetTopRouter = protectedWithCookieBasedSessionMiddleware(
 		});
 		
 		if (!score || !score.player) {
-			return Responses.FAILED("Score not found.");
+			return responses.no("Score not found.");
 		}
 		
 		const map = await BeatmapManager.fetchBeatmap(score.beatmap!.hash);
 		
 		if (!map) {
-			return Responses.FAILED("Couldn't retrieve beatmap for the score");
+			return responses.no("Couldn't retrieve beatmap for the score");
 		}
 		
 		const accuracy = OsuDroidScoreHelper.getAccuracyDroid(score);
 		
-		return Responses.SUCCESS(
+		return responses.ok(
 			score.mods,
 			Math.round(
 				OsuDroidScoreHelper.getScoreLeaderboardMetric(score)

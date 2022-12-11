@@ -1,6 +1,5 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../../../lib/prisma";
-import { Responses } from "../../../api/Responses";
 import {
 	OsuDroidScoreHelper,
 	SCORE_LEADERBOARD_SCORE_METRIC_KEY,
@@ -14,6 +13,7 @@ import { z } from "zod";
 import { shapeWithHash } from "../../shapes";
 import { ServerConstants } from "../../../constants";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
+import { responses } from "../../responses";
 
 const path = "getrank";
 
@@ -39,7 +39,7 @@ export const clientGetRankRouter = protectedWithCookieBasedSessionMiddleware(
 		OsuDroidUserHelper.refreshSession(session).then();
 		
 		const end = () => {
-			return Responses.SUCCESS(responseScores.join("\n"));
+			return responses.ok(responseScores.join("\n"));
 		};
 		
 		const beatmap = await BeatmapManager.fetchBeatmap(hash);
@@ -85,7 +85,7 @@ export const clientGetRankRouter = protectedWithCookieBasedSessionMiddleware(
 			const accDroid = AccuracyUtils.acc100toDroid(accPercent);
 			
 			responseScores.push(
-				Responses.ARRAY(
+				responses.list(
 					s.id.toString(),
 					s.player.name,
 					Math.round(

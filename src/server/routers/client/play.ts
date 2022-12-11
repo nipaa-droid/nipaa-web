@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { prisma } from "../../../../lib/prisma";
-import { Responses } from "../../../api/Responses";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 import { createRouter, toApiClientTrpc, toApiEndpoint, } from "../../createRouter";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 import { shapeWithHash } from "../../shapes";
+import { responses } from "../../responses";
 
 const path = "play";
 
@@ -54,6 +54,6 @@ export const clientGetPlayRouter = protectedWithCookieBasedSessionMiddleware(
 			});
 		}
 		
-		return Responses.SUCCESS(String(Number(true)), user.id.toString());
+		return responses.ok(String(Number(true)), user.id.toString());
 	},
 });

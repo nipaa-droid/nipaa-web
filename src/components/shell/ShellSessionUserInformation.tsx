@@ -46,7 +46,7 @@ export const ShellSessionUserInformation = ({
 			</Center>
 			<Card style={{ display: "flex", flexDirection: "row" }}>
 				<Center>
-					<UserAvatar src={user.image} priority/>
+					<UserAvatar alt="User avatar" src={user.image} priority/>
 				</Center>
 				<div>
 					<Text weight={500} ml="lg">

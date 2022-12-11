@@ -1,6 +1,5 @@
 import { createRouter, toApiClientTrpc, toApiEndpoint, } from "../../createRouter";
 import { prisma } from "../../../../lib/prisma";
-import { Responses } from "../../../api/Responses";
 import { Prisma } from "@prisma/client";
 import { OsuDroidStatsBatchCalculate, OsuDroidStatsHelper, } from "../../../database/helpers/OsuDroidStatsHelper";
 import { GameRules } from "../../../database/GameRules";
@@ -9,6 +8,7 @@ import { z } from "zod";
 import { shapeWithUsernameWithPassword } from "../../shapes";
 import { putSessionCookie } from "../../utils";
 import { commonRequestMiddleware } from "../../middlewares";
+import { responses } from "../../responses";
 
 const path = "login";
 
@@ -48,7 +48,7 @@ export const clientGetLoginRouter = commonRequestMiddleware(
 		});
 		
 		if (!user) {
-			return Responses.FAILED(Responses.USER_NOT_FOUND);
+			return responses.user404;
 		}
 		
 		const verify = await OsuDroidUserHelper.validatePassword(
@@ -57,7 +57,7 @@ export const clientGetLoginRouter = commonRequestMiddleware(
 		);
 		
 		if (!verify) {
-			return Responses.FAILED("Wrong password");
+			return responses.no("Wrong password");
 		}
 		
 		const session = await OsuDroidUserHelper.createSession(
@@ -71,7 +71,7 @@ export const clientGetLoginRouter = commonRequestMiddleware(
 		);
 		
 		if (!statistic) {
-			return Responses.FAILED(Responses.USER_NOT_FOUND);
+			return responses.user404;
 		}
 		
 		const { metric, accuracy } = await OsuDroidStatsHelper.batchCalculate(
@@ -83,7 +83,7 @@ export const clientGetLoginRouter = commonRequestMiddleware(
 		
 		putSessionCookie(ctx, session);
 		
-		return Responses.SUCCESS(
+		return responses.ok(
 			user.id.toString(),
 			session.id.toString(),
 			rank.toString(),

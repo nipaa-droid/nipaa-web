@@ -1,5 +1,4 @@
 import { OsuDroidScore, OsuDroidStats } from "@prisma/client";
-import { Responses } from "../../../api/Responses";
 import { GameRules } from "../../../database/GameRules";
 import {
 	isSubmissionScoreReturnError,
@@ -15,6 +14,7 @@ import { shapeWithUserID } from "../../shapes";
 import { AtLeast } from "../../../utils/types";
 import { prisma } from "../../../../lib/prisma";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
+import { responses } from "../../responses";
 
 const path = "submit";
 
@@ -58,15 +58,14 @@ export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
 		const { user } = session;
 		const { data } = input;
 		
-		const fail = (reason: string) =>
-			Responses.FAILED(`Failed to submit score. ${reason}`);
+		const fail = (reason: string) => responses.no(`Failed to submit score. ${reason}`);
 		
 		if (!user) {
-			return Responses.FAILED(Responses.USER_NOT_FOUND);
+			return responses.user404;
 		}
 		
 		if (!user.playing) {
-			return Responses.FAILED("User is not playing a map.");
+			return responses.no("User is not playing a map.");
 		}
 		
 		const statistics: OsuDroidStats[] = user.stats.map((s) => {
@@ -125,7 +124,7 @@ export const clientGetSubmitRouter = protectedWithCookieBasedSessionMiddleware(
 				...extraResponse,
 			];
 			
-			return Responses.SUCCESS(...response);
+			return responses.ok(...response);
 		};
 		
 		if (!OsuDroidScoreHelper.isBeatmapSubmittable(map)) {

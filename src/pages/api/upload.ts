@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { Responses } from "../../api/Responses";
 import { HTTPMethod } from "../../http/HTTPMethod";
 import { HTTPStatusCode } from "../../http/HTTPStatusCodes";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -20,6 +19,7 @@ import { AccuracyUtils } from "../../osu/droid/AccuracyUtils";
 import { mean } from "lodash";
 import { ServerConstants } from "../../constants";
 import { DroidDifficultyCalculator } from "@rian8337/osu-difficulty-calculator";
+import { responses } from "../../server/responses";
 
 const schema = z.object({
 	fields: z.object({
@@ -57,7 +57,7 @@ export default async function handler(
 	if (!verified.success) {
 		res
 			.status(HTTPStatusCode.BAD_REQUEST)
-			.send(Responses.FAILED(Responses.INVALID_REQUEST_BODY));
+			.send(responses.invalidBody);
 		return;
 	}
 	
@@ -84,7 +84,7 @@ export default async function handler(
 			console.log("Suspiciously long wait time to upload score replay.");
 			res
 				.status(HTTPStatusCode.BAD_REQUEST)
-				.send(Responses.FAILED("Took too long to upload replay file."));
+				.send(responses.no("Took too long to upload replay file."));
 			
 			return false;
 		}
@@ -131,7 +131,7 @@ export default async function handler(
 		console.log("Score not found.");
 		res
 			.status(HTTPStatusCode.BAD_REQUEST)
-			.send(Responses.FAILED("Failed to find score to upload replay."));
+			.send(responses.no("Failed to find score to upload replay."));
 		return;
 	}
 	
@@ -140,7 +140,7 @@ export default async function handler(
 		res
 			.status(HTTPStatusCode.BAD_REQUEST)
 			.send(
-				Responses.FAILED(
+				responses.no(
 					"The uploaded score isn't the best score from the user on that beatmap."
 				)
 			);
@@ -210,14 +210,14 @@ export default async function handler(
 		await invalidateReplay();
 		return res
 			.status(HTTPStatusCode.BAD_REQUEST)
-			.send(Responses.FAILED("Map not found."));
+			.send(responses.no("Map not found."));
 	}
 	
 	if (score.replay) {
 		console.log("Suspicious, replay is already uploaded.");
 		res
 			.status(HTTPStatusCode.BAD_REQUEST)
-			.send(Responses.FAILED("Score already has a replay."));
+			.send(responses.no("Score already has a replay."));
 		return;
 	}
 	
@@ -235,7 +235,7 @@ export default async function handler(
 	if (!rawReplay) {
 		res
 			.status(HTTPStatusCode.BAD_REQUEST)
-			.send(Responses.FAILED("Couldn't load raw replay file"));
+			.send(responses.no("Couldn't load raw replay file"));
 		return;
 	}
 	
@@ -244,7 +244,7 @@ export default async function handler(
 	if (!replayString.startsWith(ADDITIONAL_CHECK_STRING)) {
 		res
 			.status(HTTPStatusCode.BAD_REQUEST)
-			.send(Responses.FAILED("Failed to check validity of replay."));
+			.send(responses.no("Failed to check validity of replay."));
 		return;
 	}
 	
@@ -265,14 +265,14 @@ export default async function handler(
 	const { data: replayData } = replay;
 	
 	/**
-	 * We then estimate the score for double checking.
+	 * We then estimate the score for double-checking.
 	 */
 	const estimatedScore = ReplayAnalyzerUtils.estimateScore(
 		replay as BeatmapReplayAnalyzerWithData
 	);
 	
 	/**
-	 * We are less harsher with date for replays intentionally.
+	 * We are less harsh with date for replays intentionally.
 	 */
 	const verifiedReplayInputDate = await verifyDate(
 		replayData.time,
