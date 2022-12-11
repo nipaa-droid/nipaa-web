@@ -1,7 +1,7 @@
 import { ANY_STRING } from "./strings";
 
 export const getLeaderboardPage = (page = 1, mods = ANY_STRING) =>
-	`/leaderboard/${mods}/${page}`;
+  `/leaderboard/${mods}/${page}`;
 
 export const getHomePage = () => `/`;
 

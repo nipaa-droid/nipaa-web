@@ -10,58 +10,58 @@ import { putSessionCookie } from "../../utils";
 import { commonRequestMiddleware } from "../../middlewares";
 
 export const webLoginRouter = commonRequestMiddleware(createRouter()).mutation(
-	"web-login",
-	{
-		input: z.object({
-			...shapeWithUsernameWithPassword,
-		}),
-		async resolve({ input, ctx }) {
-			const { username, password } = input;
-			
-			const user = await prisma.osuDroidUser.findUnique({
-				where: {
-					name: username,
-				},
-				select: {
-					id: true,
-					sessions: true,
-					password: true,
-				},
-			});
-			
-			if (!user) {
-				throw TRPC_ERRORS.UNAUTHORIZED;
-			}
-			
-			const authorized = await OsuDroidUserHelper.validatePassword(
-				password,
-				user.password
-			);
-			
-			if (!authorized) {
-				throw TRPC_ERRORS.UNAUTHORIZED;
-			}
-			
-			const session = await OsuDroidUserHelper.createSession(
-				user.id,
-				user.sessions
-			);
-			
-			/**
-			 * We must rewrite cookie path so it is loaded by the client properly
-			 * by properly meaning when the user enters any page without any delay
-			 */
-			putSessionCookie(ctx, session);
-			
-			/**
-			 * This cookie indicates that there is the http only session cookie for the client
-			 */
-			setCookie(ctx, CookieNames.HAS_SESSION_COOKIE, Number(true).toString(), {
-				path: "/",
-				secure: true,
-				sameSite: "strict",
-				expires: session.expires,
-			});
-		},
-	}
+  "web-login",
+  {
+    input: z.object({
+      ...shapeWithUsernameWithPassword,
+    }),
+    async resolve({ input, ctx }) {
+      const { username, password } = input;
+      
+      const user = await prisma.osuDroidUser.findUnique({
+        where: {
+          name: username,
+        },
+        select: {
+          id: true,
+          sessions: true,
+          password: true,
+        },
+      });
+      
+      if (!user) {
+        throw TRPC_ERRORS.UNAUTHORIZED;
+      }
+      
+      const authorized = await OsuDroidUserHelper.validatePassword(
+        password,
+        user.password
+      );
+      
+      if (!authorized) {
+        throw TRPC_ERRORS.UNAUTHORIZED;
+      }
+      
+      const session = await OsuDroidUserHelper.createSession(
+        user.id,
+        user.sessions
+      );
+      
+      /**
+       * We must rewrite cookie path so it is loaded by the client properly
+       * by properly meaning when the user enters any page without any delay
+       */
+      putSessionCookie(ctx, session);
+      
+      /**
+       * This cookie indicates that there is the http only session cookie for the client
+       */
+      setCookie(ctx, CookieNames.HAS_SESSION_COOKIE, Number(true).toString(), {
+        path: "/",
+        secure: true,
+        sameSite: "strict",
+        expires: session.expires,
+      });
+    },
+  }
 );

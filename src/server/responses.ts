@@ -1,6 +1,6 @@
 export enum NipaaResponseHead {
-	SUCCESS = "SUCCESS",
-	FAIL = "FAIL"
+  SUCCESS = "SUCCESS",
+  FAIL = "FAIL"
 }
 
 type NipaaResponseFunction = (...args: string[]) => string;
@@ -12,10 +12,10 @@ const ok: NipaaResponseFunction = (...args: string[]) => build(NipaaResponseHead
 const no: NipaaResponseFunction = (...args: string[]) => build(NipaaResponseHead.FAIL, ...args);
 
 export const responses = {
-	invalidBody: no("Invalid request body."),
-	user404: no("User not found."),
-	ok,
-	no,
-	list,
+  invalidBody: no("Invalid request body."),
+  user404: no("User not found."),
+  ok,
+  no,
+  list,
 };
 

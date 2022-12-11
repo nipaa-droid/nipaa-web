@@ -8,18 +8,18 @@ import { loadedFormatters, loadedLocales, locales } from './i18n-util';
 import en from './en';
 
 const localeTranslations = {
-	en,
+  en,
 };
 
 export const loadLocale = (locale: Locales): void => {
-	if (loadedLocales[locale]) return;
-	
-	loadedLocales[locale] = localeTranslations[locale] as unknown as Translations;
-	loadFormatters(locale);
+  if (loadedLocales[locale]) return;
+  
+  loadedLocales[locale] = localeTranslations[locale] as unknown as Translations;
+  loadFormatters(locale);
 };
 
 export const loadAllLocales = (): void => locales.forEach(loadLocale);
 
 export const loadFormatters = (locale: Locales): void => {
-	loadedFormatters[locale] = initFormatters(locale);
+  loadedFormatters[locale] = initFormatters(locale);
 };
