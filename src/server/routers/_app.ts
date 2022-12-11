@@ -15,19 +15,19 @@ import { webRefreshmentEndpoint } from "./web/refresh";
 import { changeEmailRouter } from "./web/change_email";
 
 export const appRouter = createRouter()
-  .merge(clientGetRankRouter)
-  .merge(clientGetTopRouter)
-  .merge(clientGetLoginRouter)
-  .merge(clientGetRegisterRouter)
-  .merge(clientGetSubmitRouter)
-  .merge(clientGetPlayRouter)
-  .merge(trpcGlobalLeaderboardRouter)
-  .merge(cron1DayRouter)
-  .merge(webLoginRouter)
-  .merge(webGetUserInformationFromSession)
-  .merge(webLogoutRouter)
-  .merge(cron1hourRouter)
-  .merge(webRefreshmentEndpoint)
-  .merge(changeEmailRouter);
+	.merge(clientGetRankRouter)
+	.merge(clientGetTopRouter)
+	.merge(clientGetLoginRouter)
+	.merge(clientGetRegisterRouter)
+	.merge(clientGetSubmitRouter)
+	.merge(clientGetPlayRouter)
+	.merge(trpcGlobalLeaderboardRouter)
+	.merge(cron1DayRouter)
+	.merge(webLoginRouter)
+	.merge(webGetUserInformationFromSession)
+	.merge(webLogoutRouter)
+	.merge(cron1hourRouter)
+	.merge(webRefreshmentEndpoint)
+	.merge(changeEmailRouter);
 
 export type AppRouter = typeof appRouter;

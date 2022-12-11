@@ -1,47 +1,47 @@
 import { z } from "zod";
 
 export const shapeWithID = {
-  id: z.string(),
+	id: z.string(),
 };
 
 export const shapeWithHash = {
-  hash: z.string().length(32),
+	hash: z.string().length(32),
 };
 
 export const shapeWithSecret = {
-  secret: z.string(),
+	secret: z.string(),
 };
 
 export const shapeWithUserID = {
-  userID: z.string(),
+	userID: z.string(),
 };
 
 export const shapeWithUsername = {
-  username: z.string().min(4).max(16).trim(),
+	username: z.string().min(4).max(16).trim(),
 };
 
 export const shapeWithPassword = {
-  password: z.string().min(8).max(32),
+	password: z.string().min(8).max(32),
 };
 
 export const shapeWithNoHintedPassword = {
-  passowrd: z.string(),
+	passowrd: z.string(),
 };
 
 export const shapeWithConfirmationPassword = {
-  confirmationPassword: z.string(),
+	confirmationPassword: z.string(),
 };
 
 export const shapeWithEmail = {
-  email: z.string().email(),
+	email: z.string().email(),
 };
 
 export const shapeWithUsernameWithPassword = {
-  ...shapeWithUsername,
-  ...shapeWithPassword,
+	...shapeWithUsername,
+	...shapeWithPassword,
 };
 
 export const shapeWithAuthentication = {
-  ...shapeWithEmail,
-  ...shapeWithUsernameWithPassword,
+	...shapeWithEmail,
+	...shapeWithUsernameWithPassword,
 };

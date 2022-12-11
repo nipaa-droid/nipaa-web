@@ -1,3 +1,3 @@
 export class AuthConstants {
-  static readonly rounds = 10;
+	static readonly rounds = 10;
 }

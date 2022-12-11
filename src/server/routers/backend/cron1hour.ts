@@ -7,23 +7,23 @@ import { shapeWithSecret } from "../../shapes";
 const path = "cron-1-hour";
 
 export const cron1hourRouter = requiredApplicationSecretMiddleware(
-  createRouter()
+	createRouter()
 ).mutation(path, {
-  meta: {
-    openapi: { enabled: true, method: "PATCH", path: toApiEndpoint(path) },
-  },
-  input: z.object({
-    ...shapeWithSecret,
-  }),
-  output: z.any(),
-  async resolve() {
-    // Deletes expired sessions
-    await prisma.userSession.deleteMany({
-      where: {
-        expires: {
-          lt: new Date(),
-        },
-      },
-    });
-  },
+	meta: {
+		openapi: { enabled: true, method: "PATCH", path: toApiEndpoint(path) },
+	},
+	input: z.object({
+		...shapeWithSecret,
+	}),
+	output: z.any(),
+	async resolve() {
+		// Deletes expired sessions
+		await prisma.userSession.deleteMany({
+			where: {
+				expires: {
+					lt: new Date(),
+				},
+			},
+		});
+	},
 });

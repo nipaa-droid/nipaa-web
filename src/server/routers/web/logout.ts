@@ -6,20 +6,20 @@ import { createRouter } from "../../createRouter";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 
 export const webLogoutRouter = protectedWithCookieBasedSessionMiddleware(
-  createRouter(),
-  {
-    id: true,
-  }
+	createRouter(),
+	{
+		id: true,
+	}
 ).mutation("web-logout", {
-  input: z.any(),
-  output: z.any(),
-  async resolve({ ctx }) {
-    const { session } = ctx;
-
-    // we want to destroy the main session cookie so path = "/"
-    destroyCookie(ctx, CookieNames.SESSION_ID, { path: "/" });
-    destroyCookie(ctx, CookieNames.HAS_SESSION_COOKIE, { path: "/" });
-
-    await OsuDroidUserHelper.deleteSession(session.id);
-  },
+	input: z.any(),
+	output: z.any(),
+	async resolve({ ctx }) {
+		const { session } = ctx;
+		
+		// we want to destroy the main session cookie so path = "/"
+		destroyCookie(ctx, CookieNames.SESSION_ID, { path: "/" });
+		destroyCookie(ctx, CookieNames.HAS_SESSION_COOKIE, { path: "/" });
+		
+		await OsuDroidUserHelper.deleteSession(session.id);
+	},
 });

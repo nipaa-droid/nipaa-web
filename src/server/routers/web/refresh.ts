@@ -4,13 +4,13 @@ import { createRouter } from "../../createRouter";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 
 export const webRefreshmentEndpoint = protectedWithCookieBasedSessionMiddleware(
-  createRouter(),
-  { id: true, expires: true }
+	createRouter(),
+	{ id: true, expires: true }
 ).mutation("web-refresh", {
-  input: z.any(),
-  output: z.any(),
-  async resolve({ ctx }) {
-    const { session } = ctx;
-    await OsuDroidUserHelper.refreshSession(session);
-  },
+	input: z.any(),
+	output: z.any(),
+	async resolve({ ctx }) {
+		const { session } = ctx;
+		await OsuDroidUserHelper.refreshSession(session);
+	},
 });

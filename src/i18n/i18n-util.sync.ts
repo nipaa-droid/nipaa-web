@@ -13,7 +13,7 @@ const localeTranslations = {
 
 export const loadLocale = (locale: Locales): void => {
 	if (loadedLocales[locale]) return
-
+	
 	loadedLocales[locale] = localeTranslations[locale] as unknown as Translations
 	loadFormatters(locale)
 }

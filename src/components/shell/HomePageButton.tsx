@@ -4,11 +4,11 @@ import { getHomePage } from "../../utils/router";
 import { ShellButton, ShellButtonProps } from "./ShellButton";
 
 export const HomePageButton = (props: ShellButtonProps) => {
-  const { LL } = useI18nContext();
-
-  return (
-    <Link href={getHomePage()} passHref>
-      <ShellButton {...props}>{LL.home()}</ShellButton>
-    </Link>
-  );
+	const { LL } = useI18nContext();
+	
+	return (
+		<Link href={getHomePage()} passHref>
+			<ShellButton {...props}>{LL.home()}</ShellButton>
+		</Link>
+	);
 };
