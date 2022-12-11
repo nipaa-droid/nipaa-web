@@ -6,9 +6,9 @@ import { AtLeast, MustHave, UndefinableKeys } from "../../utils/types";
 import { GameRules } from "../GameRules";
 import { GameMetrics } from "../GameMetrics";
 import {
-  OsuDroidScoreAccuracyCalculatable,
-  OsuDroidScoreHelper,
-  OsuDroidScoreHitDataKeys,
+	OsuDroidScoreAccuracyCalculatable,
+	OsuDroidScoreHelper,
+	OsuDroidScoreHitDataKeys,
 } from "./OsuDroidScoreHelper";
 
 export type OsuDroidStatsToCalculateScores = AtLeast<

@@ -1,9 +1,9 @@
 import { OsuDroidScore, OsuDroidStats } from "@prisma/client";
 import { GameRules } from "../../../database/GameRules";
 import {
-  isSubmissionScoreReturnError,
-  OsuDroidScoreHelper,
-  SCORE_LEADERBOARD_SCORE_METRIC_KEY,
+	isSubmissionScoreReturnError,
+	OsuDroidScoreHelper,
+	SCORE_LEADERBOARD_SCORE_METRIC_KEY,
 } from "../../../database/helpers/OsuDroidScoreHelper";
 import { OsuDroidStatsBatchCalculate, OsuDroidStatsHelper, } from "../../../database/helpers/OsuDroidStatsHelper";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
