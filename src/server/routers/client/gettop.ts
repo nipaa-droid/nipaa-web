@@ -5,10 +5,10 @@ import {
   SCORE_LEADERBOARD_SCORE_METRIC_KEY,
 } from "../../../database/helpers/OsuDroidScoreHelper";
 import { prisma } from "../../../../lib/prisma";
-import { BeatmapManager } from "../../../database/managers/BeatmapManager";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
 import { responses } from "../../responses";
+import { fetchBeatmap } from "../../../database/managers/beatmaps";
 
 const path = "gettop";
 
@@ -61,7 +61,7 @@ export const clientGetTopRouter = protectedWithCookieBasedSessionMiddleware(
       return responses.no("Score not found.");
     }
     
-    const map = await BeatmapManager.fetchBeatmap(score.beatmap!.hash);
+    const map = await fetchBeatmap(score.beatmap!.hash);
     
     if (!map) {
       return responses.no("Couldn't retrieve beatmap for the score");

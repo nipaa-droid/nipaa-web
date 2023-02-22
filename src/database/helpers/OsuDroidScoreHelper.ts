@@ -14,12 +14,12 @@ import {
   OsuDroidScoreMetric,
 } from "../GameRules";
 import { ScoreGrade } from "../../osu/ScoreGrade";
-import { BeatmapManager } from "../managers/BeatmapManager";
 import { GameMetrics } from "../GameMetrics";
 import { OsuDroidUserHelper } from "./OsuDroidUserHelper";
 import { prisma } from "../../../lib/prisma";
 import { Numbers } from "../../utils/number";
 import { AtLeast, MustHave, Tuple } from "../../utils/types";
+import { fetchBeatmap } from "../managers/beatmaps";
 
 const getActiveScoreMetricKeyFor = (
   metric: OsuDroidScoreMetric | GameMetrics
@@ -253,7 +253,7 @@ export class OsuDroidScoreHelper {
       };
     }
     
-    const mapInfo = await BeatmapManager.fetchBeatmap(user.playing);
+    const mapInfo = await fetchBeatmap(user.playing);
     
     if (!mapInfo || !mapInfo.beatmap) {
       return {

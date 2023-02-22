@@ -5,7 +5,6 @@ import {
   SCORE_LEADERBOARD_SCORE_METRIC_KEY,
 } from "../../../database/helpers/OsuDroidScoreHelper";
 import { OsuDroidUserHelper } from "../../../database/helpers/OsuDroidUserHelper";
-import { BeatmapManager } from "../../../database/managers/BeatmapManager";
 import { AccuracyUtils } from "../../../osu/droid/AccuracyUtils";
 import { SubmissionStatusUtils } from "../../../osu/droid/enum/SubmissionStatus";
 import { createRouter, toApiClientTrpc, toApiEndpoint, } from "../../createRouter";
@@ -14,6 +13,7 @@ import { shapeWithHash } from "../../shapes";
 import { ServerConstants } from "../../../constants";
 import { protectedWithCookieBasedSessionMiddleware } from "../../middlewares";
 import { responses } from "../../responses";
+import { fetchBeatmap } from "../../../database/managers/beatmaps";
 
 const path = "getrank";
 
@@ -42,7 +42,7 @@ export const clientGetRankRouter = protectedWithCookieBasedSessionMiddleware(
       return responses.ok(responseScores.join("\n"));
     };
     
-    const beatmap = await BeatmapManager.fetchBeatmap(hash);
+    const beatmap = await fetchBeatmap(hash);
     
     if (!beatmap) {
       return end();

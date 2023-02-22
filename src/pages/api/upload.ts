@@ -6,7 +6,6 @@ import { IncomingForm } from "formidable";
 import { differenceInSeconds } from "date-fns";
 import { prisma } from "../../../lib/prisma";
 import { SubmissionStatusUtils } from "../../osu/droid/enum/SubmissionStatus";
-import { BeatmapManager } from "../../database/managers/BeatmapManager";
 import fs from "fs/promises";
 import { OsuDroidScoreHelper, SCORE_GLOBAL_LEADERBOARD_METRIC_KEY, } from "../../database/helpers/OsuDroidScoreHelper";
 import { Prisma } from "@prisma/client";
@@ -20,6 +19,7 @@ import { mean } from "lodash";
 import { ServerConstants } from "../../constants";
 import { DroidDifficultyCalculator } from "@rian8337/osu-difficulty-calculator";
 import { responses } from "../../server/responses";
+import { fetchBeatmap } from "../../database/managers/beatmaps";
 
 const schema = z.object({
   fields: z.object({
@@ -204,7 +204,7 @@ export default async function handler(
     return;
   };
   
-  const mapInfo = await BeatmapManager.fetchBeatmap(score.beatmap!.hash);
+  const mapInfo = await fetchBeatmap(score.beatmap!.hash);
   
   if (!mapInfo || !mapInfo.beatmap) {
     await invalidateReplay();
